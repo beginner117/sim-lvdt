@@ -10,8 +10,6 @@ output_files = []
 
 legends = []
 inputdata = []
-Norm_OutCoil_Signals = []
-fitted_Norm_OutCoil_Signals = []
 
 for i in range(0,len(output_files)):
     inputarray = np.loadtxt(output_files[i], dtype=complex)
