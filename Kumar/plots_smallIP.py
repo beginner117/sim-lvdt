@@ -36,8 +36,8 @@ for i in range(0,len(output_files)):
 plt.ylabel('Upper Out Coil Voltage [V] ')
 plt.xlabel('Inner Coil Position [mm]')
 plt.legend()
-plt.savefig("upp_out.png")
-shutil.move("upp_out.png", r"C:\Users\kumar\OneDrive\Desktop\pi\lvdt\small, large ip\small_IP\res\innwidth_2")
+#plt.savefig("upp_out.png")
+#shutil.move("upp_out.png", r"C:\Users\kumar\OneDrive\Desktop\pi\lvdt\small, large ip\small_IP\res\innwidth_2")
 plt.show()
 
 for i in range(0,len(output_files)):
@@ -45,8 +45,8 @@ for i in range(0,len(output_files)):
 plt.ylabel('Lower Out Coil Voltage [V] ')
 plt.xlabel('Inner Coil Position [mm]')
 plt.legend()
-plt.savefig("low_out.png")
-shutil.move("low_out.png", r"C:\Users\kumar\OneDrive\Desktop\pi\lvdt\small, large ip\small_IP\res\innwidth_2")
+#plt.savefig("low_out.png")
+#shutil.move("low_out.png", r"C:\Users\kumar\OneDrive\Desktop\pi\lvdt\small, large ip\small_IP\res\innwidth_2")
 plt.show()
 
 for i in range(0,len(output_files)):
@@ -54,8 +54,8 @@ for i in range(0,len(output_files)):
 plt.ylabel('Inner Out Coil Voltage [V]')
 plt.xlabel('Inner Coil Position [mm]')
 plt.legend()
-plt.savefig("Inn_vol.png")
-shutil.move("Inn_vol.png", r"C:\Users\kumar\OneDrive\Desktop\pi\lvdt\small, large ip\small_IP\res\innwidth_2")
+#plt.savefig("Inn_vol.png")
+#shutil.move("Inn_vol.png", r"C:\Users\kumar\OneDrive\Desktop\pi\lvdt\small, large ip\small_IP\res\innwidth_2")
 plt.show()
 
 for i in range(0,len(output_files)):
@@ -63,8 +63,8 @@ for i in range(0,len(output_files)):
 plt.ylabel('Normalised Out Coil signal [V/mmA]')
 plt.xlabel('Inner Coil Position [mm]')
 plt.legend()
-plt.savefig("norm_sig.png")
-shutil.move("norm_sig.png", r"C:\Users\kumar\OneDrive\Desktop\pi\lvdt\small, large ip\small_IP\res\innwidth_2")
+#plt.savefig("norm_sig.png")
+#shutil.move("norm_sig.png", r"C:\Users\kumar\OneDrive\Desktop\pi\lvdt\small, large ip\small_IP\res\innwidth_2")
 plt.show()
 
 for i in range(0,len(output_files)):
@@ -73,8 +73,8 @@ plt.ylabel('Normalised Fit Error [%]')
 plt.xlabel('Inner Coil Position [mm]')
 plt.ylim(0,0.4)
 plt.legend()
-plt.savefig("normfiterr.png")
-shutil.move("normfiterr.png", r"C:\Users\kumar\OneDrive\Desktop\pi\lvdt\small, large ip\small_IP\res\innwidth_2")
+#plt.savefig("normfiterr.png")
+#shutil.move("normfiterr.png", r"C:\Users\kumar\OneDrive\Desktop\pi\lvdt\small, large ip\small_IP\res\innwidth_2")
 plt.show()
 
 
