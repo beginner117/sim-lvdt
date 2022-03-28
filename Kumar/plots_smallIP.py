@@ -2,15 +2,20 @@ import numpy as np
 import cmath
 import scipy.optimize as opt
 import matplotlib.pyplot as plt
+import os
 import shutil
 import warnings
 warnings.filterwarnings('ignore')
 
-# output_file data : [0]-position, [1]-upp_out_vol, [2]-low_out_vol, [3]-inn_vol, [4]-Norm_Out_Sig, [5]-fit_err (or) fit, [6]-norm-fit
-output_files = ["dist9.txt", "mir_def.txt", "dist11.txt",  "dist12.txt"]
-
-legends = ["dist = 9", "dist = 10(def)", "dist = 11", "dist = 12"]
+# output_file data : [0]-position, [1]-upp_out_vol, [2]-low_out_vol, [3]-inn_vol, [4]-Norm_Out_Sig, [5]-fit_err(1) , [6]-norm-fit(1), [7]-fit1
+output_files = ["wid:7_7,5.txt", "wid:8_8,5.txt", "wid:9_9,5.txt"]
+legends = []
 inputdata = []
+directory = " "
+parent_dir = "C:\\Users\\kumar\\OneDrive\\Desktop\\pi\\mirror\\res"
+path = os.path.join(parent_dir, directory)
+os.mkdir(path)
+data = path
 
 #for i in range(0,len(output_files)):
 #    inputarray = np.loadtxt(output_files[i], dtype=complex)
@@ -27,6 +32,7 @@ print(np.array(inputdata[1][1]).real.tolist())
 print(np.array(inputdata[1][0]).real.tolist())
 print(len(output_files))
 
+'''
 plt.style.use(['science','grid','notebook'])
 
 for i in range(0,len(output_files)):
@@ -35,7 +41,7 @@ plt.ylabel('Upper Out Coil Voltage [V] ')
 plt.xlabel('Inner Coil Position [mm]')
 plt.legend()
 plt.savefig("upp_out.png")
-shutil.move("upp_out.png", r"C:\Users\kumar\OneDrive\Desktop\pi\mirror\res\dist")
+shutil.move("upp_out.png", data)
 plt.show()
 
 for i in range(0,len(output_files)):
@@ -44,7 +50,7 @@ plt.ylabel('Lower Out Coil Voltage [V] ')
 plt.xlabel('Inner Coil Position [mm]')
 plt.legend()
 plt.savefig("low_out.png")
-shutil.move("low_out.png", r"C:\Users\kumar\OneDrive\Desktop\pi\mirror\res\dist")
+shutil.move("low_out.png", data)
 plt.show()
 
 for i in range(0,len(output_files)):
@@ -53,16 +59,17 @@ plt.ylabel('Inner Out Coil Voltage [V]')
 plt.xlabel('Inner Coil Position [mm]')
 plt.legend()
 plt.savefig("Inn_vol.png")
-shutil.move("Inn_vol.png", r"C:\Users\kumar\OneDrive\Desktop\pi\mirror\res\dist")
+shutil.move("Inn_vol.png", data)
 plt.show()
-
+'''
+plt.style.use(['science','grid','notebook'])
 for i in range(0,len(output_files)):
     plt.plot(np.array(inputdata[i][0]).real.tolist(), np.array(inputdata[i][4]).real.tolist(), 'o-', label=legends[i])
 plt.ylabel('Normalised Out Coil signal [V/mmA]')
 plt.xlabel('Inner Coil Position [mm]')
 plt.legend()
 plt.savefig("norm_sig.png")
-shutil.move("norm_sig.png", r"C:\Users\kumar\OneDrive\Desktop\pi\mirror\res\dist")
+shutil.move("norm_sig.png", data)
 plt.show()
 
 for i in range(0,len(output_files)):
@@ -72,7 +79,7 @@ plt.xlabel('Inner Coil Position [mm]')
 plt.ylim(0,4)
 plt.legend()
 plt.savefig("normfiterr.png")
-shutil.move("normfiterr.png", r"C:\Users\kumar\OneDrive\Desktop\pi\mirror\res\dist")
+shutil.move("normfiterr.png", data)
 plt.show()
 
 
@@ -82,11 +89,20 @@ plt.ylabel('Fit Error [V/mmA]')
 plt.xlabel('Inner Coil Position [mm]')
 plt.legend()
 plt.savefig("fiterr.png")
-shutil.move("fiterr.png", r"C:\Users\kumar\OneDrive\Desktop\pi\mirror\res\dist")
+shutil.move("fiterr.png", data)
 plt.show()
 
+for i in range(0,len(output_files)):
+    plt.plot(np.array(inputdata[i][0]).real.tolist(), np.array(inputdata[i][7]).real.tolist(), 'o-', label=legends[i])
+plt.ylabel('Fit Norm. Out Coil signal [V/mmA]')
+plt.xlabel('Inner Coil Position [mm]')
+plt.legend()
+plt.savefig("fit_norm_sig.png")
+shutil.move("fit_norm_sig.png", data)
+plt.show()
 
-'''
+#default fit
+#'''
 fit_d = [-7.12219038e+01, -6.40996332e+01, -5.69773626e+01, -4.98550920e+01,
  -4.27328214e+01, -3.56105508e+01, -2.84882801e+01, -2.13660095e+01,
  -1.42437389e+01, -7.12146834e+00,  8.02260464e-04,  7.12307286e+00,
@@ -103,17 +119,17 @@ plt.ylabel('Norm_signals - Default Fit(-1,1) [V/mmA] ')
 plt.xlabel('Inner Coil Position [mm]')
 plt.legend()
 plt.savefig("outrad_tail.png")
-shutil.move("outrad_tail.png", r"C:Users\kumar\OneDrive\Desktop\pi\lvdt\small, large ip\small_IP\res")
+shutil.move("outrad_tail.png", data)
 plt.show()
 
 #norm_fit_err1 = (abs(np.array(inputdata[i][4]) - a1) / abs(np.array(inputdata[i][4])))*100
 for i in range(0,len(output_files)):
     plt.plot(np.array(inputdata[i][0]).real.tolist(), (abs(np.array(inputdata[i][4]) - a1) / abs(np.array(inputdata[i][4])))*100, 'o-', label=legends[i])
-plt.ylabel('$\dfrac{(Norm.signals - Default Fit(-1,1))}{Norm.signals}$  [V/mmA] ')
+plt.ylabel('$\dfrac{(Norm.signals - Default Fit(-1,1))}{Norm.signals}$  [%] ')
 plt.xlabel('Inner Coil Position [mm]')
-#plt.ylim(0, 15)
+#plt.ylim(0, 60)
 plt.legend()
 plt.savefig("outrad_tail_nor.png")
-shutil.move("outrad_tail_nor.png", r"C:Users\kumar\OneDrive\Desktop\pi\lvdt\small, large ip\small_IP\res")
+shutil.move("outrad_tail_nor.png", data)
 plt.show()
-'''
+#'''
