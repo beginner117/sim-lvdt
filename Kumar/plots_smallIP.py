@@ -8,14 +8,19 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # output_file data : [0]-position, [1]-upp_out_vol, [2]-low_out_vol, [3]-inn_vol, [4]-Norm_Out_Sig, [5]-fit_err(1) , [6]-norm-fit(1), [7]-fit1
-output_files = ["wid:7_7,5.txt", "wid:8_8,5.txt", "wid:9_9,5.txt"]
-legends = []
+#output_files = ["dis:9,5.txt", "dis:10,5.txt", "dis:11,5.txt"]
+output_files = ["dis:9,6.txt", "dis:10,6.txt", "dis:11,6.txt"]
+legends = ["dist:9 ", "dist:10def", "dist:11"]
 inputdata = []
-directory = " "
-parent_dir = "C:\\Users\\kumar\\OneDrive\\Desktop\\pi\\mirror\\res"
-path = os.path.join(parent_dir, directory)
-os.mkdir(path)
-data = path
+
+save = 0
+if save == 1:
+    directory = "distance,6_inn "
+    parent_dir = "C:\\Users\\kumar\\OneDrive\\Desktop\\pi\\mirror\\res"
+    path = os.path.join(parent_dir, directory)
+    os.mkdir(path)
+    data = path
+
 
 #for i in range(0,len(output_files)):
 #    inputarray = np.loadtxt(output_files[i], dtype=complex)
@@ -40,8 +45,9 @@ for i in range(0,len(output_files)):
 plt.ylabel('Upper Out Coil Voltage [V] ')
 plt.xlabel('Inner Coil Position [mm]')
 plt.legend()
-plt.savefig("upp_out.png")
-shutil.move("upp_out.png", data)
+if save == 1:
+    plt.savefig("upp_out.png")
+    shutil.move("upp_out.png", data)
 plt.show()
 
 for i in range(0,len(output_files)):
@@ -49,8 +55,9 @@ for i in range(0,len(output_files)):
 plt.ylabel('Lower Out Coil Voltage [V] ')
 plt.xlabel('Inner Coil Position [mm]')
 plt.legend()
-plt.savefig("low_out.png")
-shutil.move("low_out.png", data)
+if save == 1:
+    plt.savefig("low_out.png")
+    shutil.move("low_out.png", data)
 plt.show()
 
 for i in range(0,len(output_files)):
@@ -58,8 +65,9 @@ for i in range(0,len(output_files)):
 plt.ylabel('Inner Out Coil Voltage [V]')
 plt.xlabel('Inner Coil Position [mm]')
 plt.legend()
-plt.savefig("Inn_vol.png")
-shutil.move("Inn_vol.png", data)
+if save == 1:
+    plt.savefig("Inn_vol.png")
+    shutil.move("Inn_vol.png", data)
 plt.show()
 '''
 plt.style.use(['science','grid','notebook'])
@@ -68,8 +76,9 @@ for i in range(0,len(output_files)):
 plt.ylabel('Normalised Out Coil signal [V/mmA]')
 plt.xlabel('Inner Coil Position [mm]')
 plt.legend()
-plt.savefig("norm_sig.png")
-shutil.move("norm_sig.png", data)
+if save == 1:
+    plt.savefig("norm_sig.png")
+    shutil.move("norm_sig.png", data)
 plt.show()
 
 for i in range(0,len(output_files)):
@@ -78,8 +87,9 @@ plt.ylabel('Normalised Fit Error [%]')
 plt.xlabel('Inner Coil Position [mm]')
 plt.ylim(0,4)
 plt.legend()
-plt.savefig("normfiterr.png")
-shutil.move("normfiterr.png", data)
+if save == 1:
+    plt.savefig("normfiterr.png")
+    shutil.move("normfiterr.png", r"C:\Users\kumar\OneDrive\Desktop\pi\mirror\res\dist,6_inn")
 plt.show()
 
 
@@ -88,8 +98,9 @@ for i in range(0,len(output_files)):
 plt.ylabel('Fit Error [V/mmA]')
 plt.xlabel('Inner Coil Position [mm]')
 plt.legend()
-plt.savefig("fiterr.png")
-shutil.move("fiterr.png", data)
+if save == 1:
+    plt.savefig("fiterr.png")
+    shutil.move("fiterr.png", data)
 plt.show()
 
 for i in range(0,len(output_files)):
@@ -97,8 +108,9 @@ for i in range(0,len(output_files)):
 plt.ylabel('Fit Norm. Out Coil signal [V/mmA]')
 plt.xlabel('Inner Coil Position [mm]')
 plt.legend()
-plt.savefig("fit_norm_sig.png")
-shutil.move("fit_norm_sig.png", data)
+if save == 1:
+    plt.savefig("fit_norm_sig.png")
+    shutil.move("fit_norm_sig.png", data)
 plt.show()
 
 #default fit
@@ -118,8 +130,9 @@ for i in range(0,len(output_files)):
 plt.ylabel('Norm_signals - Default Fit(-1,1) [V/mmA] ')
 plt.xlabel('Inner Coil Position [mm]')
 plt.legend()
-plt.savefig("outrad_tail.png")
-shutil.move("outrad_tail.png", data)
+if save == 1:
+    plt.savefig("outrad_tail.png")
+    shutil.move("outrad_tail.png", data)
 plt.show()
 
 #norm_fit_err1 = (abs(np.array(inputdata[i][4]) - a1) / abs(np.array(inputdata[i][4])))*100
@@ -129,7 +142,8 @@ plt.ylabel('$\dfrac{(Norm.signals - Default Fit(-1,1))}{Norm.signals}$  [%] ')
 plt.xlabel('Inner Coil Position [mm]')
 #plt.ylim(0, 60)
 plt.legend()
-plt.savefig("outrad_tail_nor.png")
-shutil.move("outrad_tail_nor.png", data)
+if save == 1:
+    plt.savefig("outrad_tail_nor.png")
+    shutil.move("outrad_tail_nor.png", data)
 plt.show()
 #'''
