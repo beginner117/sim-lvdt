@@ -9,14 +9,14 @@ warnings.filterwarnings('ignore')
 
 # output_file data : [0]-position, [1]-upp_out_vol, [2]-low_out_vol, [3]-inn_vol, [4]-Norm_Out_Sig, [5]-fit_err(1) , [6]-norm-fit(1), [7]-fit1
 #output_files = ["dis:9,5.txt", "dis:10,5.txt", "dis:11,5.txt"]
-output_files = ["dis:9,6.txt", "dis:10,6.txt", "dis:11,6.txt"]
-legends = ["dist:9 ", "dist:10def", "dist:11"]
+output_files = ["def_10khz.txt", "def_20khz.txt", "def_30khz.txt"]
+legends = ["10khz(def) ", "20khz", "30khz"]
 inputdata = []
 
 save = 0
 if save == 1:
-    directory = "distance,6_inn "
-    parent_dir = "C:\\Users\\kumar\\OneDrive\\Desktop\\pi\\mirror\\res"
+    directory = "freq_res "
+    parent_dir = r"C:\Users\kumar\OneDrive\Desktop\pi\lvdt\small, large ip\small_IP\res"
     path = os.path.join(parent_dir, directory)
     os.mkdir(path)
     data = path
@@ -114,7 +114,7 @@ if save == 1:
 plt.show()
 
 #default fit
-#'''
+'''
 fit_d = [-7.12219038e+01, -6.40996332e+01, -5.69773626e+01, -4.98550920e+01,
  -4.27328214e+01, -3.56105508e+01, -2.84882801e+01, -2.13660095e+01,
  -1.42437389e+01, -7.12146834e+00,  8.02260464e-04,  7.12307286e+00,
@@ -146,4 +146,4 @@ if save == 1:
     plt.savefig("outrad_tail_nor.png")
     shutil.move("outrad_tail_nor.png", data)
 plt.show()
-#'''
+'''

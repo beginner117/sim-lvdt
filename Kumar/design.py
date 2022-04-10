@@ -23,7 +23,7 @@ class Wiretype():
         return [0.2261, 0.0190, "31 AWG"]
 
     def prop32(self):
-        return [0.2032, 0.0178, "32 AWG"]
+        return [0.2032, 0.0178, "32 AWG", 58]
 
     def mag_mat(self):
         mat = "N40"
