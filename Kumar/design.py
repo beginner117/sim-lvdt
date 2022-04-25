@@ -36,8 +36,8 @@ class Wiretype():
 class Geometry():
     def __init__(self, inn_ht, inn_rad, inn_layers, inn_dist, out_ht, out_rad, out_layers, out_dist, mag_len, mag_dia, ver_shi):
 
-        self.inn_ht = inn_ht
-        self.inn_rad = inn_rad
+        self._inn_ht = inn_ht
+        self._inn_rad = inn_rad
         self.inn_layers = inn_layers
         self.inn_dist = inn_dist
         self.out_ht = out_ht
@@ -59,7 +59,7 @@ class Geometry():
 
 
 class Geometry1():
-    def __init__(self, innUP_ht, innLOW_ht, inn_rad, inn_layers, inn_dist, out_ht, out_rad, out_layers, out_dist, mag_ht, mag_rad, ver_shi):
+    def __init__(self, innUP_ht:float, innLOW_ht:float, inn_rad:float, inn_layers:float, inn_dist:float, out_ht:float, out_rad:float, out_layers:float, out_dist:float, mag_ht:float, mag_rad:float, ver_shi:float):
 
         self.innUP_ht = innUP_ht
         self.innLOW_ht = innLOW_ht
@@ -85,6 +85,22 @@ class Geometry1():
 
     def mag(self):
         return [self.mag_ht, self.mag_rad, self.ver_shi]
+
+class Position(Geometry1):
+    def __init__(self):
+
+        Geometry1.__init__(self)
+    def Low_Inncoil(self):
+        Low_Inncoil_OutRadius = Geometry1.Low_Inncoil()[1] + (
+                    (Wiretype.prop31()[0] + Wiretype.prop31()[1] * 2) * Geometry1.Low_Inncoil()[2])
+        Low_Inncoil_Lowend = -1 * (Geometry1.Low_Inncoil()[3] + (Geometry1.Low_Inncoil()[0]) / 2)
+        Low_Inncoil_Uppend = Low_Inncoil_Lowend + Geometry1.Low_Inncoil()[0]
+        Low_Inncoil_NrWind_p_Layer = (Geometry1.Upp_Inncoil()[0]) / (Wiretype.prop31()[0] + Wiretype.prop31()[1] * 2)
+        Low_Inncoil_NrWindings = Low_Inncoil_NrWind_p_Layer * Geometry1.Upp_Inncoil()[2]
+        Low_Inncoil_Circuit = "Low_Inncoil_Circuit"
+        return [Low_Inncoil_OutRadius, Low_Inncoil_Lowend, Low_Inncoil_Uppend, Low_Inncoil_NrWind_p_Layer,
+                Low_Inncoil_NrWindings,
+                Low_Inncoil_Circuit]
 
 
 class Blocks():
