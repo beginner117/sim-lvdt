@@ -7,16 +7,16 @@ import shutil
 import warnings
 warnings.filterwarnings('ignore')
 
-# output_file data : [0]-position, [1]-upp_out_vol, [2]-low_out_vol, [3]-inn_vol, [4]-Norm_Out_Sig, [5]-fit_err(1) , [6]-norm-fit(1), [7]-fit1
+# output_file data : [0]-position, [1]-upp_out_vol, [2]-low_out_vol, [3]-inn_vol, [4]-Norm_Out_Sig, [5]-fit_err(1) , [6]-norm-fit(1)
 #output_files = ["dis:9,5.txt", "dis:10,5.txt", "dis:11,5.txt"]
-output_files = ["def_10khz.txt", "def_20khz.txt", "def_30khz.txt"]
-legends = ["10khz(def) ", "20khz", "30khz"]
+output_files = ["lv_11", "lv_13", "lv_15", "lv_17"]
+legends = ["11,35(def)", "rad:(13,35)", "rad:(15,35)", "rad:(17,35)"]
 inputdata = []
 
-save = 0
+save = 1
 if save == 1:
-    directory = "freq_res "
-    parent_dir = r"C:\Users\kumar\OneDrive\Desktop\pi\lvdt\small, large ip\small_IP\res"
+    directory = "lv_radgap_comp"
+    parent_dir = r"C:\Users\kumar\OneDrive\Desktop\pi\bench"
     path = os.path.join(parent_dir, directory)
     os.mkdir(path)
     data = path
@@ -89,7 +89,7 @@ plt.ylim(0,4)
 plt.legend()
 if save == 1:
     plt.savefig("normfiterr.png")
-    shutil.move("normfiterr.png", r"C:\Users\kumar\OneDrive\Desktop\pi\mirror\res\dist,6_inn")
+    shutil.move("normfiterr.png", data)
 plt.show()
 
 
@@ -102,7 +102,7 @@ if save == 1:
     plt.savefig("fiterr.png")
     shutil.move("fiterr.png", data)
 plt.show()
-
+'''
 for i in range(0,len(output_files)):
     plt.plot(np.array(inputdata[i][0]).real.tolist(), np.array(inputdata[i][7]).real.tolist(), 'o-', label=legends[i])
 plt.ylabel('Fit Norm. Out Coil signal [V/mmA]')
@@ -111,39 +111,5 @@ plt.legend()
 if save == 1:
     plt.savefig("fit_norm_sig.png")
     shutil.move("fit_norm_sig.png", data)
-plt.show()
-
-#default fit
-'''
-fit_d = [-7.12219038e+01, -6.40996332e+01, -5.69773626e+01, -4.98550920e+01,
- -4.27328214e+01, -3.56105508e+01, -2.84882801e+01, -2.13660095e+01,
- -1.42437389e+01, -7.12146834e+00,  8.02260464e-04,  7.12307286e+00,
-  1.42453435e+01,  2.13676141e+01,  2.84898847e+01,  3.56121553e+01,
-  4.27344259e+01,  4.98566965e+01,  5.69789671e+01,  6.41012377e+01,
-  7.12235083e+01]
-a1 = np.array(fit_d)
-print(plt.style.available)
-
-plt.style.use(['science','grid','notebook'])
-for i in range(0,len(output_files)):
-    plt.plot(np.array(inputdata[i][0]).real.tolist(), abs(np.array(inputdata[i][4]).real.tolist()-a1), 'o-', label=legends[i])
-plt.ylabel('Norm_signals - Default Fit(-1,1) [V/mmA] ')
-plt.xlabel('Inner Coil Position [mm]')
-plt.legend()
-if save == 1:
-    plt.savefig("outrad_tail.png")
-    shutil.move("outrad_tail.png", data)
-plt.show()
-
-#norm_fit_err1 = (abs(np.array(inputdata[i][4]) - a1) / abs(np.array(inputdata[i][4])))*100
-for i in range(0,len(output_files)):
-    plt.plot(np.array(inputdata[i][0]).real.tolist(), (abs(np.array(inputdata[i][4]) - a1) / abs(np.array(inputdata[i][4])))*100, 'o-', label=legends[i])
-plt.ylabel('$\dfrac{(Norm.signals - Default Fit(-1,1))}{Norm.signals}$  [%] ')
-plt.xlabel('Inner Coil Position [mm]')
-#plt.ylim(0, 60)
-plt.legend()
-if save == 1:
-    plt.savefig("outrad_tail_nor.png")
-    shutil.move("outrad_tail_nor.png", data)
 plt.show()
 '''

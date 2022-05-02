@@ -36,8 +36,8 @@ class Wiretype():
 class Geometry():
     def __init__(self, inn_ht, inn_rad, inn_layers, inn_dist, out_ht, out_rad, out_layers, out_dist, mag_len, mag_dia, ver_shi):
 
-        self._inn_ht = inn_ht
-        self._inn_rad = inn_rad
+        self.inn_ht = inn_ht
+        self.inn_rad = inn_rad
         self.inn_layers = inn_layers
         self.inn_dist = inn_dist
         self.out_ht = out_ht
@@ -86,6 +86,7 @@ class Geometry1():
     def mag(self):
         return [self.mag_ht, self.mag_rad, self.ver_shi]
 
+'''
 class Position(Geometry1):
     def __init__(self):
 
@@ -101,7 +102,7 @@ class Position(Geometry1):
         return [Low_Inncoil_OutRadius, Low_Inncoil_Lowend, Low_Inncoil_Uppend, Low_Inncoil_NrWind_p_Layer,
                 Low_Inncoil_NrWindings,
                 Low_Inncoil_Circuit]
-
+'''
 
 class Blocks():
     def __init__(self):
