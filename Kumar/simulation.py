@@ -7,18 +7,19 @@ import matplotlib.pyplot as plt
 import os
 import shutil
 import threading
+import smallIP_LVDT
+import LVDT_F1F2_mirrortower
 
-import LVDT_F1F2_benchtower
-#import smallIP_VC_31AWG
 
 
-trail1 = LVDT_F1F2_benchtower.Analysis(11, "lv_11")
-trail2 = LVDT_F1F2_benchtower.Analysis(13, "lv_13")
-trail3 = LVDT_F1F2_benchtower.Analysis(15, "lv_15")
-trail4 = LVDT_F1F2_benchtower.Analysis(17, "lv_17")
-#trail3 = thread1.Trail(9, "check3")
+trail1 = smallIP_LVDT.Analysis(23, "inn23")
+trail2 = smallIP_LVDT.Analysis(25, "inn25")
+trail3 = smallIP_LVDT.Analysis(26, "inn26")
+#trail2 = smallIP_LVDT.Analysis(26,12,31.5, "imp")
+#trail2 = smallIP_LVDT.Analysis(26,12,31.5, "imp")
 
-lis = [trail1, trail2, trail3, trail4]
+
+lis = [trail1, trail2, trail3]
 for item in lis:
     item.simulate()
 
