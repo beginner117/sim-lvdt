@@ -24,8 +24,8 @@ class Analysis():
 
         sensor = design.Sensortype(0.02, 10000, 0)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
-        wire = design.Wiretype("31 AWG", "31 AWG")
-        geo = design.Geometry(inn_ht = self.parameter1, inn_rad = 9, inn_layers = 6, inn_dist = 0, out_ht = 13.5, out_rad = 20, out_layers = 7, out_dist = 28.5, mag_len = 40, mag_dia = 10, ver_shi = 0)
+        wire = design.Wiretype("32 AWG", "32 AWG")
+        geo = design.Geometry(inn_ht = 24, inn_rad = 9, inn_layers = 6, inn_dist = 0, out_ht = 13.5, out_rad = 20, out_layers = 5, out_dist = self.parameter1, mag_len = 40, mag_dia = 10, ver_shi = 0)
 
         data_file = self.filename
         multiple_fit = 0
@@ -43,31 +43,31 @@ class Analysis():
                 pass
 
             def inncoil(self):
-                InnCoil_OutRadius = geo.inncoil()[1] + ((wire.prop31()[0] + wire.prop31()[1] * 2) * geo.inncoil()[2])
+                InnCoil_OutRadius = geo.inncoil()[1] + ((wire.prop32()[0] + wire.prop32()[1] * 2) * geo.inncoil()[2])
                 InnCoil_Lowend = (geo.inncoil()[3] - geo.inncoil()[0]) / 2
                 InnCoil_Uppend = InnCoil_Lowend + geo.inncoil()[0]
-                InnCoil_NrWind_p_Layer = (geo.inncoil()[0]) / (wire.prop31()[0] + wire.prop31()[1] * 2)
+                InnCoil_NrWind_p_Layer = (geo.inncoil()[0]) / (wire.prop32()[0] + wire.prop32()[1] * 2)
                 InnCoil_NrWindings = InnCoil_NrWind_p_Layer * geo.inncoil()[2]
                 InnCoil_Circuit = "InnCoil_Circuit"
                 return [InnCoil_OutRadius, InnCoil_Lowend, InnCoil_Uppend, InnCoil_NrWind_p_Layer, InnCoil_NrWindings,
                         InnCoil_Circuit]
 
             def upp_outcoil(self):
-                UppOutCoil_OutRadius = geo.outcoil()[1] + ((wire.prop31()[0] + wire.prop31()[1] * 2) * geo.outcoil()[2])
+                UppOutCoil_OutRadius = geo.outcoil()[1] + ((wire.prop32()[0] + wire.prop32()[1] * 2) * geo.outcoil()[2])
                 UppOutCoil_LowEnd = (geo.outcoil()[3] - geo.outcoil()[0]) / 2
                 UppOutCoil_UppEnd = UppOutCoil_LowEnd + geo.outcoil()[0]
-                UppOutCoil_NrWind_p_Layer = (geo.outcoil()[0]) / (wire.prop31()[0] + wire.prop31()[1] * 2)
+                UppOutCoil_NrWind_p_Layer = (geo.outcoil()[0]) / (wire.prop32()[0] + wire.prop32()[1] * 2)
                 UppOutCoil_NrWindings = UppOutCoil_NrWind_p_Layer * geo.outcoil()[2]
                 UppOutCoil_Circuit = "UppOutCoil_Circuit"
                 return [UppOutCoil_OutRadius, UppOutCoil_LowEnd, UppOutCoil_UppEnd, UppOutCoil_NrWind_p_Layer,
                         UppOutCoil_NrWindings, UppOutCoil_Circuit]
 
             def low_outcoil(self):
-                LowOutCoil_OutRadius = geo.outcoil()[1] + ((wire.prop31()[0] + wire.prop31()[1] * 2) * geo.outcoil()[2])
+                LowOutCoil_OutRadius = geo.outcoil()[1] + ((wire.prop32()[0] + wire.prop32()[1] * 2) * geo.outcoil()[2])
                 LowOutCoil_UppEnd = -1 * ((geo.outcoil()[3] - geo.outcoil()[0]) / 2)
                 LowOutCoil_LowEnd = LowOutCoil_UppEnd - geo.outcoil()[0]
                 LowOutCoil_NrWind_p_Layer = (LowOutCoil_UppEnd - LowOutCoil_LowEnd) / (
-                            wire.prop31()[0] + wire.prop31()[1] * 2)
+                            wire.prop32()[0] + wire.prop32()[1] * 2)
                 LowOutCoil_NrWindings = LowOutCoil_NrWind_p_Layer * geo.outcoil()[2]
                 LowOutCoil_Circuit = "LowOutCoil_Circuit"
                 return [LowOutCoil_OutRadius, LowOutCoil_UppEnd, LowOutCoil_LowEnd, LowOutCoil_NrWind_p_Layer,
@@ -88,7 +88,7 @@ class Analysis():
                 InnCoil_TotalWire = 0
                 for i in range(0, geo.inncoil()[2]):
                     # circ = 2*np.pi*InnCoil_InRadius+i*(InnCoil_WireDiam+InnCoil_WireInsul)
-                    circ = 2 * np.pi * (geo.inncoil()[1] + i * (wire.prop31()[0] + wire.prop31()[1] * 2))
+                    circ = 2 * np.pi * (geo.inncoil()[1] + i * (wire.prop32()[0] + wire.prop32()[1] * 2))
                     InnCoil_TotalWire += circ * position.inncoil()[3]
                 print("Total length of wire (mm):", InnCoil_TotalWire)
                 print("\n")
@@ -98,7 +98,7 @@ class Analysis():
                 UppOutCoil_TotalWire = 0
                 for i in range(0, geo.outcoil()[2]):
                     # circ = 2*np.pi*(UppOutCoil_InRadius+i*(UppOutCoil_WireDiam+UppOutCoil_WireInsul))
-                    circ = 2 * np.pi * (geo.outcoil()[1] + i * (wire.prop31()[0] + wire.prop31()[1] * 2))
+                    circ = 2 * np.pi * (geo.outcoil()[1] + i * (wire.prop32()[0] + wire.prop32()[1] * 2))
                     UppOutCoil_TotalWire += circ * position.upp_outcoil()[3]
                 print("Total length of wire (mm):", UppOutCoil_TotalWire)
                 print("\n")
@@ -108,7 +108,7 @@ class Analysis():
                 LowOutCoil_TotalWire = 0
                 for i in range(0, geo.outcoil()[2]):
                     # circ = 2*np.pi*LowOutCoil_InRadius+i*(LowOutCoil_WireDiam+LowOutCoil_WireInsul)
-                    circ = 2 * np.pi * (geo.outcoil()[1] + i * (wire.prop31()[0] + wire.prop31()[1] * 2))
+                    circ = 2 * np.pi * (geo.outcoil()[1] + i * (wire.prop32()[0] + wire.prop32()[1] * 2))
                     LowOutCoil_TotalWire += circ * position.low_outcoil()[3]
                 print("Total length of wire (mm):", LowOutCoil_TotalWire)
                 print("\n")
@@ -131,9 +131,9 @@ class Analysis():
             femm.mi_selectrectangle(geo.inncoil()[1], position.inncoil()[2], position.inncoil()[0], position.inncoil()[1], 4)
             femm.mi_setgroup(1)
             femm.mi_clearselected()
-            femm.mi_addblocklabel(geo.inncoil()[1] + wire.prop31()[1], position.inncoil()[1] + (geo.inncoil()[0] / 2))
-            femm.mi_selectlabel(geo.inncoil()[1] + wire.prop31()[1], position.inncoil()[1] + (geo.inncoil()[0] / 2))
-            femm.mi_setblockprop(wire.prop31()[2], 1, 0, position.inncoil()[5], 0, 1, position.inncoil()[4])
+            femm.mi_addblocklabel(geo.inncoil()[1] + wire.prop32()[1], position.inncoil()[1] + (geo.inncoil()[0] / 2))
+            femm.mi_selectlabel(geo.inncoil()[1] + wire.prop32()[1], position.inncoil()[1] + (geo.inncoil()[0] / 2))
+            femm.mi_setblockprop(wire.prop32()[2], 1, 0, position.inncoil()[5], 0, 1, position.inncoil()[4])
             femm.mi_clearselected()
 
             # UpperOutCoil Structure
@@ -151,9 +151,9 @@ class Analysis():
                                     position.upp_outcoil()[1], 4)
             femm.mi_setgroup(3)
             femm.mi_clearselected()
-            femm.mi_addblocklabel(geo.outcoil()[1] + wire.prop31()[1], position.upp_outcoil()[2] - (geo.outcoil()[0] * 0.5))
-            femm.mi_selectlabel(geo.outcoil()[1] + wire.prop31()[1], position.upp_outcoil()[2] - (geo.outcoil()[0] * 0.5))
-            femm.mi_setblockprop(wire.prop31()[2], 0, 0.1, position.upp_outcoil()[5], 0, 3, position.upp_outcoil()[4])
+            femm.mi_addblocklabel(geo.outcoil()[1] + wire.prop32()[1], position.upp_outcoil()[2] - (geo.outcoil()[0] * 0.5))
+            femm.mi_selectlabel(geo.outcoil()[1] + wire.prop32()[1], position.upp_outcoil()[2] - (geo.outcoil()[0] * 0.5))
+            femm.mi_setblockprop(wire.prop32()[2], 0, 0.1, position.upp_outcoil()[5], 0, 3, position.upp_outcoil()[4])
             femm.mi_clearselected()
 
             # LowerOutCoil Structure
@@ -171,9 +171,9 @@ class Analysis():
                                     position.low_outcoil()[2], 4)
             femm.mi_setgroup(4)
             femm.mi_clearselected()
-            femm.mi_addblocklabel(geo.outcoil()[1] + wire.prop31()[0], position.low_outcoil()[2] + (geo.outcoil()[0] * 0.5))
-            femm.mi_selectlabel(geo.outcoil()[1] + wire.prop31()[0], position.low_outcoil()[2] + (geo.outcoil()[0] * 0.5))
-            femm.mi_setblockprop(wire.prop31()[2], 0, 0.1, position.low_outcoil()[5], 0, 4, position.low_outcoil()[4])
+            femm.mi_addblocklabel(geo.outcoil()[1] + wire.prop32()[0], position.low_outcoil()[2] + (geo.outcoil()[0] * 0.5))
+            femm.mi_selectlabel(geo.outcoil()[1] + wire.prop32()[0], position.low_outcoil()[2] + (geo.outcoil()[0] * 0.5))
+            femm.mi_setblockprop(wire.prop32()[2], 0, 0.1, position.low_outcoil()[5], 0, 4, position.low_outcoil()[4])
             femm.mi_clearselected()
 
             # Magnet Structure

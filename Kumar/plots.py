@@ -9,7 +9,10 @@ import warnings
 warnings.filterwarnings('ignore')
 #plots = [uppout_vol, lowout_vol, inncoil_vol, norm_sig, norm_fit, fit, norm_fit_sig]
 
-graph = plot_design.Graphs(1, "compa")
+graph = plot_design.Graphs(0, "compa")
 graph.norm_sig()
+graph.slope()
 graph.fit()
 graph.norm_fit()
+graph.lin_imp()
+#graph.linear_range()

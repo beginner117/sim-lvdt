@@ -76,11 +76,6 @@ class Analysis():
                 LowOutCoil_Circuit = "LowOutCoil_Circuit"
                 return [LowOutCoil_OutRadius, LowOutCoil_UppEnd, LowOutCoil_LowEnd, LowOutCoil_NrWind_p_Layer,
                         LowOutCoil_NrWindings, LowOutCoil_Circuit]
-
-            def magnet(self):
-                Magnet_Uppend = (geo.mag()[0]/2)+(geo.mag()[2])
-                Magnet_Lowend = -(geo.mag()[0]/2)+(geo.mag()[2])
-                Magnet_Radius = (geo.mag()[1]/2)
         position = Position()
 
         class Length():
