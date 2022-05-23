@@ -494,8 +494,6 @@ class Analysis():
                 plt.savefig("normfiterr(13-24).png")
                 shutil.move("normfiterr(13-24).png", path)
                 plt.show()
-
-
         results = Results()
 
         class Save_data():

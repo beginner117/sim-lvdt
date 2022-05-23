@@ -28,11 +28,11 @@ class Analysis():
         sensor = design.Sensortype(0, 0, 1)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype("32 AWG", "32 AWG")
-        geo = design.Geometry(inn_ht=24, inn_rad=11, inn_layers=6, inn_dist=0, out_ht=13.5, out_rad=35,
-                              out_layers=5, out_dist=self.parameter, mag_len=40, mag_dia=10, ver_shi=0)
+        geo = design.Geometry(inn_ht=self.parameter, inn_rad=9, inn_layers=6, inn_dist=0, out_ht=13.5, out_rad=20,
+                              out_layers=5, out_dist=28.5, mag_len=40, mag_dia=10, ver_shi=0)
 
         data_file = self.filename
-        multiple_fit = 0
+        multiple_fit = 1
         save = 0
         if save == 1:
             directory = data_file
@@ -403,7 +403,6 @@ class Analysis():
             # plt.ylim(0.0,0.01)
             plt.show()
             nor_fit1 = abs(fiterr1) / abs(Norm_Magnet_Forces)
-
         results = Results()
 
         class Save_data():
@@ -414,5 +413,4 @@ class Analysis():
                                     modelled.LowOutCoil_Forces, modelled.Magnet_Forces,
                                     results.Norm_Magnet_Forces, results.fiterr1, results.nor_fit1, results.lin))
             np.savetxt(data_file, data)
-
         saved_data = Save_data()

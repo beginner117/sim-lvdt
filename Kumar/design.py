@@ -15,15 +15,15 @@ class Sensortype():
         return [self.InnCoilCurrent, self.Simfreq, self.OutCoilCurrent]
 
 class Wiretype():
-    def __init__(self, outcoil_material, inncoil_material):
+    def __init__(self, outcoil_material:None, inncoil_material:None):
         self.outcoil_material = outcoil_material
         self.inncoil_material = inncoil_material
-
+# wire diamater, insulation thickness, wire type, electrical conductivity, resistivity(ohm*m), mag_perm(H/m)
     def prop31(self):
         return [0.2261, 0.0190, "31 AWG"]
 
     def prop32(self):
-        return [0.2032, 0.0178, "32 AWG", 58]
+        return [0.2032, 0.0178, "32 AWG",  58, 1.68*(10**(-8)), 1.256*(10**(-6))]
 
     def mag_mat(self):
         mat = "N40"
@@ -119,7 +119,7 @@ class Blocks():
         self.b6_l = 4.47
         self.b6_h = 4
         self.b7_l = 15.85
-        self.b7_h = 6
+        self.b7_h = 5
 
         self.yokeinnrad = 5
         self.yokeuppend = -7.5-26.25-6.75

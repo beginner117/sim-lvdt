@@ -27,10 +27,13 @@ class Analysis():
         sensor = design.Sensortype(0.02, 10000, 0)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype("32 AWG", "32 AWG")
-        #geo = design.Geometry(inn_ht=18, inn_rad=21, inn_layers=6, inn_dist=0, out_ht=13.5, out_rad=self.parameter, out_layers=5,
-                              #out_dist=14.5, mag_len=40, mag_dia=10, ver_shi=0)
-        geo = design.Geometry(inn_ht=24, inn_rad=9, inn_layers=6, inn_dist=0, out_ht=13.5, out_rad=20,out_layers=5,
-                              out_dist=28.5, mag_len=40, mag_dia=10, ver_shi=0)
+        geo = design.Geometry(inn_ht=18, inn_rad=21, inn_layers=6, inn_dist=0, out_ht=13.5, out_rad=self.parameter1, out_layers=5,
+                              out_dist=14.5, mag_len=40, mag_dia=10, ver_shi=0)
+        #geo = design.Geometry(inn_ht=8, inn_rad=7, inn_layers=6, inn_dist=0, out_ht=8, out_rad=12,out_layers=5,
+                              #out_dist=self.parameter1, mag_len=40, mag_dia=10, ver_shi=0)
+        inn_area = np.pi * (wire.prop32()[0]) * (wire.prop32()[0]) / 4
+        uppout_area = np.pi * (wire.prop32()[0]) * (wire.prop32()[0]) / 4
+        lowout_area = np.pi * (wire.prop32()[0]) * (wire.prop32()[0]) / 4
 
         data_file = self.filename
         multiple_fit = 0
@@ -88,7 +91,7 @@ class Analysis():
                     # circ = 2*np.pi*InnCoil_InRadius+i*(InnCoil_WireDiam+InnCoil_WireInsul)
                     circ = 2 * np.pi * (geo.inncoil()[1] + i * (wire.prop32()[0] + wire.prop32()[1] * 2))
                     InnCoil_TotalWire += circ * position.inncoil()[3]
-                print("Total length of wire (mm):", InnCoil_TotalWire)
+                print("Total length of inn coil wire (mm):", InnCoil_TotalWire)
                 print("\n")
                 return InnCoil_TotalWire
 
@@ -98,7 +101,7 @@ class Analysis():
                     # circ = 2*np.pi*(UppOutCoil_InRadius+i*(UppOutCoil_WireDiam+UppOutCoil_WireInsul))
                     circ = 2 * np.pi * (geo.outcoil()[1] + i * (wire.prop32()[0] + wire.prop32()[1] * 2))
                     UppOutCoil_TotalWire += circ * position.upp_outcoil()[3]
-                print("Total length of wire (mm):", UppOutCoil_TotalWire)
+                print("Total length of upper out wire (mm):", UppOutCoil_TotalWire)
                 print("\n")
                 return UppOutCoil_TotalWire
 
@@ -108,14 +111,36 @@ class Analysis():
                     # circ = 2*np.pi*LowOutCoil_InRadius+i*(LowOutCoil_WireDiam+LowOutCoil_WireInsul)
                     circ = 2 * np.pi * (geo.outcoil()[1] + i * (wire.prop32()[0] + wire.prop32()[1] * 2))
                     LowOutCoil_TotalWire += circ * position.low_outcoil()[3]
-                print("Total length of wire (mm):", LowOutCoil_TotalWire)
+                print("Total length of lower out coil wire (mm):", LowOutCoil_TotalWire)
                 print("\n")
                 return LowOutCoil_TotalWire
-
         length = Length()
-        print("length of the inncoil wire is :", length.inncoil())
-        print("length of the upp_outcoil wire is :", length.upp_outcoil())
-        print("length of the low_inncoil wire is :", length.low_outcoil())
+
+        class Impedance():
+            def __init__(self):
+                #self.length.inncoil()
+                #self.length.upp_outcoil()
+                #self.length.low_outcoil()
+                pass
+            def resistance(self):
+                inncoil_res = ((length.inncoil()*wire.prop32()[4])/inn_area)*1000
+                uppout_res = ((length.upp_outcoil()*wire.prop32()[4])/uppout_area)*1000
+                lowout_res = ((length.low_outcoil() * wire.prop32()[4]) / lowout_area)*1000
+                return [inncoil_res, uppout_res, lowout_res]
+            def inductance(self):
+                inncoil_ind = ((wire.prop32()[5]*((position.inncoil()[4])**2)*inn_area)/geo.inncoil()[0])/1000
+                uppout_ind = ((wire.prop32()[5] * ((position.inncoil()[4]) ** 2) * uppout_area) / geo.outcoil()[0])/1000
+                lowout_ind = ((wire.prop32()[5] * ((position.inncoil()[4]) ** 2) * lowout_area) / geo.outcoil()[0])/1000
+                return [inncoil_ind, uppout_ind, lowout_ind]
+            def reactance(self):
+                inncoil_rea = 2*(np.pi)*(sensor.para()[1])*self.inductance()[0]
+                uppout_rea = 2 * (np.pi) * (sensor.para()[1]) * self.inductance()[1]
+                lowout_rea = 2 * (np.pi) * (sensor.para()[1]) * self.inductance()[2]
+                return [inncoil_rea, uppout_rea, lowout_rea]
+        impedance = Impedance()
+        print("resistance of inn coil is : ", impedance.resistance()[0])
+        print("reactance of inn coil is : ", impedance.reactance()[0])
+        print("inductance of inn coil is : ", impedance.inductance()[0])
 
         class Modelling():
             def __init__(self):
@@ -265,7 +290,6 @@ class Analysis():
                 femm.mi_selectgroup(2)
                 femm.mi_movetranslate(0, StepSize)
                 femm.mi_clearselected()
-
         loop = Computation_loop()
 
         print(modelled.InnCoil_Positions)
@@ -507,7 +531,7 @@ class Analysis():
                 fiterror1 = Norm_OutCoil_Signals - optimizedparameters1[0] * (np.array(modelled.InnCoil_Positions)) + optimizedparameters1[1]
                 norm_fit_error1 = (abs(fiterror1) / abs(np.array(Norm_OutCoil_Signals))) * 100
         results = Results()
-
+        '''
         class Save_data():
             def __init__(self):
                 pass
@@ -516,3 +540,9 @@ class Analysis():
             data = np.column_stack((modelled.InnCoil_Positions, modelled.UppOutCoil_Voltages, modelled.LowOutCoil_Voltages, modelled.InnCoil_Voltages,  results.Norm_OutCoil_Signals, results.fiterror1, results.norm_fit_error1))
             np.savetxt(data_file, data)
         saved_data = Save_data()
+        '''
+
+lis = Analysis(31.5, "defm")
+lis.simulate().impedance
+lis.simulate().resistance
+lis.simulate().reactance

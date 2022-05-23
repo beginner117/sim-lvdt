@@ -12,14 +12,12 @@ import LVDT_F1F2_mirrortower
 import smallIp_VC
 
 
-trail1 = smallIP_LVDT.Analysis(26.5, "dis26")
-#trail2 = smallIP_LVDT.Analysis(24, "defs")
-trail3 = smallIP_LVDT.Analysis(30.5, "dis30")
-trail4 = smallIP_LVDT.Analysis(32.5, "dis32")
-#trail2 = smallIP_LVDT.Analysis(26,12,31.5, "imp")
+trail1 = LVDT_F1F2_mirrortower.Analysis(9, "di9")
+trail2 = LVDT_F1F2_mirrortower.Analysis(10, "defvs1")
+trail3 = LVDT_F1F2_mirrortower.Analysis(11, "di11")
+trail4 = LVDT_F1F2_mirrortower.Analysis(12, "di12")
 
-
-lis = [trail1, trail3, trail4]
+lis = [trail1]
 for item in lis:
     item.simulate()
 
