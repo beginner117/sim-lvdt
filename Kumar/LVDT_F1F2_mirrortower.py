@@ -6,6 +6,7 @@ import scipy.optimize as opt
 import matplotlib.pyplot as plt
 import os
 import shutil
+import pickle
 
 
 class Analysis():
@@ -27,7 +28,7 @@ class Analysis():
         sensor = design.Sensortype(0.02, 10000, 0)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype("32 AWG", "32 AWG")
-        geo = design.Geometry(inn_ht=18, inn_rad=21, inn_layers=6, inn_dist=0, out_ht=13.5, out_rad=self.parameter1, out_layers=5,
+        geo = design.Geometry(inn_ht=self.parameter1, inn_rad=21, inn_layers=6, inn_dist=0, out_ht=13.5, out_rad=31.5, out_layers=5,
                               out_dist=14.5, mag_len=40, mag_dia=10, ver_shi=0)
         #geo = design.Geometry(inn_ht=8, inn_rad=7, inn_layers=6, inn_dist=0, out_ht=8, out_rad=12,out_layers=5,
                               #out_dist=self.parameter1, mag_len=40, mag_dia=10, ver_shi=0)
@@ -38,9 +39,10 @@ class Analysis():
         data_file = self.filename
         multiple_fit = 0
         save = 0
-        if save == 1:
+        data_save = 1
+        if data_save == 1:
             directory = data_file
-            parent_dir = "C:\\Users\\kumar\\OneDrive\\Desktop\\pi\\bench"
+            parent_dir = "C:\\Users\\kumar\\OneDrive\\Desktop\\pi\\benchtower\\textdata"
             path = os.path.join(parent_dir, directory)
             os.mkdir(path)
             save_plot = path
@@ -531,7 +533,7 @@ class Analysis():
                 fiterror1 = Norm_OutCoil_Signals - optimizedparameters1[0] * (np.array(modelled.InnCoil_Positions)) + optimizedparameters1[1]
                 norm_fit_error1 = (abs(fiterror1) / abs(np.array(Norm_OutCoil_Signals))) * 100
         results = Results()
-        '''
+
         class Save_data():
             def __init__(self):
                 pass
@@ -539,10 +541,13 @@ class Analysis():
             fit1 = results.optimizedparameters1[0]*(np.array(modelled.InnCoil_Positions))+results.optimizedparameters1[1]
             data = np.column_stack((modelled.InnCoil_Positions, modelled.UppOutCoil_Voltages, modelled.LowOutCoil_Voltages, modelled.InnCoil_Voltages,  results.Norm_OutCoil_Signals, results.fiterror1, results.norm_fit_error1))
             np.savetxt(data_file, data)
+            if data_save==0:
+                with open(path, "w") as f:
+                    f.write(data)
+            pname = "pick"+self.filename
+            pickle_out = open(pname, "wb")
+            pickle.dump(data, pickle_out)
+            pickle_out.close()
         saved_data = Save_data()
-        '''
 
-lis = Analysis(31.5, "defm")
-lis.simulate().impedance
-lis.simulate().resistance
-lis.simulate().reactance
+

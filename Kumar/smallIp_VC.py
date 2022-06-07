@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import shutil
 import design
 import os
+import pickle
 
 
 class Analysis():
@@ -22,21 +23,22 @@ class Analysis():
 
         outputfile = 'LVDT_10kHz_20mA_31AWG_10mm_6_7_7.out'
         NSteps = 20
-        StepSize = 0.5
-        InnCoil_Offset = -5
+        StepSize = 0.25
+        InnCoil_Offset = -2.5
 
         sensor = design.Sensortype(0, 0, 1)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype("32 AWG", "32 AWG")
-        geo = design.Geometry(inn_ht=self.parameter, inn_rad=9, inn_layers=6, inn_dist=0, out_ht=13.5, out_rad=20,
+        geo = design.Geometry(inn_ht=24, inn_rad=self.parameter, inn_layers=6, inn_dist=0, out_ht=13.5, out_rad=20,
                               out_layers=5, out_dist=28.5, mag_len=40, mag_dia=10, ver_shi=0)
 
         data_file = self.filename
         multiple_fit = 1
         save = 0
-        if save == 1:
+        data_save = 1
+        if data_save == 1:
             directory = data_file
-            parent_dir = "C:\\Users\\kumar\\OneDrive\\Desktop\\pi\\bench"
+            parent_dir = "C:\\Users\\kumar\\OneDrive\\Desktop\\pi\\lvdt\\small_IP\\datavc"
             path = os.path.join(parent_dir, directory)
             os.mkdir(path)
             save_plot = path
@@ -413,4 +415,11 @@ class Analysis():
                                     modelled.LowOutCoil_Forces, modelled.Magnet_Forces,
                                     results.Norm_Magnet_Forces, results.fiterr1, results.nor_fit1, results.lin))
             np.savetxt(data_file, data)
+            if data_save==1:
+                with open(path, "w") as f:
+                    f.write(data)
+            pname = "pick" + self.filename
+            pickle_out = open(pname, "wb")
+            pickle.dump(data, pickle_out)
+            pickle_out.close()
         saved_data = Save_data()

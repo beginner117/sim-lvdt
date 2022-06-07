@@ -6,6 +6,7 @@ import scipy.optimize as opt
 import matplotlib.pyplot as plt
 import os
 import shutil
+import pickle
 
 class Analysis():
     def __init__(self, parameter1, filename: str):
@@ -25,14 +26,15 @@ class Analysis():
         sensor = design.Sensortype(0.02, 10000, 0)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype("32 AWG", "32 AWG")
-        geo = design.Geometry(inn_ht = 24, inn_rad = 9, inn_layers = 6, inn_dist = 0, out_ht = 13.5, out_rad = 20, out_layers = 5, out_dist = self.parameter1, mag_len = 40, mag_dia = 10, ver_shi = 0)
+        geo = design.Geometry(inn_ht = 24, inn_rad = self.parameter1, inn_layers = 6, inn_dist = 0, out_ht = 13.5, out_rad = 20, out_layers = 5, out_dist = 28.5, mag_len = 40, mag_dia = 10, ver_shi = 0)
 
         data_file = self.filename
         multiple_fit = 0
         save = 0
-        if save == 1:
+        data_save = 1
+        if data_save == 1:
             directory = data_file
-            parent_dir = "C:\\Users\\kumar\\OneDrive\\Desktop\\pi\\bench"
+            parent_dir = "C:\\Users\\kumar\\OneDrive\\Desktop\\pi\\lvdt\\small_IP\\lvdtdata"
             path = os.path.join(parent_dir, directory)
             os.mkdir(path)
 
@@ -503,5 +505,12 @@ class Analysis():
             fit1 = results.optimizedparameters1[0]*(np.array(modelled.InnCoil_Positions))+results.optimizedparameters1[1]
             data = np.column_stack((modelled.InnCoil_Positions, modelled.UppOutCoil_Voltages, modelled.LowOutCoil_Voltages, modelled.InnCoil_Voltages,  results.Norm_OutCoil_Signals, results.fiterror1, results.norm_fit_error1))
             np.savetxt(data_file, data)
+            if data_save==1:
+                with open(path, "w") as f:
+                    f.write(data)
+            pname = "pick" + self.filename
+            pickle_out = open(pname, "wb")
+            pickle.dump(data, pickle_out)
+            pickle_out.close()
         saved_data = Save_data()
 

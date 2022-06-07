@@ -116,10 +116,10 @@ class Blocks():
         self.b4_h = 8.65
         self.b5_l = 2.055
         self.b5_h = 2
-        self.b6_l = 4.47
+        self.b6_l = 4.475
         self.b6_h = 4
         self.b7_l = 15.85
-        self.b7_h = 5
+        self.b7_h = 6
 
         self.yokeinnrad = 5
         self.yokeuppend = -7.5-26.25-6.75
