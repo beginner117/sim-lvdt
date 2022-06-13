@@ -9,7 +9,7 @@ import warnings
 warnings.filterwarnings('ignore')
 #plots = [uppout_vol, lowout_vol, inncoil_vol, norm_sig, norm_fit, fit, norm_fit_sig]
 
-graph = plot_design_text.Yoke_graphs(1, "b7+b8")
+graph = plot_design_text.Yoke_graphs(1, "reverse_current")
 graph.b1()
 graph.b2()
 graph.b3()

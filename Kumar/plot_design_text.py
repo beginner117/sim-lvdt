@@ -16,8 +16,8 @@ warnings.filterwarnings('ignore')
 inputdata = []
 slopes = []
 
-output_files = ["b6_b7_reduce", "def_F0"]
-legends = ["b6-2,b7-2", "b7(def)"]
+output_files = ["defF0_rev_current", "def_F0", "defF0_no_current"]
+legends = ["rev.current", "def", "no current"]
 b123_legends = ["b1", "b2", "b3"]
 b4567_legends = ["b4", "b5", "b6", "b7"]
 voice_coil = 0

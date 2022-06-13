@@ -26,12 +26,12 @@ class Analysis():
         sensor = design.Sensortype(0.02, 10000, 0)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype("32 AWG", "32 AWG")
-        geo = design.Geometry(inn_ht = 24, inn_rad = self.parameter1, inn_layers = 6, inn_dist = 0, out_ht = 13.5, out_rad = 20, out_layers = 5, out_dist = 28.5, mag_len = 40, mag_dia = 10, ver_shi = 0)
+        geo = design.Geometry(inn_ht = 24, inn_rad = 11, inn_layers = self.parameter1, inn_dist = 0, out_ht = 13.5, out_rad = 35, out_layers = 5, out_dist = 54.5, mag_len = 40, mag_dia = 10, ver_shi = 0)
 
         data_file = self.filename
         multiple_fit = 0
         save = 0
-        data_save = 1
+        data_save = 0
         if data_save == 1:
             directory = data_file
             parent_dir = "C:\\Users\\kumar\\OneDrive\\Desktop\\pi\\lvdt\\small_IP\\lvdtdata"
