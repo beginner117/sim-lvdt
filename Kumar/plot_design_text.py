@@ -11,13 +11,17 @@ import pickle
 
 warnings.filterwarnings('ignore')
 
-# output_file data : [0]-position, [1]-upp_out_vol/for, [2]-low_out_vol/for, [3]-inn_vol/mag_for, [4]-Norm_Out_Sig/for, [5]-fit_err(1) , [6]-norm-fit(1), [7]-Linear Range
+# output_file data : [0]-position, [1]-upp_out_vol/for, [2]-low_out_vol/for, [3]-inn_vol/mag_for, [4]-Norm_Out_Sig/for, [5]-fit_err(1) , [6]-norm-fit(1), [7]-Inn_Inductance/Linear Range, [8]-Inn_resistance
 #yoke data : [0]-position, [1]-inncoil_force, [2]-mag_force, [3]-b1, [4]-b2, [5]-b3, [6]-b4, [7]-b5, [8]-b6, [9]-b7, [10]-total
 inputdata = []
 slopes = []
+res = []
+ind = []
 
-output_files = ["defF0_rev_current", "def_F0", "defF0_no_current"]
-legends = ["rev.current", "def", "no current"]
+#output_files = ["def_text/def_bench"]
+output_files = [ "def_f0ben_lv"]
+legends = ["def"]
+#legends = [ "def"]
 b123_legends = ["b1", "b2", "b3"]
 b4567_legends = ["b4", "b5", "b6", "b7"]
 voice_coil = 0
@@ -139,9 +143,42 @@ class Graphs():
             plt.savefig("fit_norm_sig.png")
             shutil.move("fit_norm_sig.png", self.path1)
         plt.show()
+    def inductance(self):
+        for i in range(0,n):
+            #plt.plot(np.array(inputdata[i][0]).real.tolist(), (np.array(inputdata[i][7]).real.tolist())*1000, 'o-', label=legends[i])
+            induct = sum((np.array(inputdata[i][7]).real.tolist())*1000)/len(np.array(inputdata[i][7]).real.tolist())
+            ind.append(induct)
+        print(ind)
+        plt.plot(legends, np.array(ind), "o-")
+        plt.ylabel("Flux/current [mH]")
+        plt.xlabel("Inn coil position")
+        plt.show()
+        if self.sav == 1:
+            plt.savefig("inn_ind.png")
+            shutil.move("inn_ind.png", self.path1)
+    def resistance(self):
+        for i in range(0,n):
+            #plt.plot(np.array(inputdata[i][0]).real.tolist(), np.abs(inputdata[i][8]).tolist(), 'o-', label=legends[i])
+            r = sum(np.abs(inputdata[i][8]).tolist())/len(np.abs(inputdata[i][8]).tolist())
+            res.append(r)
+        if voice_coil == 0:
+            plt.ylabel('Inner coil resistance [ohms]')
+        if voice_coil == 1:
+            plt.ylabel('Fit Norm. Out Coil Forces [N/A]')
+        plt.xlabel('Inner Coil Position [mm]')
+        plt.legend()
+        if self.sav == 1:
+            plt.savefig("inn_res.png")
+            shutil.move("inn_res.png", self.path1)
+        plt.show()
+        plt.plot(legends, np.array(res), "o-")
+        plt.ylabel("resistance [ohms]")
+        plt.xlabel("Inn coil position")
+        plt.legend()
+        plt.show()
     def lin_imp(self):
         for i in range(0,n):
-            plt.plot(np.array(inputdata[i][0]).real.tolist(), 100 - (np.array(inputdata[i][6])/np.array(inputdata[output_files.index("def_bench")][6]))*100, 'o-', label=legends[i])
+            plt.plot(np.array(inputdata[i][0]).real.tolist(), 100 - (np.array(inputdata[i][6])/np.array(inputdata[legends.index("def")][6]))*100, 'o-', label=legends[i])
         if voice_coil == 0:
             plt.ylabel('Linear Improvement [%]')
         plt.xlabel('Inner Coil Position [mm]')
@@ -156,7 +193,8 @@ class Graphs():
             m = np.polyfit(np.array(inputdata[i][0]).real.tolist(), np.array(inputdata[i][4]).real.tolist(), 1)[0]
             slopes.append(m)
         #plt.plot(legends, slopes, 'o--')
-        plt.plot(legends, ((np.array(slopes)/slopes[output_files.index("def_bench")])*100) - 100, "o--")
+        print("slopes are : ", m)
+        plt.plot(legends, ((np.array(slopes)/slopes[legends.index("def")])*100) - 100, "o--")
         if voice_coil == 0:
             plt.ylabel('slope increment [%]')
         if voice_coil == 1:

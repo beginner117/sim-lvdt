@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import os
 import shutil
 import pickle
+import dataplot_condition
 
 class Analysis():
     def __init__(self, parameter1, filename: str):
@@ -224,6 +225,14 @@ class Analysis():
             LowOutCoil_Voltages = np.zeros(NSteps + 1).astype(complex)
             InnCoil_Voltages = np.zeros(NSteps + 1).astype(complex)
             InnCoil_Positions = np.zeros(NSteps + 1)
+
+            UppOutCoil_Currents = np.zeros(NSteps + 1).astype(complex)
+            LowOutCoil_Currents = np.zeros(NSteps + 1).astype(complex)
+            InnCoil_Currents = np.zeros(NSteps + 1).astype(complex)
+
+            UppOutCoil_Flux = np.zeros(NSteps + 1).astype(complex)
+            LowOutCoil_Flux = np.zeros(NSteps + 1).astype(complex)
+            InnCoil_Flux = np.zeros(NSteps + 1).astype(complex)
             MetaData = np.zeros(NSteps + 1)
 
             femm.mi_selectgroup(1)
@@ -252,23 +261,25 @@ class Analysis():
                 femm.mi_analyze()
                 femm.mi_loadsolution()
 
-                if NSteps == 0:
-                    # Show Density Plot:
-                    femm.mo_showdensityplot(1, 0, 0.0001, 1.0E-9, "bmag")
-                    femm.mo_zoom(-2, -50, 50, 50)
-                    femm.mo_refreshview()
-
-                UppOutCoil_I, UppOutCoil_V, UppOutCoil_FluxLink = femm.mo_getcircuitproperties(position.upp_outcoil()[5])
-                #print("Upper OuterCoil: I= {:.3f}, V = {:.6f} ".format(UppOutCoil_I, UppOutCoil_V))
+                UppOutCoil_I, UppOutCoil_V, UppOutCoil_FluxLink = femm.mo_getcircuitproperties(
+                    position.upp_outcoil()[5])
+                # print("Upper OuterCoil: I= {:.3f}, V = {:.6f} ".format(UppOutCoil_I, UppOutCoil_V))
                 modelled.UppOutCoil_Voltages[i] = UppOutCoil_V
+                modelled.UppOutCoil_Currents[i] = UppOutCoil_I
+                modelled.UppOutCoil_Flux[i] = UppOutCoil_FluxLink
 
-                LowOutCoil_I, LowOutCoil_V, LowOutCoil_FluxLink = femm.mo_getcircuitproperties(position.low_outcoil()[5])
-                #print("Lower OuterCoil: I= {:.3f}, V = {:.6f} ".format(LowOutCoil_I, LowOutCoil_V))
+                LowOutCoil_I, LowOutCoil_V, LowOutCoil_FluxLink = femm.mo_getcircuitproperties(
+                    position.low_outcoil()[5])
+                # print("Lower OuterCoil: I= {:.3f}, V = {:.6f} ".format(LowOutCoil_I, LowOutCoil_V))
                 modelled.LowOutCoil_Voltages[i] = LowOutCoil_V
+                modelled.LowOutCoil_Currents[i] = LowOutCoil_I
+                modelled.LowOutCoil_Flux[i] = LowOutCoil_FluxLink
 
                 InnCoil_I, InnCoil_V, InnCoil_FluxLink = femm.mo_getcircuitproperties(position.inncoil()[5])
-                #print("InnerCoil: I= {:.3f}, V = {:.8f} ".format(InnCoil_I, InnCoil_V))
+                # print("InnerCoil: I= {:.3f}, V = {:.8f} ".format(InnCoil_I, InnCoil_V))
                 modelled.InnCoil_Voltages[i] = InnCoil_V
+                modelled.InnCoil_Currents[i] = InnCoil_I
+                modelled.InnCoil_Flux[i] = InnCoil_FluxLink
 
                 # Translate inner coil to different distance
                 femm.mi_selectgroup(1)
@@ -281,6 +292,8 @@ class Analysis():
         print(modelled.UppOutCoil_Voltages)
         print(modelled.LowOutCoil_Voltages)
         print(modelled.InnCoil_Voltages)
+        Inn_Inductance = abs(modelled.InnCoil_Flux / modelled.InnCoil_Currents)
+        Inn_resistance = abs(modelled.InnCoil_Voltages / modelled.InnCoil_Currents)
 
         if NSteps > 2:
             modelled.MetaData[0] = NSteps
@@ -294,6 +307,18 @@ class Analysis():
         class Results():
             def __init__(self):
                 pass
+
+            inn_resistance = dataplot_condition.Plot_parameters(modelled.InnCoil_Positions,
+                                                                abs(modelled.InnCoil_Voltages) / abs(
+                                                                    modelled.InnCoil_Currents),
+                                                                'Inner Coil Position [mm]',
+                                                                'Inner Coil resistance [ohms]', 0)
+            inn_resistance
+            inn_inductance = dataplot_condition.Plot_parameters(modelled.InnCoil_Positions, (
+                        abs(modelled.InnCoil_Voltages) / abs(modelled.InnCoil_Currents)) * 1000,
+                                                                'Inner Coil Position [mm]', 'Inn coil inductance [mH]',
+                                                                0)
+            inn_inductance
             plt.plot(modelled.InnCoil_Positions, modelled.InnCoil_Voltages.real, 'o-')
             plt.ylabel('Inner Coil Voltage [V]')
             plt.xlabel('Inner Coil Position [mm]')
@@ -503,7 +528,7 @@ class Analysis():
                 pass
             norm_fit_error = (abs(np.array(results.Norm_OutCoil_Signals) - np.array(results.fitted_Norm_OutCoil_Signals)) / abs(np.array(results.Norm_OutCoil_Signals)))*100
             fit1 = results.optimizedparameters1[0]*(np.array(modelled.InnCoil_Positions))+results.optimizedparameters1[1]
-            data = np.column_stack((modelled.InnCoil_Positions, modelled.UppOutCoil_Voltages, modelled.LowOutCoil_Voltages, modelled.InnCoil_Voltages,  results.Norm_OutCoil_Signals, results.fiterror1, results.norm_fit_error1))
+            data = np.column_stack((modelled.InnCoil_Positions, modelled.UppOutCoil_Voltages, modelled.LowOutCoil_Voltages, modelled.InnCoil_Voltages,  results.Norm_OutCoil_Signals, results.fiterror1, results.norm_fit_error1, Inn_Inductance, Inn_resistance))
             np.savetxt(data_file, data)
             if data_save==1:
                 with open(path, "w") as f:

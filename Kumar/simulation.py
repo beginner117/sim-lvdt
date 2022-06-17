@@ -1,5 +1,5 @@
 import design
-import femm
+import fem_cond
 import numpy as np
 import cmath
 import scipy.optimize as opt
@@ -13,14 +13,14 @@ import smallIp_VC
 
 
 
-trail1 = smallIP_LVDT.Analysis(5, "5lay")
-trail2 = smallIP_LVDT.Analysis(4, "4lay")
-trail3 = smallIP_LVDT.Analysis(3, "3lay")
-trail4 = smallIP_LVDT.Analysis(2, "2lay")
-trail5 = smallIP_LVDT.Analysis(1, "1lay")
+trail1 = LVDT_F1F2_mirrortower.Analysis(18, "fred14")
+#trail2 = LVDT_F1F2_mirrortower.Analysis(16, "innht16")
+#trail3 = LVDT_F1F2_mirrortower.Analysis(20, "innht20")
+#trail4 = LVDT_F1F2_mirrortower.Analysis(19, "innht19")
 
 
-lis = [trail5]
+
+lis = [trail1]
 for item in lis:
     item.simulate()
 

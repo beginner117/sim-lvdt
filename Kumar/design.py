@@ -1,4 +1,4 @@
-import femm
+import fem_cond
 import numpy as np
 import cmath
 import scipy.optimize as opt
@@ -106,24 +106,25 @@ class Position(Geometry1):
 
 class Blocks():
     def __init__(self):
-        self.b1_l = 3.25
-        self.b1_h = 28
+        self.b1_l = 7
+        self.b1_h = 33.5
         self.b2_l = 2.75
         self.b2_h = 9
-        self.b3_l = 12.58
+        self.b3_l = 18.95
         self.b3_h = 9
-        self.b4_l = 6.53
-        self.b4_h = 8.65
-        self.b5_l = 2.055
+        self.b4_l = 16.20
+        self.b4_h = 12.5
+        self.b5_l = 3.4
         self.b5_h = 2
-        self.b6_l = 4.475
-        self.b6_h = 4
-        self.b7_l = 15.85
-        self.b7_h = 6
+        self.b6_l = 12.8
+        self.b6_h = 6
+        self.b7_l = 16.65
+        self.b7_h = 8
 
-        self.yokeinnrad = 5
-        self.yokeuppend = -7.5-26.25-6.75
-        self.yokeoutrad = 28.575
+        self.yokeinnrad = 8
+        self.yokeuppend = -14-42
+        self.yokeoutrad = 44.45
+        self.innyoke_gap = 4.25
 
     def b1(self):
         return [self.b1_l, self.b1_h]

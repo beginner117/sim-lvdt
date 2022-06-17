@@ -1,13 +1,14 @@
 import design
 import femm
 import numpy as np
-import cmath
 import scipy.optimize as opt
 import matplotlib.pyplot as plt
 import os
 import shutil
 import pickle
-
+import dataplot_condition
+import coil
+import fem_cond
 
 class Analysis():
     def __init__(self, parameter1, filename: str):
@@ -24,99 +25,29 @@ class Analysis():
         StepSize = 0.25
         InnCoil_Offset = -2.5
 
-
         sensor = design.Sensortype(0.02, 10000, 0)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype("32 AWG", "32 AWG")
         geo = design.Geometry(inn_ht=self.parameter1, inn_rad=21, inn_layers=6, inn_dist=0, out_ht=13.5, out_rad=31.5, out_layers=5,
                               out_dist=14.5, mag_len=40, mag_dia=10, ver_shi=0)
-        #geo = design.Geometry(inn_ht=8, inn_rad=7, inn_layers=6, inn_dist=0, out_ht=8, out_rad=12,out_layers=5,
-                              #out_dist=self.parameter1, mag_len=40, mag_dia=10, ver_shi=0)
+        req_plots = dataplot_condition.Req_plots(out_vol=0, inn_vol=0, phase=0, norm_signal=1, fit_error=1, Norm_fiterror=1)
+        print_data = dataplot_condition.Print_data(phase=0, slope=1)
+
         inn_area = np.pi * (wire.prop32()[0]) * (wire.prop32()[0]) / 4
         uppout_area = np.pi * (wire.prop32()[0]) * (wire.prop32()[0]) / 4
         lowout_area = np.pi * (wire.prop32()[0]) * (wire.prop32()[0]) / 4
 
         data_file = self.filename
+        parent_directory = "C:\\Users\\kumar\\OneDrive\\Desktop\\pi\\f0miror_lv\\textdata"
         multiple_fit = 0
         save = 0
-        data_save = 1
-        if data_save == 1:
-            directory = data_file
-            parent_dir = "C:\\Users\\kumar\\OneDrive\\Desktop\\pi\\benchtower\\textdata"
-            path = os.path.join(parent_dir, directory)
-            os.mkdir(path)
-            save_plot = path
+        save_data = 0
+        if save_data == 1:
+            data_save = dataplot_condition.Data_save(parent_directory, data_file)
+            save_plot = data_save.path
 
-        class Position():
-            def __init__(self):
-                pass
-
-            def inncoil(self):
-                InnCoil_OutRadius = geo.inncoil()[1] + ((wire.prop32()[0] + wire.prop32()[1] * 2) * geo.inncoil()[2])
-                InnCoil_Lowend = (geo.inncoil()[3] - geo.inncoil()[0]) / 2
-                InnCoil_Uppend = InnCoil_Lowend + geo.inncoil()[0]
-                InnCoil_NrWind_p_Layer = (geo.inncoil()[0]) / (wire.prop32()[0] + wire.prop32()[1] * 2)
-                InnCoil_NrWindings = InnCoil_NrWind_p_Layer * geo.inncoil()[2]
-                InnCoil_Circuit = "InnCoil_Circuit"
-                return [InnCoil_OutRadius, InnCoil_Lowend, InnCoil_Uppend, InnCoil_NrWind_p_Layer, InnCoil_NrWindings,
-                        InnCoil_Circuit]
-
-            def upp_outcoil(self):
-                UppOutCoil_OutRadius = geo.outcoil()[1] + ((wire.prop32()[0] + wire.prop32()[1] * 2) * geo.outcoil()[2])
-                UppOutCoil_LowEnd = (geo.outcoil()[3] - geo.outcoil()[0]) / 2
-                UppOutCoil_UppEnd = UppOutCoil_LowEnd + geo.outcoil()[0]
-                UppOutCoil_NrWind_p_Layer = (geo.outcoil()[0]) / (wire.prop32()[0] + wire.prop32()[1] * 2)
-                UppOutCoil_NrWindings = UppOutCoil_NrWind_p_Layer * geo.outcoil()[2]
-                UppOutCoil_Circuit = "UppOutCoil_Circuit"
-                return [UppOutCoil_OutRadius, UppOutCoil_LowEnd, UppOutCoil_UppEnd, UppOutCoil_NrWind_p_Layer,
-                        UppOutCoil_NrWindings, UppOutCoil_Circuit]
-
-            def low_outcoil(self):
-                LowOutCoil_OutRadius = geo.outcoil()[1] + ((wire.prop32()[0] + wire.prop32()[1] * 2) * geo.outcoil()[2])
-                LowOutCoil_UppEnd = -1 * ((geo.outcoil()[3] - geo.outcoil()[0]) / 2)
-                LowOutCoil_LowEnd = LowOutCoil_UppEnd - geo.outcoil()[0]
-                LowOutCoil_NrWind_p_Layer = (LowOutCoil_UppEnd - LowOutCoil_LowEnd) / (
-                        wire.prop32()[0] + wire.prop32()[1] * 2)
-                LowOutCoil_NrWindings = LowOutCoil_NrWind_p_Layer * geo.outcoil()[2]
-                LowOutCoil_Circuit = "LowOutCoil_Circuit"
-                return [LowOutCoil_OutRadius, LowOutCoil_UppEnd, LowOutCoil_LowEnd, LowOutCoil_NrWind_p_Layer,
-                        LowOutCoil_NrWindings, LowOutCoil_Circuit]
-        position = Position()
-
-        class Length():
-            def __init__(self):
-                pass
-
-            def inncoil(self):
-                InnCoil_TotalWire = 0
-                for i in range(0, geo.inncoil()[2]):
-                    # circ = 2*np.pi*InnCoil_InRadius+i*(InnCoil_WireDiam+InnCoil_WireInsul)
-                    circ = 2 * np.pi * (geo.inncoil()[1] + i * (wire.prop32()[0] + wire.prop32()[1] * 2))
-                    InnCoil_TotalWire += circ * position.inncoil()[3]
-                print("Total length of inn coil wire (mm):", InnCoil_TotalWire)
-                print("\n")
-                return InnCoil_TotalWire
-
-            def upp_outcoil(self):
-                UppOutCoil_TotalWire = 0
-                for i in range(0, geo.outcoil()[2]):
-                    # circ = 2*np.pi*(UppOutCoil_InRadius+i*(UppOutCoil_WireDiam+UppOutCoil_WireInsul))
-                    circ = 2 * np.pi * (geo.outcoil()[1] + i * (wire.prop32()[0] + wire.prop32()[1] * 2))
-                    UppOutCoil_TotalWire += circ * position.upp_outcoil()[3]
-                print("Total length of upper out wire (mm):", UppOutCoil_TotalWire)
-                print("\n")
-                return UppOutCoil_TotalWire
-
-            def low_outcoil(self):
-                LowOutCoil_TotalWire = 0
-                for i in range(0, geo.outcoil()[2]):
-                    # circ = 2*np.pi*LowOutCoil_InRadius+i*(LowOutCoil_WireDiam+LowOutCoil_WireInsul)
-                    circ = 2 * np.pi * (geo.outcoil()[1] + i * (wire.prop32()[0] + wire.prop32()[1] * 2))
-                    LowOutCoil_TotalWire += circ * position.low_outcoil()[3]
-                print("Total length of lower out coil wire (mm):", LowOutCoil_TotalWire)
-                print("\n")
-                return LowOutCoil_TotalWire
-        length = Length()
+        position = coil.Position(geo.inncoil()[0], geo.inncoil()[1], geo.inncoil()[2], geo.inncoil()[3], geo.outcoil()[0], geo.outcoil()[1], geo.outcoil()[2], geo.outcoil()[3], geo.mag()[2], wire.prop32()[0], wire.prop32()[1], wire.prop32()[0], wire.prop32()[1])
+        length = coil.Length(geo.inncoil()[2], geo.inncoil()[1], wire.prop32()[0], wire.prop32()[1], position.inncoil()[3], geo.outcoil()[2], geo.outcoil()[1], wire.prop32()[0], wire.prop32()[1], position.upp_outcoil()[3])
 
         class Impedance():
             def __init__(self):
@@ -149,14 +80,13 @@ class Analysis():
                 pass
 
             # InnerCoil Structure
+            '''
             femm.mi_drawrectangle(geo.inncoil()[1], position.inncoil()[2], position.inncoil()[0], position.inncoil()[1])
             femm.mi_addcircprop(position.inncoil()[5], sensor.para()[0], 1)
-
             if wire.inncoil_material == "31 AWG":
                 femm.mi_addmaterial('31 AWG', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2261)
             if wire.inncoil_material == "32 AWG":
                 femm.mi_getmaterial(wire.inncoil_material)
-
             femm.mi_clearselected()
             femm.mi_selectrectangle(geo.inncoil()[1], position.inncoil()[2], position.inncoil()[0],
                                     position.inncoil()[1], 4)
@@ -166,17 +96,17 @@ class Analysis():
             femm.mi_selectlabel(geo.inncoil()[1] + wire.prop32()[1], position.inncoil()[1] + (geo.inncoil()[0] / 2))
             femm.mi_setblockprop(wire.prop32()[2], 1, 0, position.inncoil()[5], 0, 1, position.inncoil()[4])
             femm.mi_clearselected()
-
+            '''
+            inncoil_str = fem_cond.Femm_coil(geo.inncoil()[1], position.inncoil()[2], position.inncoil()[0], position.inncoil()[1], position.inncoil()[5], sensor.para()[0], 1, wire.inncoil_material, 4, 1, wire.prop32()[1], geo.inncoil()[0], wire.prop32()[2], position.inncoil()[4])
+            inncoil_str
             # UpperOutCoil Structure
             femm.mi_drawrectangle(geo.outcoil()[1], position.upp_outcoil()[2], position.upp_outcoil()[0],
                                   position.upp_outcoil()[1])
             femm.mi_addcircprop(position.upp_outcoil()[5], sensor.para()[2], 1)
-
             if wire.outcoil_material == "31 AWG":
                 femm.mi_addmaterial('31 AWG', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2261)
             if wire.outcoil_material == "32 AWG":
                 femm.mi_getmaterial(wire.inncoil_material)
-
             femm.mi_clearselected()
             femm.mi_selectrectangle(geo.outcoil()[1], position.upp_outcoil()[2], position.upp_outcoil()[0],
                                     position.upp_outcoil()[1], 4)
@@ -193,12 +123,10 @@ class Analysis():
             femm.mi_drawrectangle(geo.outcoil()[1], position.low_outcoil()[1], position.low_outcoil()[0],
                                   position.low_outcoil()[2])
             femm.mi_addcircprop(position.low_outcoil()[5], -sensor.para()[2], 1)
-
             if wire.outcoil_material == "31 AWG":
                 femm.mi_addmaterial('31 AWG', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2261)
             if wire.outcoil_material == "32 AWG":
                 femm.mi_getmaterial(wire.inncoil_material)
-
             femm.mi_clearselected()
             femm.mi_selectrectangle(geo.outcoil()[1], position.low_outcoil()[1], position.low_outcoil()[0],
                                     position.low_outcoil()[2], 4)
@@ -211,39 +139,21 @@ class Analysis():
             femm.mi_setblockprop(wire.prop32()[2], 0, 0.1, position.low_outcoil()[5], 0, 4, position.low_outcoil()[4])
             femm.mi_clearselected()
 
-            # AirSurrounding Structure
-            AirSpaceRadius_1 = 100
-            AirSpaceRadius_2 = 300
-            BC_Name = "Outside"
-            BC_Group = 10
-            # Airspace1
-            femm.mi_drawline(0, AirSpaceRadius_1, 0, -AirSpaceRadius_1)
-            femm.mi_drawarc(0, -AirSpaceRadius_1, 0, AirSpaceRadius_1, 180, 2)
-            femm.mi_getmaterial("Air")
-            femm.mi_clearselected()
-            femm.mi_addblocklabel(AirSpaceRadius_1 / 4, AirSpaceRadius_1 / 2)
-            femm.mi_selectlabel(AirSpaceRadius_1 / 4, AirSpaceRadius_1 / 2)
-            femm.mi_setblockprop("Air", 0, 0.5, '', 0, 0, 0)
-            femm.mi_clearselected()
-            # Airspace2
-            femm.mi_drawline(0, AirSpaceRadius_2, 0, -AirSpaceRadius_2)
-            femm.mi_drawarc(0, -AirSpaceRadius_2, 0, AirSpaceRadius_2, 180, 2)
-            femm.mi_getmaterial("Air")
-            femm.mi_clearselected()
-            femm.mi_addblocklabel(AirSpaceRadius_2 / 2, AirSpaceRadius_2 / 1.2)
-            femm.mi_selectlabel(AirSpaceRadius_2 / 2, AirSpaceRadius_2 / 1.2)
-            femm.mi_setblockprop("Air", 1, 0, '', 0, 0, 0)
-            femm.mi_clearselected()
-            # Boundary properties
-            femm.mi_addboundprop(BC_Name, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-            femm.mi_clearselected()
-            femm.mi_selectarcsegment(0, AirSpaceRadius_2)
-            femm.mi_setarcsegmentprop(2, BC_Name, 0, BC_Group)
-            femm.mi_clearselected()
+            bc = fem_cond.Femm_bc()
+            bc
 
             UppOutCoil_Voltages = np.zeros(NSteps + 1).astype(complex)
             LowOutCoil_Voltages = np.zeros(NSteps + 1).astype(complex)
             InnCoil_Voltages = np.zeros(NSteps + 1).astype(complex)
+
+            UppOutCoil_Currents = np.zeros(NSteps + 1).astype(complex)
+            LowOutCoil_Currents = np.zeros(NSteps + 1).astype(complex)
+            InnCoil_Currents = np.zeros(NSteps + 1).astype(complex)
+
+            UppOutCoil_Flux = np.zeros(NSteps + 1).astype(complex)
+            LowOutCoil_Flux = np.zeros(NSteps + 1).astype(complex)
+            InnCoil_Flux = np.zeros(NSteps + 1).astype(complex)
+
             InnCoil_Positions = np.zeros(NSteps + 1)
             MetaData = np.zeros(NSteps + 1)
 
@@ -260,7 +170,6 @@ class Analysis():
             for i in range(0, NSteps + 1):
                 print(InnCoil_Offset + StepSize * i)
                 modelled.InnCoil_Positions[i] = InnCoil_Offset + (StepSize * i)
-
                 # Now, the finished input geometry can be displayed.
                 # femm.mi_zoomnatural()
                 femm.mi_zoom(-2, -50, 50, 50)
@@ -277,15 +186,21 @@ class Analysis():
                     position.upp_outcoil()[5])
                 #print("Upper OuterCoil: I= {:.3f}, V = {:.6f} ".format(UppOutCoil_I, UppOutCoil_V))
                 modelled.UppOutCoil_Voltages[i] = UppOutCoil_V
+                modelled.UppOutCoil_Currents[i] = UppOutCoil_I
+                modelled.UppOutCoil_Flux[i] = UppOutCoil_FluxLink
 
                 LowOutCoil_I, LowOutCoil_V, LowOutCoil_FluxLink = femm.mo_getcircuitproperties(
                     position.low_outcoil()[5])
                 #print("Lower OuterCoil: I= {:.3f}, V = {:.6f} ".format(LowOutCoil_I, LowOutCoil_V))
                 modelled.LowOutCoil_Voltages[i] = LowOutCoil_V
+                modelled.LowOutCoil_Currents[i] = LowOutCoil_I
+                modelled.LowOutCoil_Flux[i] = LowOutCoil_FluxLink
 
                 InnCoil_I, InnCoil_V, InnCoil_FluxLink = femm.mo_getcircuitproperties(position.inncoil()[5])
                 #print("InnerCoil: I= {:.3f}, V = {:.8f} ".format(InnCoil_I, InnCoil_V))
                 modelled.InnCoil_Voltages[i] = InnCoil_V
+                modelled.InnCoil_Currents[i] = InnCoil_I
+                modelled.InnCoil_Flux[i] = InnCoil_FluxLink
 
                 # Translate inner coil to different distance
                 femm.mi_selectgroup(1)
@@ -294,10 +209,18 @@ class Analysis():
                 femm.mi_clearselected()
         loop = Computation_loop()
 
-        print(modelled.InnCoil_Positions)
-        print(modelled.UppOutCoil_Voltages)
-        print(modelled.LowOutCoil_Voltages)
-        print(modelled.InnCoil_Voltages)
+        print("Inn coil positions :", modelled.InnCoil_Positions)
+        print("Upp out coil voltages :", modelled.UppOutCoil_Voltages)
+        print("Low out coil voltages :", modelled.LowOutCoil_Voltages)
+        print("Upp out current :", modelled.UppOutCoil_Currents)
+        print("low out current :", modelled.LowOutCoil_Currents)
+        print("Upp out flux :", modelled.UppOutCoil_Flux)
+        print("low out flux :", modelled.LowOutCoil_Flux)
+        print("Inn coil voltages :", modelled.InnCoil_Voltages)
+
+        Inn_Inductance = abs(modelled.InnCoil_Flux/modelled.InnCoil_Currents)
+        Inn_resistance = abs(modelled.InnCoil_Voltages/modelled.InnCoil_Currents)
+        #Uppout_Inductance = abs(modelled.UppOutCoil_Flux/modelled.InnCoil_Currents)
 
         if NSteps > 2:
             modelled.MetaData[0] = NSteps
@@ -313,72 +236,50 @@ class Analysis():
             def __init__(self):
                 pass
 
-            plt.plot(modelled.InnCoil_Positions, modelled.InnCoil_Voltages.real, 'o-')
-            plt.ylabel('Inner Coil Voltage [V]')
-            plt.xlabel('Inner Coil Position [mm]')
-            if save == 1:
-                plt.savefig("inn_vol.png")
-                shutil.move("inn_vol.png", save_plot)
-            plt.show()
+            if req_plots.inn_vol == 1:
+                inn_resistance = dataplot_condition.Plot_parameters(modelled.InnCoil_Positions, abs(modelled.InnCoil_Voltages)/abs(modelled.InnCoil_Currents), 'Inner Coil Position [mm]', 'Inner Coil resistance [ohms]',0)
+                inn_resistance
+                inn_inductance = dataplot_condition.Plot_parameters(modelled.InnCoil_Positions, (abs(modelled.InnCoil_Voltages)/abs(modelled.InnCoil_Currents))*1000, 'Inner Coil Position [mm]', 'Inn coil inductance [mH]',0)
+                inn_inductance
+            if req_plots.inn_vol == 1:
+                inn_voltage = dataplot_condition.Plot_parameters(modelled.InnCoil_Positions, abs(modelled.InnCoil_Voltages), 'Inner Coil Position [mm]', 'Magnitude Inner Coil Voltages [V]', 0)
+                inn_voltage
 
-            plt.plot(modelled.InnCoil_Positions, abs(modelled.InnCoil_Voltages), 'o-')
-            plt.ylabel('Magnitude Inner Coil Voltages [V]')
-            plt.xlabel('Inner Coil Position [mm]')
-            if save == 1:
-                plt.savefig("inn_mag_vol.png")
-                shutil.move("inn_mag_vol.png", save_plot)
-            plt.show()
+            if req_plots.out_vol == 1:
+                plt.plot(modelled.InnCoil_Positions, abs(modelled.LowOutCoil_Voltages), 'o-', label="Lower outer coil")
+                plt.plot(modelled.InnCoil_Positions, abs(modelled.UppOutCoil_Voltages), 'o-', label="Upper outer coil")
+                plt.ylabel('Magnitude Outer Coil Voltages [V]')
+                plt.xlabel('Inner Coil Position [mm]')
+                plt.legend(frameon=False)
+                if save == 1:
+                    plt.savefig("abs_low,out_vol.png")
+                    shutil.move("abs_low,out_vol.png", save_plot)
+                plt.show()
 
-            plt.plot(modelled.InnCoil_Positions, modelled.LowOutCoil_Voltages.real, 'o-', label="Lower outer coil")
-            plt.plot(modelled.InnCoil_Positions, modelled.UppOutCoil_Voltages.real, 'o-', label="Upper outer coil")
-            plt.ylabel('Outer Coil Voltages [V]')
-            plt.xlabel('Inner Coil Position [mm]')
-            plt.legend(frameon=False)
-            if save == 1:
-                plt.savefig("out_vol.png")
-                shutil.move("out_vol.png", save_plot)
-            plt.show()
+                outvolt_diff = dataplot_condition.Plot_parameters(modelled.InnCoil_Positions, abs(modelled.UppOutCoil_Voltages) - abs(modelled.LowOutCoil_Voltages), 'Inner Coil Position [mm]', 'Diff. of Magnitude Outer Coil Voltages [V]', 0)
+                outvolt_diff
 
-            plt.plot(modelled.InnCoil_Positions, abs(modelled.LowOutCoil_Voltages), 'o-', label="Lower outer coil")
-            plt.plot(modelled.InnCoil_Positions, abs(modelled.UppOutCoil_Voltages), 'o-', label="Upper outer coil")
-            plt.ylabel('Magnitude Outer Coil Voltages [V]')
-            plt.xlabel('Inner Coil Position [mm]')
-            plt.legend(frameon=False)
-            if save == 1:
-                plt.savefig("abs_low,out_vol.png")
-                shutil.move("abs_low,out_vol.png", save_plot)
-            plt.show()
+            if print_data.phase == 1:
+                InnCoil_Phases = np.angle(modelled.InnCoil_Voltages)
+                LowOutCoil_Phases = np.angle(modelled.LowOutCoil_Voltages)
+                UppOutCoil_Phases = np.angle(modelled.UppOutCoil_Voltages)
+                print(InnCoil_Phases)
+                print(LowOutCoil_Phases)
+                print(UppOutCoil_Phases)
+                print("Phase offset:", InnCoil_Phases[0] - LowOutCoil_Phases[0],
+                      InnCoil_Phases[NSteps] - UppOutCoil_Phases[NSteps])
 
-            plt.plot(modelled.InnCoil_Positions, abs(modelled.UppOutCoil_Voltages) - abs(modelled.LowOutCoil_Voltages),
-                     'o-',
-                     label="Upper - Lower outer coil", )
-            plt.ylabel('Diff. of Magnitude Outer Coil Voltages [V]')
-            plt.xlabel('Inner Coil Position [mm]')
-            plt.legend(frameon=False)
-            if save == 1:
-                plt.savefig("vol_diff.png")
-                shutil.move("vol_diff.png", save_plot)
-            plt.show()
-
-            InnCoil_Phases = np.angle(modelled.InnCoil_Voltages)
-            LowOutCoil_Phases = np.angle(modelled.LowOutCoil_Voltages)
-            UppOutCoil_Phases = np.angle(modelled.UppOutCoil_Voltages)
-            print(InnCoil_Phases)
-            print(LowOutCoil_Phases)
-            print(UppOutCoil_Phases)
-            print("Phase offset:", InnCoil_Phases[0] - LowOutCoil_Phases[0],
-                  InnCoil_Phases[NSteps] - UppOutCoil_Phases[NSteps])
-
-            plt.plot(modelled.InnCoil_Positions, InnCoil_Phases, 'o-', label="Inner coil")
-            plt.plot(modelled.InnCoil_Positions, LowOutCoil_Phases, 'o-', label="Lower outer coil")
-            plt.plot(modelled.InnCoil_Positions, UppOutCoil_Phases, 'o-', label="Upper outer coil")
-            plt.ylabel('Phase [rad]')
-            plt.xlabel('Inner Coil Position [mm]')
-            plt.legend()
-            if save == 1:
-                plt.savefig("phase.png")
-                shutil.move("phase.png", save_plot)
-            plt.show()
+            if req_plots.phase == 1:
+                plt.plot(modelled.InnCoil_Positions, InnCoil_Phases, 'o-', label="Inner coil")
+                plt.plot(modelled.InnCoil_Positions, LowOutCoil_Phases, 'o-', label="Lower outer coil")
+                plt.plot(modelled.InnCoil_Positions, UppOutCoil_Phases, 'o-', label="Upper outer coil")
+                plt.ylabel('Phase [rad]')
+                plt.xlabel('Inner Coil Position [mm]')
+                plt.legend()
+                if save == 1:
+                    plt.savefig("phase.png")
+                    shutil.move("phase.png", save_plot)
+                plt.show()
 
             if multiple_fit == 0:
                 Norm_OutCoil_Signals = (abs(modelled.UppOutCoil_Voltages) - abs(modelled.LowOutCoil_Voltages)) / sensor.para()[0]
@@ -396,142 +297,37 @@ class Analysis():
                 InnCoil_Positions1 = modelled.InnCoil_Positions[8:13]
                 Norm_OutCoil_Signals1 = Norm_OutCoil_Signals[8:13]
                 optimizedparameters1, pcov = opt.curve_fit(linfunc, InnCoil_Positions1, Norm_OutCoil_Signals1)
-                print("Fitted slope of the function (-0.5,0.5):", optimizedparameters1[0])
+                print("Fitted slope of the function around 0 (-0.5,0.5):", optimizedparameters1[0])
                 fitted_Norm_OutCoil_Signals1 = linfunc(InnCoil_Positions1, *optimizedparameters1)
                 print("fit (-0.5,0.5) is", format(optimizedparameters1))
 
-                plt.plot(modelled.InnCoil_Positions, Norm_OutCoil_Signals, label="simulation")
-                plt.ylabel('Diff. Magnitude Outer Coil Voltages [V/A]')
-                plt.xlabel('Inner Coil Position [mm]')
-                # plt.ylim(0,20)
-                plt.legend()
-                if save == 1:
-                    plt.savefig("normsignals_def.png")
-                    shutil.move("normsignals_def.png", save_plot)
-                plt.show()
-
-                #plt.plot(modelled.InnCoil_Positions, Norm_OutCoil_Signals - fitted_Norm_OutCoil_Signals, label="fit")
-                plt.plot(modelled.InnCoil_Positions,Norm_OutCoil_Signals - optimizedparameters1[0] * (np.array(modelled.InnCoil_Positions)) +
-                         optimizedparameters1[1], label="fit (-0.5,0.5)")
-                plt.ylabel('Fit error [V/A]')
-                plt.xlabel('Inner Coil Position [mm]')
-                plt.legend()
-                if save == 1:
-                    plt.savefig("fiterr_def.png")
-                    shutil.move("fiterr_def.png", save_plot)
-                plt.show()
+                if req_plots.norm_signal == 1:
+                    norm_sig = dataplot_condition.Plot_parameters(modelled.InnCoil_Positions, Norm_OutCoil_Signals, 'Inner Coil Position [mm]', 'Diff. Magnitude Outer Coil Voltages [V/A]', 0)
+                    norm_sig
+                if req_plots.fit_error == 1:
+                    fit = dataplot_condition.Plot_parameters(modelled.InnCoil_Positions,Norm_OutCoil_Signals - optimizedparameters1[0] * (np.array(modelled.InnCoil_Positions)) +optimizedparameters1[1], 'Inner Coil Position [mm]', 'Fit error [V/A]', 0)
+                    fit
                 fiterror1 = Norm_OutCoil_Signals - optimizedparameters1[0] * (np.array(modelled.InnCoil_Positions)) + optimizedparameters1[1]
                 norm_fit_error1 = (abs(fiterror1) / abs(np.array(Norm_OutCoil_Signals))) * 100
 
-                print(fitted_Norm_OutCoil_Signals)
-                print(Norm_OutCoil_Signals)
+                #print(fitted_Norm_OutCoil_Signals)
+                print("Normalised out coil signals :", Norm_OutCoil_Signals)
                 fiterror = np.array(Norm_OutCoil_Signals) - np.array(fitted_Norm_OutCoil_Signals)
                 norm_fit_error = (abs(fiterror) / abs(np.array(Norm_OutCoil_Signals))) * 100
 
-                #plt.plot(modelled.InnCoil_Positions, (abs(fiterror) / abs(np.array(Norm_OutCoil_Signals))) * 100)
-                plt.plot(modelled.InnCoil_Positions,  (abs(fiterror1)/ abs(np.array(Norm_OutCoil_Signals))) * 100, label="fit (-0.5,0.5)")
-                plt.ylabel('Normalised Fit error[%]')
-                plt.xlabel('Inner Coil Position [mm]')
-                plt.ylim(0.0, 7)
-                plt.legend()
-                if save == 1:
-                    plt.savefig("normfiterr_def.png")
-                    shutil.move("normfiterr_def.png", save_plot)
-                plt.show()
+                if req_plots.Norm_fiterror == 1:
+                    #plt.plot(modelled.InnCoil_Positions, (abs(fiterror) / abs(np.array(Norm_OutCoil_Signals))) * 100)
+                    plt.plot(modelled.InnCoil_Positions,  (abs(fiterror1)/ abs(np.array(Norm_OutCoil_Signals))) * 100, label="fit (-0.5,0.5)")
+                    plt.ylabel('Normalised Fit error[%]')
+                    plt.xlabel('Inner Coil Position [mm]')
+                    plt.ylim(0.0, 7)
+                    plt.legend()
+                    if save == 1:
+                        plt.savefig("normfiterr_def.png")
+                        shutil.move("normfiterr_def.png", save_plot)
+                    plt.show()
 
 
-            if multiple_fit == 1:
-                Norm_OutCoil_Signals = (abs(modelled.UppOutCoil_Voltages) - abs(modelled.LowOutCoil_Voltages)) / sensor.para()[0]
-
-                def linfunc(x, a, b):
-                    return a * x + b
-                    # ydata: Norm_OutCoil_Signals
-                    # xdata: InnCoil_Position
-
-                optimizedParameters, pcov = opt.curve_fit(linfunc, modelled.InnCoil_Positions, Norm_OutCoil_Signals);
-                print("Fitted slope of the function:", optimizedParameters[0])
-                fitted_Norm_OutCoil_Signals = linfunc(modelled.InnCoil_Positions, *optimizedParameters)
-                print(optimizedParameters)
-
-                InnCoil_Positions1 = modelled.InnCoil_Positions[8:13]
-                Norm_OutCoil_Signals1 = Norm_OutCoil_Signals[8:13]
-                optimizedparameters1, pcov = opt.curve_fit(linfunc, InnCoil_Positions1, Norm_OutCoil_Signals1)
-                print("Fitted slope of the function (-0.5,0.5):", optimizedparameters1[0])
-                fitted_Norm_OutCoil_Signals1 = linfunc(InnCoil_Positions1, *optimizedparameters1)
-                print("fit (-0.5,0.5) is", format(optimizedparameters1))
-
-                InnCoil_Positions2 = modelled.InnCoil_Positions[6:15]
-                Norm_OutCoil_Signals2 = Norm_OutCoil_Signals[6:15]
-                optimizedparameters2, pcov = opt.curve_fit(linfunc, InnCoil_Positions2, Norm_OutCoil_Signals2)
-                print("Fitted slope of the function (-1,1):", optimizedparameters2[0])
-                fitted_Norm_OutCoil_Signals2 = linfunc(InnCoil_Positions2, *optimizedparameters2)
-                print("fit (-1,1) is ", format(optimizedparameters2))
-
-                InnCoil_Positions3 = modelled.InnCoil_Positions[4:17]
-                Norm_OutCoil_Signals3 = Norm_OutCoil_Signals[4:17]
-                optimizedparameters3, pcov = opt.curve_fit(linfunc, InnCoil_Positions3, Norm_OutCoil_Signals3)
-                print("Fitted slope of the function (-1.5,1.5):", optimizedparameters3[0])
-                fitted_Norm_OutCoil_Signals3 = linfunc(InnCoil_Positions3, *optimizedparameters3)
-                print("fit (-1.5,1.5) is", format(optimizedparameters3))
-
-                plt.plot(modelled.InnCoil_Positions, Norm_OutCoil_Signals, label="simulation")
-                plt.plot(modelled.InnCoil_Positions, fitted_Norm_OutCoil_Signals, '--', label="linear fit")
-                plt.plot(InnCoil_Positions3, fitted_Norm_OutCoil_Signals3, '--', label="fit (-1.5,1.5)")
-                plt.plot(InnCoil_Positions2, fitted_Norm_OutCoil_Signals2, '--', label="fit (-1,1)")
-                plt.plot(InnCoil_Positions1, fitted_Norm_OutCoil_Signals1, '--', label="fit (-0.5,0.5)")
-                plt.ylabel('Diff. Magnitude Outer Coil Voltages [V/A]')
-                plt.xlabel('Inner Coil Position [mm]')
-                # plt.ylim(0,20)
-                plt.legend()
-                if save == 1:
-                 plt.savefig("normsignals_def.png")
-                 shutil.move("normsignals_def.png", save_plot)
-                plt.show()
-
-                plt.plot(modelled.InnCoil_Positions, Norm_OutCoil_Signals - fitted_Norm_OutCoil_Signals, label="fit")
-                plt.plot(modelled.InnCoil_Positions,
-                         Norm_OutCoil_Signals - optimizedparameters3[0] * (np.array(modelled.InnCoil_Positions)) +
-                         optimizedparameters3[1], label="fit (-1.5,1.5)")
-                plt.plot(modelled.InnCoil_Positions,
-                         Norm_OutCoil_Signals - optimizedparameters2[0] * (np.array(modelled.InnCoil_Positions)) +
-                         optimizedparameters2[1], label="fit (-1,1)")
-                plt.plot(modelled.InnCoil_Positions,
-                         Norm_OutCoil_Signals - optimizedparameters1[0] * (np.array(modelled.InnCoil_Positions)) +
-                         optimizedparameters1[1], label="fit (-0.5,0.5)")
-                plt.ylabel('Fit error [V/mmA]')
-                plt.xlabel('Inner Coil Position [mm]')
-                plt.legend()
-                if save == 1:
-                    plt.savefig("fiterr_def.png")
-                    shutil.move("fiterr_def.png", save_plot)
-                plt.show()
-
-                print(fitted_Norm_OutCoil_Signals)
-                print(Norm_OutCoil_Signals)
-                fiterror = np.array(Norm_OutCoil_Signals) - np.array(fitted_Norm_OutCoil_Signals)
-                norm_fit_error = (abs(fiterror) / abs(np.array(Norm_OutCoil_Signals))) * 100
-
-                plt.plot(modelled.InnCoil_Positions, (abs(fiterror) / abs(np.array(Norm_OutCoil_Signals))) * 100)
-                plt.plot(modelled.InnCoil_Positions, (abs(np.array(Norm_OutCoil_Signals) - np.array(
-                    optimizedparameters3[0] * (np.array(modelled.InnCoil_Positions)) + optimizedparameters3[1])) / abs(
-                    np.array(Norm_OutCoil_Signals))) * 100, label="fit (-1.5,1.5)")
-                plt.plot(modelled.InnCoil_Positions, (abs(np.array(Norm_OutCoil_Signals) - np.array(
-                    optimizedparameters2[0] * (np.array(modelled.InnCoil_Positions)) + optimizedparameters2[1])) / abs(
-                    np.array(Norm_OutCoil_Signals))) * 100, label="fit (-1,1)")
-                plt.plot(modelled.InnCoil_Positions, (abs(np.array(Norm_OutCoil_Signals) - np.array(
-                    optimizedparameters1[0] * (np.array(modelled.InnCoil_Positions)) + optimizedparameters1[1])) / abs(
-                    np.array(Norm_OutCoil_Signals))) * 100, label="fit (-0.5,0.5)")
-                plt.ylabel('Normalised Fit error[%]')
-                plt.xlabel('Inner Coil Position [mm]')
-                plt.ylim(0.0, 7)
-                plt.legend()
-                if save == 1:
-                    plt.savefig("normfiterr_def.png")
-                    shutil.move("normfiterr_def.png", save_plot)
-                plt.show()
-
-                fiterror1 = Norm_OutCoil_Signals - optimizedparameters1[0] * (np.array(modelled.InnCoil_Positions)) + optimizedparameters1[1]
-                norm_fit_error1 = (abs(fiterror1) / abs(np.array(Norm_OutCoil_Signals))) * 100
         results = Results()
 
         class Save_data():
@@ -539,10 +335,10 @@ class Analysis():
                 pass
             norm_fit_error = (abs(np.array(results.Norm_OutCoil_Signals) - np.array(results.fitted_Norm_OutCoil_Signals)) / abs(np.array(results.Norm_OutCoil_Signals)))*100
             fit1 = results.optimizedparameters1[0]*(np.array(modelled.InnCoil_Positions))+results.optimizedparameters1[1]
-            data = np.column_stack((modelled.InnCoil_Positions, modelled.UppOutCoil_Voltages, modelled.LowOutCoil_Voltages, modelled.InnCoil_Voltages,  results.Norm_OutCoil_Signals, results.fiterror1, results.norm_fit_error1))
+            data = np.column_stack((modelled.InnCoil_Positions, modelled.UppOutCoil_Voltages, modelled.LowOutCoil_Voltages, modelled.InnCoil_Voltages,  results.Norm_OutCoil_Signals, results.fiterror1, results.norm_fit_error1, Inn_Inductance, Inn_resistance))
             np.savetxt(data_file, data)
-            if data_save==0:
-                with open(path, "w") as f:
+            if save_data==1:
+                with open(data_save.path, "w") as f:
                     f.write(data)
             pname = "pick"+self.filename
             pickle_out = open(pname, "wb")

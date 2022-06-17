@@ -8,21 +8,27 @@ import shutil
 import warnings
 warnings.filterwarnings('ignore')
 #plots = [uppout_vol, lowout_vol, inncoil_vol, norm_sig, norm_fit, fit, norm_fit_sig]
-
-graph = plot_design_text.Yoke_graphs(1, "reverse_current")
-graph.b1()
-graph.b2()
-graph.b3()
-graph.b4()
-graph.b5()
-graph.b6()
-graph.b7()
+'''
+graph = plot_design_text.Yoke_graphs(0, "reverse_current")
+#graph.b1()
+#graph.b2()
+#graph.b3()
+#graph.b4()
+#graph.b5()
+#graph.b6()
+#graph.b7()
 graph.b_total()
 graph.mag()
 graph.low_inn()
-#graph.tot_diff()
-
-
-
+graph.tot_diff()
+'''
+graph = plot_design_text.Graphs(0)
+graph.norm_sig()
+graph.norm_fit()
+graph.fit()
+#graph.slope()
+#graph.resistance()
+#graph.inductance()
+#graph.lin_imp()
 
 
