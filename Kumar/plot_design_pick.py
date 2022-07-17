@@ -15,7 +15,7 @@ warnings.filterwarnings('ignore')
 inputdata = []
 slopes = []
 
-output_files = ["inht16", "def_bench", "inht20", "inht22" ]
+output_files = ["inht16", "def_F0bench", "inht20", "inht22" ]
 legends = ["inn_ht=16", "inn_ht=18(def)", "inn_ht=20", "inn_ht=22"]
 b123_legends = ["b1", "b2", "b3"]
 b4567_legends = ["b4", "b5", "b6", "b7"]
@@ -178,7 +178,7 @@ class Graphs():
             linimp = []
             posi = []
             for j in range(0, len(output_files[0])):
-                p = 100 - ((np.array(output_files[i][j][6]/np.array(output_files[output_files.index("def_bench")][j][6])))*100)
+                p = 100 - ((np.array(output_files[i][j][6]/np.array(output_files[output_files.index("def_F0bench")][j][6])))*100)
                 linimp.append(p)
                 posi.append(output_files[i][j][0])
             plt.plot(np.array(posi).real.tolist(), np.array(linimp).real.tolist(), 'o-', label=legends[i])
@@ -201,7 +201,7 @@ class Graphs():
             m = np.polyfit(np.array(posi), np.array(normsig), 1)[0]
             slopes.append(m)
         #plt.plot(legends, slopes, 'o--')
-        plt.plot(legends, ((np.array(slopes)/slopes[output_files.index("def_bench")])*100) - 100, "o--")
+        plt.plot(legends, ((np.array(slopes)/slopes[output_files.index("def_F0bench")])*100) - 100, "o--")
         if voice_coil == 0:
             plt.ylabel('slope increment [%]')
         if voice_coil == 1:

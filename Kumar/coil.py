@@ -1,5 +1,5 @@
 import design
-import fem_cond
+import femm_model
 import numpy as np
 import cmath
 import scipy.optimize as opt
@@ -11,7 +11,7 @@ import pickle
 
 class Position():
     def __init__(self, inn_ht, inn_rad, inn_layers, inn_dist, out_ht, out_rad, out_layers,  out_dist,
-                 ver_shi, inn_wiredia, inn_wireins, out_wiredia, out_wireins):
+                 ver_shi, inn_wiredia, inn_wireins, out_wiredia, out_wireins, mag_len, mag_dia):
         self.inn_ht = inn_ht
         self.inn_rad = inn_rad
         self.inn_layers = inn_layers
@@ -25,6 +25,9 @@ class Position():
         self.out_wiredia = out_wiredia
         self.inn_wireins = inn_wireins
         self.out_wireins = out_wireins
+        self.mag_len = mag_len
+        self.mag_dia = mag_dia
+
         
     def inncoil(self):
         InnCoil_OutRadius = self.inn_rad + ((self.inn_wiredia + self.inn_wireins * 2) * self.inn_layers)
@@ -58,6 +61,12 @@ class Position():
         LowOutCoil_Circuit = "LowOutCoil_Circuit"
         return [LowOutCoil_OutRadius, LowOutCoil_UppEnd, LowOutCoil_LowEnd, LowOutCoil_NrWind_p_Layer,
                 LowOutCoil_NrWindings, LowOutCoil_Circuit]
+
+    def magnet(self):
+        Magnet_UppEnd = self.mag_len / 2 + self.ver_shi
+        Magnet_LowEnd = -self.mag_len / 2 + self.ver_shi
+        Magnet_Radius = self.mag_dia / 2
+        return [Magnet_UppEnd, Magnet_LowEnd, Magnet_Radius]
     
 class Length():
     def __init__(self, inn_layers, inn_rad, inn_wiredia, inn_wireins, innwind_pr_layer, out_layers, out_rad, out_wiredia, out_wireins, outwind_pr_layer):
@@ -139,4 +148,46 @@ class Length():
         return LowOutCoil_TotalWire
 length = Length()
 '''
+'''
+       class Position():
+           def __init__(self):
+               pass
 
+           def inncoil(self):
+               InnCoil_OutRadius = geo.inncoil()[1] + ((wire.prop32()[0] + wire.prop32()[1] * 2) * geo.inncoil()[2])
+               InnCoil_Lowend = (geo.inncoil()[3] - geo.inncoil()[0]) / 2
+               InnCoil_Uppend = InnCoil_Lowend + geo.inncoil()[0]
+               InnCoil_NrWind_p_Layer = (geo.inncoil()[0]) / (wire.prop32()[0] + wire.prop32()[1] * 2)
+               InnCoil_NrWindings = InnCoil_NrWind_p_Layer * geo.inncoil()[2]
+               InnCoil_Circuit = "InnCoil_Circuit"
+               return [InnCoil_OutRadius, InnCoil_Lowend, InnCoil_Uppend, InnCoil_NrWind_p_Layer, InnCoil_NrWindings,
+                       InnCoil_Circuit]
+
+           def upp_outcoil(self):
+               UppOutCoil_OutRadius = geo.outcoil()[1] + ((wire.prop32()[0] + wire.prop32()[1] * 2) * geo.outcoil()[2])
+               UppOutCoil_LowEnd = (geo.outcoil()[3] - geo.outcoil()[0]) / 2
+               UppOutCoil_UppEnd = UppOutCoil_LowEnd + geo.outcoil()[0]
+               UppOutCoil_NrWind_p_Layer = (geo.outcoil()[0]) / (wire.prop32()[0] + wire.prop32()[1] * 2)
+               UppOutCoil_NrWindings = UppOutCoil_NrWind_p_Layer * geo.outcoil()[2]
+               UppOutCoil_Circuit = "UppOutCoil_Circuit"
+               return [UppOutCoil_OutRadius, UppOutCoil_LowEnd, UppOutCoil_UppEnd, UppOutCoil_NrWind_p_Layer,
+                       UppOutCoil_NrWindings, UppOutCoil_Circuit]
+
+           def low_outcoil(self):
+               LowOutCoil_OutRadius = geo.outcoil()[1] + ((wire.prop32()[0] + wire.prop32()[1] * 2) * geo.outcoil()[2])
+               LowOutCoil_UppEnd = -1 * ((geo.outcoil()[3] - geo.outcoil()[0]) / 2)
+               LowOutCoil_LowEnd = LowOutCoil_UppEnd - geo.outcoil()[0]
+               LowOutCoil_NrWind_p_Layer = (LowOutCoil_UppEnd - LowOutCoil_LowEnd) / (
+                           wire.prop32()[0] + wire.prop32()[1] * 2)
+               LowOutCoil_NrWindings = LowOutCoil_NrWind_p_Layer * geo.outcoil()[2]
+               LowOutCoil_Circuit = "LowOutCoil_Circuit"
+               return [LowOutCoil_OutRadius, LowOutCoil_UppEnd, LowOutCoil_LowEnd, LowOutCoil_NrWind_p_Layer,
+                       LowOutCoil_NrWindings, LowOutCoil_Circuit]
+
+           def magnet(self):
+               Magnet_UppEnd = geo.mag()[0] / 2 + geo.mag()[2]
+               Magnet_LowEnd = -geo.mag()[0] / 2 + geo.mag()[2]
+               Magnet_Radius = geo.mag()[1] / 2
+               return [Magnet_UppEnd, Magnet_LowEnd, Magnet_Radius]
+       position = Position()
+'''

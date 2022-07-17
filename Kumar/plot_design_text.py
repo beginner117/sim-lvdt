@@ -1,14 +1,10 @@
 import numpy as np
-import cmath
 import scipy.optimize as opt
 import matplotlib.pyplot as plt
 import os
 import shutil
 import warnings
-
 import pickle
-
-
 warnings.filterwarnings('ignore')
 
 # output_file data : [0]-position, [1]-upp_out_vol/for, [2]-low_out_vol/for, [3]-inn_vol/mag_for, [4]-Norm_Out_Sig/for, [5]-fit_err(1) , [6]-norm-fit(1), [7]-Inn_Inductance/Linear Range, [8]-Inn_resistance
@@ -18,13 +14,13 @@ slopes = []
 res = []
 ind = []
 
-#output_files = ["def_text/def_bench"]
-output_files = [ "def_f0ben_lv"]
+#output_files = ["def_text/def_F0bench"]
+output_files = [ "def_text/def_F3mirror_VC_B"]
 legends = ["def"]
 #legends = [ "def"]
 b123_legends = ["b1", "b2", "b3"]
 b4567_legends = ["b4", "b5", "b6", "b7"]
-voice_coil = 0
+voice_coil = 1
 for i in range(0,len(output_files)):
     X = np.loadtxt(output_files[i], dtype=complex)
     inputarray = [[X[j][i] for j in range(len(X))] for i in range(len(X[0]))]
@@ -70,7 +66,7 @@ class Graphs():
         if voice_coil == 0:
             plt.ylabel('Lower Out Coil Voltage [V] ')
         if voice_coil == 1:
-            plt.ylabel('Lower Out Coil Force [N] ')
+            plt.ylabel('Lower Out Coil Force [N]')
         plt.xlabel('Inner Coil Position [mm]')
         plt.legend()
         if self.sav == 1:
@@ -98,7 +94,6 @@ class Graphs():
         if voice_coil == 1:
             plt.ylabel('Normalised Magnet Force [N/A]')
         plt.xlabel('Inner Coil Position [mm]')
-
         plt.legend()
         #plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         if self.sav == 1:
@@ -110,7 +105,7 @@ class Graphs():
             plt.plot(np.array(inputdata[i][0]).real.tolist(), np.array(inputdata[i][6]).real.tolist(), 'o-', label=legends[i])
         plt.ylabel('Normalised Fit Error [%]')
         plt.xlabel('Inner Coil Position [mm]')
-        plt.ylim(0,0.8)
+        plt.ylim(0,1.8)
         plt.legend()
         if self.sav == 1:
             plt.savefig("normfiterr.png")
@@ -229,7 +224,7 @@ class Yoke_graphs():
                 os.mkdir(self.path1)
     def low_inn(self):
         for i in range(0,n):
-            plt.plot(np.array(inputdata[i][0]).real.tolist(), np.array(inputdata[i][1]).real.tolist(), 'o-', label=legends[i])
+            plt.plot(np.array(inputdata[i][0]).real.tolist()[:6], np.array(inputdata[i][1]).real.tolist()[:6], 'o-', label=legends[i])
         #plt.plot(np.array(pos1), np.array(inn1), 'o-', label = "gap=1.35(2,7)")
         plt.ylabel('Lower Inn coil force [N] ')
         plt.xlabel('Inner Coil Position [mm]')
@@ -241,7 +236,7 @@ class Yoke_graphs():
         plt.show()
     def mag(self):
         for i in range(0,n):
-            plt.plot(np.array(inputdata[i][0]).real.tolist(), np.array(inputdata[i][2]).real.tolist(), 'o-', label=legends[i])
+            plt.plot(np.array(inputdata[i][0]).real.tolist()[:6], np.array(inputdata[i][2]).real.tolist()[:6], 'o-', label=legends[i])
         #plt.plot(np.array(pos1), np.array(mag1), 'o-', label="gap=1.35(2,7)")
         plt.ylabel('Magnet force [N] ')
         plt.xlabel('Inner Coil Position [mm]')
@@ -332,7 +327,7 @@ class Yoke_graphs():
     def b_total(self):
         for i in range(0,n):
             force_sum = (inputdata[i][3])+np.array(inputdata[i][4])+np.array(inputdata[i][5])+np.array(inputdata[i][6])+np.array(inputdata[i][7])+np.array(inputdata[i][8])+np.array(inputdata[i][9])
-            plt.plot(np.array(inputdata[i][0]), np.array(force_sum), 'o-', label=legends[i])
+            plt.plot(np.array(inputdata[i][0])[:6], np.array(force_sum)[:6], 'o-', label=legends[i])
         #plt.plot(np.array(pos1), -np.array(mag1)-np.array(inn1), 'o-', label="gap=1.35(2,7)")
         plt.ylabel('total block force [N] ')
         plt.xlabel('Inner Coil Position [mm]')
@@ -353,6 +348,24 @@ class Yoke_graphs():
         if self.sav == 1:
             plt.savefig("tot_dif.png")
             shutil.move("tot_dif.png", self.path1)
+        plt.show()
+    def rough1(self):
+        for i in range(0, n):
+            #plt.plot(np.array(inputdata[i][0])[:6], (np.array(inputdata[i][3])+np.array(inputdata[i][4])+np.array(inputdata[i][5])+np.array(inputdata[i][6]))[:6] , 'o-',
+            #         label="upp part sum")
+            #plt.plot(np.array(inputdata[i][0])[:6],
+            #         (np.array(inputdata[i][9]) + (np.array(inputdata[i][7]) + np.array(inputdata[i][8])))[:6], 'o-',
+            #         label="low part sum")
+            plt.plot(np.array(inputdata[i][0]), (np.array(inputdata[i][3])+np.array(inputdata[i][4])+np.array(inputdata[i][5])+np.array(inputdata[i][6])) +
+                     (np.array(inputdata[i][9]) + (np.array(inputdata[i][7]) + np.array(inputdata[i][8]))), 'o-',
+                     label="difference")
+        plt.ylabel('block forces [N] ')
+        plt.xlabel('Inner Coil Position [mm]')
+        plt.title('Individual Block Force')
+        plt.legend()
+        if self.sav == 1:
+            plt.savefig("b5.png")
+            shutil.move("b5.png", self.path1)
         plt.show()
 
 '''

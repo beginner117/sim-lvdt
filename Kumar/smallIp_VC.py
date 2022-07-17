@@ -7,7 +7,8 @@ import shutil
 import design
 import os
 import pickle
-
+import dataplot_condition
+import femm_model
 
 class Analysis():
     def __init__(self, parameter, filename: str):
@@ -29,13 +30,15 @@ class Analysis():
         sensor = design.Sensortype(0, 0, 1)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype("32 AWG", "32 AWG")
-        geo = design.Geometry(inn_ht=24, inn_rad=self.parameter, inn_layers=6, inn_dist=0, out_ht=13.5, out_rad=20,
-                              out_layers=5, out_dist=28.5, mag_len=40, mag_dia=10, ver_shi=0)
+        geo = design.Geometry(inn_ht=self.parameter, inn_rad=4.5, inn_layers=6, inn_dist=0, out_ht=10, out_rad=25,
+                              out_layers=7, out_dist=36, mag_len=8, mag_dia=5, ver_shi=0)
+        req_plots = dataplot_condition.Req_plots(out_vol=0, inn_vol=0, phase=0, norm_signal=1, fit_error=0,
+                                                 Norm_fiterror=1, impedance=1)
 
         data_file = self.filename
         multiple_fit = 1
         save = 0
-        data_save = 1
+        data_save = 0
         if data_save == 1:
             directory = data_file
             parent_dir = "C:\\Users\\kumar\\OneDrive\\Desktop\\pi\\lvdt\\small_IP\\datavc"
@@ -303,47 +306,48 @@ class Analysis():
                 pass
 
             plt.style.use(['science', 'grid', 'notebook'])
+            if req_plots.out_vol == 1:
+                plt.plot(modelled.InnCoil_Positions, modelled.LowOutCoil_Forces, 'o-')
+                plt.ylabel('Lower Outer Coil Force [N]')
+                plt.xlabel('Inner Coil Position [mm]')
+                if save == 1:
+                    plt.savefig("low for.png")
+                    shutil.move("low for.png", save_plot)
+                plt.show()
 
-            plt.plot(modelled.InnCoil_Positions, modelled.LowOutCoil_Forces, 'o-')
-            plt.ylabel('Lower Outer Coil Force [N]')
-            plt.xlabel('Inner Coil Position [mm]')
-            if save == 1:
-                plt.savefig("low for.png")
-                shutil.move("low for.png", save_plot)
-            plt.show()
+                plt.plot(modelled.InnCoil_Positions, modelled.UppOutCoil_Forces, 'o-')
+                plt.ylabel('Upper Outer Coil Force [N]')
+                plt.xlabel('Inner Coil Position [mm]')
+                if save == 1:
+                    plt.savefig("upp for.png")
+                    shutil.move("upp for.png", save_plot)
+                plt.show()
 
-            plt.plot(modelled.InnCoil_Positions, modelled.UppOutCoil_Forces, 'o-')
-            plt.ylabel('Upper Outer Coil Force [N]')
-            plt.xlabel('Inner Coil Position [mm]')
-            if save == 1:
-                plt.savefig("upp for.png")
-                shutil.move("upp for.png", save_plot)
-            plt.show()
+            if req_plots.inn_vol == 1:
+                plt.plot(modelled.InnCoil_Positions, modelled.Magnet_Forces, 'o-')
+                plt.ylabel('Magnet Force [N]')
+                plt.xlabel('Inner Coil Position [mm]')
+                if save == 1:
+                    plt.savefig("mf.png")
+                    shutil.move("mf.png", save_plot)
+                plt.show()
+            if req_plots.extras == 1:
+                plt.plot(modelled.InnCoil_Positions, modelled.LowOutCoil_Forces + modelled.UppOutCoil_Forces, 'o-')
+                plt.ylabel('Sum of Outer Coil Force [N]')
+                plt.xlabel('Inner Coil Position [mm]')
+                if save == 1:
+                    plt.savefig("outsum.png")
+                    shutil.move("outsum.png", save_plot)
+                plt.show()
 
-            plt.plot(modelled.InnCoil_Positions, modelled.Magnet_Forces, 'o-')
-            plt.ylabel('Magnet Force [N]')
-            plt.xlabel('Inner Coil Position [mm]')
-            if save == 1:
-                plt.savefig("mf.png")
-                shutil.move("mf.png", save_plot)
-            plt.show()
-
-            plt.plot(modelled.InnCoil_Positions, modelled.LowOutCoil_Forces + modelled.UppOutCoil_Forces, 'o-')
-            plt.ylabel('Sum of Outer Coil Force [N]')
-            plt.xlabel('Inner Coil Position [mm]')
-            if save == 1:
-                plt.savefig("outsum.png")
-                shutil.move("outsum.png", save_plot)
-            plt.show()
-
-            plt.plot(modelled.InnCoil_Positions,
-                     modelled.Magnet_Forces - abs(modelled.LowOutCoil_Forces + modelled.UppOutCoil_Forces), 'o-')
-            plt.ylabel('Force on Magnet - Force on Outer Coils [N]')
-            plt.xlabel('Inner Coil Position [mm]')
-            if save == 1:
-                plt.savefig("mf - inn for.png")
-                shutil.move("mf - inn for.png", save_plot)
-            plt.show()
+                plt.plot(modelled.InnCoil_Positions,
+                         modelled.Magnet_Forces - abs(modelled.LowOutCoil_Forces + modelled.UppOutCoil_Forces), 'o-')
+                plt.ylabel('Force on Magnet - Force on Outer Coils [N]')
+                plt.xlabel('Inner Coil Position [mm]')
+                if save == 1:
+                    plt.savefig("mf - inn for.png")
+                    shutil.move("mf - inn for.png", save_plot)
+                plt.show()
 
             plt.plot(modelled.InnCoil_Positions, modelled.Magnet_Forces / max(modelled.Magnet_Forces) * 100, 'o-')
             plt.ylabel('Magnet Forces/max force [%]')
@@ -373,10 +377,10 @@ class Analysis():
             fiterr1 = Norm_Magnet_Forces - optimizedParameters1[0]*(np.array(modelled.InnCoil_Positions)) - optimizedParameters1[1]*(np.array(modelled.InnCoil_Positions)) - optimizedParameters1[2]
 
             plt.plot(modelled.InnCoil_Positions, Norm_Magnet_Forces, label="simulation")
-            plt.plot(modelled.InnCoil_Positions, fitted_Norm_Magnet_Forces, '--', label="poly2 fit")
+            #plt.plot(modelled.InnCoil_Positions, fitted_Norm_Magnet_Forces, 'o--', label="poly2 fit")
             plt.plot(modelled.InnCoil_Positions,
                      optimizedParameters1[0]*(np.array(modelled.InnCoil_Positions)) - optimizedParameters1[1]*(
-                         np.array(modelled.InnCoil_Positions)) - optimizedParameters1[2], '--', label="0.5 fit")
+                         np.array(modelled.InnCoil_Positions)) - optimizedParameters1[2], 'o--', label="fit")
             plt.ylabel('Normalised Magnet Force [N/A]')
             plt.xlabel('Inner Coil Position [mm]')
             plt.legend()

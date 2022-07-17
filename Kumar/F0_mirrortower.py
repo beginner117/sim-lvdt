@@ -1,5 +1,5 @@
 import design
-import fem_cond
+import femm_model
 import numpy as np
 import cmath
 import scipy.optimize as opt

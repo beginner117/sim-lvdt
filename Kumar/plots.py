@@ -1,6 +1,5 @@
 import plot_design_text
 import numpy as np
-import cmath
 import scipy.optimize as opt
 import matplotlib.pyplot as plt
 import os
@@ -23,12 +22,8 @@ graph.low_inn()
 graph.tot_diff()
 '''
 graph = plot_design_text.Graphs(0)
+graph.inncoil_vol()
 graph.norm_sig()
-graph.norm_fit()
-graph.fit()
-#graph.slope()
-#graph.resistance()
-#graph.inductance()
-#graph.lin_imp()
+
 
 

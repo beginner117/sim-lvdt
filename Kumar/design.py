@@ -1,4 +1,4 @@
-import fem_cond
+import femm_model
 import numpy as np
 import cmath
 import scipy.optimize as opt
@@ -119,7 +119,7 @@ class Blocks():
         self.b6_l = 12.8
         self.b6_h = 6
         self.b7_l = 16.65
-        self.b7_h = 8
+        self.b7_h = 2
 
         self.yokeinnrad = 8
         self.yokeuppend = -14-42

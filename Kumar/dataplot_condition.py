@@ -1,5 +1,5 @@
 import design
-import fem_cond
+import femm_model
 import numpy as np
 import cmath
 import scipy.optimize as opt
@@ -10,13 +10,15 @@ import pickle
 
 
 class Req_plots():
-    def __init__(self, out_vol, inn_vol, phase, norm_signal, fit_error, Norm_fiterror):
+    def __init__(self, out_vol, inn_vol, phase, norm_signal, fit_error, Norm_fiterror, impedance=None, extras=None):
         self.out_vol = out_vol
         self.inn_vol = inn_vol
         self.phase = phase
         self.norm_signal = norm_signal
         self.fit_error = fit_error
         self.Norm_fiterror = Norm_fiterror
+        self.impedance = impedance
+        self.extras = extras
 
 class Print_data():
     def __init__(self, phase,slope):
@@ -49,5 +51,15 @@ class Plot_parameters():
         plt.show()
         if title:
             plt.title(title)
+
+class save_figure():
+    def __init__(self, save, title, location):
+        self.save = save
+        self.title = title
+        self.location = location
+        if self.save == 1:
+            plt.savefig(self.title)
+            shutil.move(self.title, self.location)
+
 
 
