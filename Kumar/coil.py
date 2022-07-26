@@ -1,13 +1,6 @@
-import design
-import femm_model
 import numpy as np
-import cmath
-import scipy.optimize as opt
 import matplotlib.pyplot as plt
 import os
-import shutil
-import pickle
-
 
 class Position():
     def __init__(self, inn_ht, inn_rad, inn_layers, inn_dist, out_ht, out_rad, out_layers,  out_dist,

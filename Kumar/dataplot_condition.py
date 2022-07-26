@@ -1,13 +1,7 @@
-import design
-import femm_model
-import numpy as np
 import cmath
-import scipy.optimize as opt
 import matplotlib.pyplot as plt
 import os
 import shutil
-import pickle
-
 
 class Req_plots():
     def __init__(self, out_vol, inn_vol, phase, norm_signal, fit_error, Norm_fiterror, impedance=None, extras=None):
@@ -33,7 +27,7 @@ class Data_save():
         os.makedirs(self.path)
 
 class Plot_parameters():
-    def __init__(self, x, y, x_lab, y_lab,save, save_dir=None, filename=None, title=None):
+    def __init__(self, x, y, x_lab, y_lab, save, save_dir=None, filename=None, title=None):
         self.x = x
         self.y = y
         self.xlab = x_lab

@@ -3,7 +3,6 @@ import femm
 import numpy as np
 import scipy.optimize as opt
 import matplotlib.pyplot as plt
-import os
 import shutil
 import pickle
 import dataplot_condition
@@ -126,8 +125,7 @@ class Analysis():
             for i in range(0, NSteps + 1):
                 print(InnCoil_Offset + StepSize * i)
                 modelled.InnCoil_Positions[i] = InnCoil_Offset + (StepSize * i)
-                # Now, the finished input geometry can be displayed.
-                # femm.mi_zoomnatural()
+
                 femm.mi_zoom(-2, -50, 50, 50)
                 femm.mi_refreshview()
 
@@ -138,27 +136,21 @@ class Analysis():
                 femm.mi_analyze()
                 femm.mi_loadsolution()
 
-                UppOutCoil_I, UppOutCoil_V, UppOutCoil_FluxLink = femm.mo_getcircuitproperties(
-                    position.upp_outcoil()[5])
-                #print("Upper OuterCoil: I= {:.3f}, V = {:.6f} ".format(UppOutCoil_I, UppOutCoil_V))
+                UppOutCoil_I, UppOutCoil_V, UppOutCoil_FluxLink = femm.mo_getcircuitproperties(position.upp_outcoil()[5])
                 modelled.UppOutCoil_Voltages[i] = UppOutCoil_V
                 modelled.UppOutCoil_Currents[i] = UppOutCoil_I
                 modelled.UppOutCoil_Flux[i] = UppOutCoil_FluxLink
 
-                LowOutCoil_I, LowOutCoil_V, LowOutCoil_FluxLink = femm.mo_getcircuitproperties(
-                    position.low_outcoil()[5])
-                #print("Lower OuterCoil: I= {:.3f}, V = {:.6f} ".format(LowOutCoil_I, LowOutCoil_V))
+                LowOutCoil_I, LowOutCoil_V, LowOutCoil_FluxLink = femm.mo_getcircuitproperties(position.low_outcoil()[5])
                 modelled.LowOutCoil_Voltages[i] = LowOutCoil_V
                 modelled.LowOutCoil_Currents[i] = LowOutCoil_I
                 modelled.LowOutCoil_Flux[i] = LowOutCoil_FluxLink
 
                 InnCoil_I, InnCoil_V, InnCoil_FluxLink = femm.mo_getcircuitproperties(position.inncoil()[5])
-                #print("InnerCoil: I= {:.3f}, V = {:.8f} ".format(InnCoil_I, InnCoil_V))
                 modelled.InnCoil_Voltages[i] = InnCoil_V
                 modelled.InnCoil_Currents[i] = InnCoil_I
                 modelled.InnCoil_Flux[i] = InnCoil_FluxLink
 
-                # Translate inner coil to different distance
                 femm.mi_selectgroup(1)
                 femm.mi_selectgroup(2)
                 femm.mi_movetranslate(0, StepSize)
@@ -219,9 +211,6 @@ class Analysis():
                 InnCoil_Phases = np.angle(modelled.InnCoil_Voltages)
                 LowOutCoil_Phases = np.angle(modelled.LowOutCoil_Voltages)
                 UppOutCoil_Phases = np.angle(modelled.UppOutCoil_Voltages)
-                print(InnCoil_Phases)
-                print(LowOutCoil_Phases)
-                print(UppOutCoil_Phases)
                 print("Phase offset:", InnCoil_Phases[0] - LowOutCoil_Phases[0],
                       InnCoil_Phases[NSteps] - UppOutCoil_Phases[NSteps])
 
