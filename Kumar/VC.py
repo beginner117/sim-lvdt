@@ -24,14 +24,14 @@ class Analysis():
 
         outputfile = 'LVDT_10kHz_20mA_31AWG_10mm_6_7_7.out'
         NSteps = 20
-        StepSize = 0.25
-        InnCoil_Offset = -2.5
+        StepSize = 0.5
+        InnCoil_Offset = -5
 
         sensor = design.Sensortype(0, 0, 1)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype("32 AWG", "32 AWG")
-        geo = design.Geometry(inn_ht=self.parameter, inn_rad=4.5, inn_layers=6, inn_dist=0, out_ht=10, out_rad=25,
-                              out_layers=7, out_dist=36, mag_len=8, mag_dia=5, ver_shi=0)
+        geo = design.Geometry(inn_ht=24, inn_rad=self.parameter, inn_layers=6, inn_dist=0, out_ht=13.5, out_rad=35,
+                              out_layers=5, out_dist=54.5, mag_len=40, mag_dia=10, ver_shi=0)
         req_plots = dataplot_condition.Req_plots(out_vol=0, inn_vol=0, phase=0, norm_signal=1, fit_error=0,
                                                  Norm_fiterror=1, impedance=1)
 
@@ -92,6 +92,10 @@ class Analysis():
             Magnet_Forces = np.zeros(NSteps + 1).astype(complex)
             InnCoil_Positions = np.zeros(NSteps + 1)
 
+            UppOutCoil_Voltages = np.zeros(NSteps + 1).astype(complex)
+            LowOutCoil_Voltages = np.zeros(NSteps + 1).astype(complex)
+            InnCoil_Voltages = np.zeros(NSteps + 1).astype(complex)
+
             UppOutCoil_Currents = np.zeros(NSteps + 1).astype(complex)
             LowOutCoil_Currents = np.zeros(NSteps + 1).astype(complex)
             InnCoil_Currents = np.zeros(NSteps + 1).astype(complex)
@@ -140,6 +144,23 @@ class Analysis():
                 Magn_Force19 = femm.mo_blockintegral(19)
                 femm.mo_clearblock()
 
+                UppOutCoil_I, UppOutCoil_V, UppOutCoil_FluxLink = femm.mo_getcircuitproperties(
+                    position.upp_outcoil()[5])
+                modelled.UppOutCoil_Voltages[i] = UppOutCoil_V
+                modelled.UppOutCoil_Currents[i] = UppOutCoil_I
+                modelled.UppOutCoil_Flux[i] = UppOutCoil_FluxLink
+
+                LowOutCoil_I, LowOutCoil_V, LowOutCoil_FluxLink = femm.mo_getcircuitproperties(
+                    position.low_outcoil()[5])
+                modelled.LowOutCoil_Voltages[i] = LowOutCoil_V
+                modelled.LowOutCoil_Currents[i] = LowOutCoil_I
+                modelled.LowOutCoil_Flux[i] = LowOutCoil_FluxLink
+
+                InnCoil_I, InnCoil_V, InnCoil_FluxLink = femm.mo_getcircuitproperties(position.inncoil()[5])
+                modelled.InnCoil_Voltages[i] = InnCoil_V
+                modelled.InnCoil_Currents[i] = InnCoil_I
+                modelled.InnCoil_Flux[i] = InnCoil_FluxLink
+
                 print("Upper Outer Coil force = ", UppOut_Force19, "Lower Outer Coil force = ", LowOut_Force19,
                       "Magnet force = ", Magn_Force19)
                 modelled.UppOutCoil_Forces[i] = UppOut_Force19
@@ -153,9 +174,20 @@ class Analysis():
 
         loop = Computational_loop()
         print(modelled.InnCoil_Positions)
-        print(modelled.UppOutCoil_Forces)
-        print(modelled.LowOutCoil_Forces)
-        print(modelled.Magnet_Forces)
+        print("Upp Out Forces :", modelled.UppOutCoil_Forces)
+        print("Low Out Forces :", modelled.LowOutCoil_Forces)
+        print("Magnet Forces :", modelled.Magnet_Forces)
+        print("Upp Out voltages :", modelled.UppOutCoil_Voltages)
+        print("Low Out voltages :", modelled.LowOutCoil_Voltages)
+        print("Inn voltages :", modelled.InnCoil_Voltages)
+        Upp_Inductance = abs(modelled.UppOutCoil_Flux / modelled.UppOutCoil_Currents)
+        Upp_resistance = abs(modelled.UppOutCoil_Voltages / modelled.UppOutCoil_Currents)
+        Low_Inductance = abs(modelled.LowOutCoil_Flux / modelled.LowOutCoil_Currents)
+        Low_resistance = abs(modelled.LowOutCoil_Voltages / modelled.LowOutCoil_Currents)
+        print("average Low out coil Inductance is :", sum(Low_Inductance) / len(Low_Inductance))
+        print("average Low out coil resistance is :", sum(Low_resistance) / len(Low_resistance))
+        print("average upp out coil Inductance is :", sum(Upp_Inductance) / len(Upp_Inductance))
+        print("average upp out coil resistance is :", sum(Upp_resistance) / len(Upp_resistance))
 
         if NSteps > 2:
             modelled.MetaData[0] = NSteps
@@ -169,7 +201,7 @@ class Analysis():
             def __init__(self):
                 pass
 
-            plt.style.use(['science', 'grid', 'notebook'])
+            #plt.style.use(['science', 'grid', 'notebook'])
             if req_plots.out_vol == 1:
                 plt.plot(modelled.InnCoil_Positions, modelled.LowOutCoil_Forces, 'o-')
                 plt.ylabel('Lower Outer Coil Force [N]')
@@ -271,4 +303,4 @@ class Analysis():
             pickle_out = open(pname, "wb")
             pickle.dump(data, pickle_out)
             pickle_out.close()
-        saved_data = Save_data()
+        #saved_data = Save_data()

@@ -15,8 +15,8 @@ res = []
 ind = []
 
 #output_files = ["def_text/def_F0bench"]
-output_files = [ "def_text/def_F3mirror_VC_B"]
-legends = ["def"]
+output_files = [ "roughfiles/dia8", "roughfiles/dia10", "roughfiles/dia12"]
+legends = ["magdia:8", "def", "magdia:12"]
 #legends = [ "def"]
 b123_legends = ["b1", "b2", "b3"]
 b4567_legends = ["b4", "b5", "b6", "b7"]
@@ -36,7 +36,7 @@ pos1 = [-2, -1,  0,  1,  2,  3,  4,  5,  6,  7,  8]
 
 print(len(output_files[0]))
 
-plt.style.use(['science', 'grid', 'notebook'])
+#plt.style.use(['science', 'grid', 'notebook'])
 
 class Graphs():
     def __init__(self, save, directory=None):
@@ -105,7 +105,7 @@ class Graphs():
             plt.plot(np.array(inputdata[i][0]).real.tolist(), np.array(inputdata[i][6]).real.tolist(), 'o-', label=legends[i])
         plt.ylabel('Normalised Fit Error [%]')
         plt.xlabel('Inner Coil Position [mm]')
-        plt.ylim(0,1.8)
+        plt.ylim(0,0.1)
         plt.legend()
         if self.sav == 1:
             plt.savefig("normfiterr.png")

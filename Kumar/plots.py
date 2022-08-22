@@ -1,4 +1,5 @@
 import plot_design_text
+import plot_design_pick
 import numpy as np
 import scipy.optimize as opt
 import matplotlib.pyplot as plt
@@ -21,9 +22,16 @@ graph.mag()
 graph.low_inn()
 graph.tot_diff()
 '''
+#graph = plot_design_text.Graphs(0)
+#graph.inncoil_vol()
 graph = plot_design_text.Graphs(0)
-graph.inncoil_vol()
+#graph.linear_range()
+#graph.norm_fit()
 graph.norm_sig()
+graph.slope()
+#graph.slope()
+#graph.lin_imp()
+
 
 
 

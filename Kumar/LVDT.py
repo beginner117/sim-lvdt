@@ -21,15 +21,15 @@ class Analysis():
 
         outputfile = 'F1,F2_benchtower_10kHz_20mA_32AWG_10mm_6_5_5.out'
         NSteps = 20
-        StepSize = 0.25
-        InnCoil_Offset = -2.5
+        StepSize = 0.1
+        InnCoil_Offset = -1.0
 
         sensor = design.Sensortype(0.02, 10000, 0)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype("32 AWG", "32 AWG")
-        geo = design.Geometry(inn_ht=self.parameter1, inn_rad=21, inn_layers=6, inn_dist=0, out_ht=13.5, out_rad=31.5, out_layers=5,
-                              out_dist=14.5, mag_len=40, mag_dia=10, ver_shi=0)
-        req_plots = dataplot_condition.Req_plots(out_vol=0, inn_vol=0, phase=0, norm_signal=1, fit_error=1, Norm_fiterror=1, impedance=1)
+        geo = design.Geometry(inn_ht=self.parameter1, inn_rad=11, inn_layers=6, inn_dist=0, out_ht=13.5, out_rad=35, out_layers=5,
+                              out_dist=54.5, mag_len=40, mag_dia=10, ver_shi=0)
+        req_plots = dataplot_condition.Req_plots(out_vol=0, inn_vol=0, phase=0, norm_signal=1, fit_error=1, Norm_fiterror=1, impedance=0)
         print_data = dataplot_condition.Print_data(phase=0, slope=1)
 
         inn_area = np.pi * (wire.prop32()[0]) * (wire.prop32()[0]) / 4
@@ -37,10 +37,10 @@ class Analysis():
         lowout_area = np.pi * (wire.prop32()[0]) * (wire.prop32()[0]) / 4
 
         data_file = self.filename
-        parent_directory = "C:\\Users\\kumar\\OneDrive\\Desktop\\pi\\f0miror_lv\\textdata"
         save = 0
         save_data = 0
         if save_data == 1:
+            parent_directory = "C:\\Users\\kumar\\OneDrive\\Desktop\\pi\\f0miror_lv\\textdata"
             data_save = dataplot_condition.Data_save(parent_directory, data_file)
             save_plot = data_save.path
 
@@ -259,11 +259,19 @@ class Analysis():
 
             if req_plots.Norm_fiterror == 1:
                 #plt.plot(modelled.InnCoil_Positions, (abs(fiterror) / abs(np.array(Norm_OutCoil_Signals))) * 100)
-                plt.plot(modelled.InnCoil_Positions,  (abs(fiterror1)/ abs(np.array(Norm_OutCoil_Signals))) * 100, label="fit (-0.5,0.5)")
+                plt.plot(modelled.InnCoil_Positions[:10],
+                         (abs(fiterror1) / abs(np.array(Norm_OutCoil_Signals)))[:10] * 100, 'o-',
+                         color='blue')
+                plt.plot(modelled.InnCoil_Positions[11:],
+                         (abs(fiterror1) / abs(np.array(Norm_OutCoil_Signals)))[11:] * 100, 'o-',
+                         color='blue')
+                plt.plot([modelled.InnCoil_Positions[9], modelled.InnCoil_Positions[11]],
+                         [norm_fit_error1[9], norm_fit_error1[11]],
+                         "--", color='black')
                 plt.ylabel('Normalised Fit error[%]')
                 plt.xlabel('Inner Coil Position [mm]')
-                plt.ylim(0, 0.7)
-                plt.legend()
+                plt.ylim(0, 1.0)
+                # plt.legend()
                 if save == 1:
                     plt.savefig("normfiterr_def.png")
                     shutil.move("normfiterr_def.png", save_plot)
@@ -284,6 +292,6 @@ class Analysis():
             pickle_out = open(pname, "wb")
             pickle.dump(data, pickle_out)
             pickle_out.close()
-        saved_data = Save_data()
+        #saved_data = Save_data()
 
 

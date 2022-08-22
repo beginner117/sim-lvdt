@@ -94,6 +94,18 @@ class Femm_magnet():
             femm.mi_setblockprop(self.material, 0, 0.1, "", 90, self.group, 0)
             femm.mi_clearselected()
 
+class EM():
+    def __init__(self, steps, current=None, voltage=None, flux=None):
+        self.steps = steps
+        self.current = current
+        self.voltage = voltage
+        self.flux = flux
+        if self.current:
+            return
+            UppOutCoil_Voltages = np.zeros(self.steps + 1).astype(complex)
+            LowOutCoil_Voltages = np.zeros(self.steps + 1).astype(complex)
+            InnCoil_Voltages = np.zeros(self.steps + 1).astype(complex)
+
 
 '''
         # InnerCoil Structure
