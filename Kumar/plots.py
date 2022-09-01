@@ -1,36 +1,15 @@
 import plot_design_text
-import plot_design_pick
-import numpy as np
-import scipy.optimize as opt
-import matplotlib.pyplot as plt
-import os
-import shutil
 import warnings
 warnings.filterwarnings('ignore')
 #plots = [uppout_vol, lowout_vol, inncoil_vol, norm_sig, norm_fit, fit, norm_fit_sig]
-'''
-graph = plot_design_text.Yoke_graphs(0, "reverse_current")
-#graph.b1()
-#graph.b2()
-#graph.b3()
-#graph.b4()
-#graph.b5()
-#graph.b6()
-#graph.b7()
-graph.b_total()
-graph.mag()
-graph.low_inn()
-graph.tot_diff()
-'''
-#graph = plot_design_text.Graphs(0)
-#graph.inncoil_vol()
-graph = plot_design_text.Graphs(0)
-#graph.linear_range()
-#graph.norm_fit()
-graph.norm_sig()
-graph.slope()
-#graph.slope()
-#graph.lin_imp()
+
+
+graph = plot_design_text.Impedance_graphs(0)
+
+graph.err_rea()
+#graph.err_ind()
+#graph.err_imp()
+
 
 
 

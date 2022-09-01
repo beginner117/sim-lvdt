@@ -1,5 +1,4 @@
 import numpy as np
-import scipy.optimize as opt
 import matplotlib.pyplot as plt
 import os
 import shutil
@@ -13,31 +12,25 @@ inputdata = []
 slopes = []
 res = []
 ind = []
+rea_err = []
+rea_mean = []
+ind_err = []
+ind_mean = []
+imp_err = []
+imp_mean = []
 
 #output_files = ["def_text/def_F0bench"]
-output_files = [ "roughfiles/dia8", "roughfiles/dia10", "roughfiles/dia12"]
+#output_files = [ "roughfiles/dia8", "roughfiles/dia10", "roughfiles/dia12"]
+output_files = [ "impedance/17_08out", "impedance/18_08out", "impedance/19_08out", "impedance/25_08out", "impedance/24_08out"]
 legends = ["magdia:8", "def", "magdia:12"]
-#legends = [ "def"]
-b123_legends = ["b1", "b2", "b3"]
-b4567_legends = ["b4", "b5", "b6", "b7"]
-voice_coil = 1
+voice_coil = 0
 for i in range(0,len(output_files)):
     X = np.loadtxt(output_files[i], dtype=complex)
     inputarray = [[X[j][i] for j in range(len(X))] for i in range(len(X[0]))]
     inputdata.append(inputarray)
 n = len(output_files)
-
-inn1 = [2.62935675, 2.66902954, 2.67169041, 2.6682842,  2.65856084, 2.6280785,
- 2.58718421, 2.52591351, 2.41799797, 2.27640943, 2.13471348]
-mag1 = [-12.52180112, -12.41901964, -12.30531739, -12.18863861, -12.07444921,
- -11.97619313, -11.86011547, -11.74769664, -11.62095208, -11.55793709,
- -11.47895378]
-pos1 = [-2, -1,  0,  1,  2,  3,  4,  5,  6,  7,  8]
-
+f = 11
 print(len(output_files[0]))
-
-#plt.style.use(['science', 'grid', 'notebook'])
-
 class Graphs():
     def __init__(self, save, directory=None):
         self.sav = save
@@ -111,7 +104,6 @@ class Graphs():
             plt.savefig("normfiterr.png")
             shutil.move("normfiterr.png", self.path1)
         plt.show()
-
     def fit(self):
         for i in range(0,n):
             plt.plot(np.array(inputdata[i][0]).real.tolist(), np.array(inputdata[i][5]).real.tolist(), 'o-', label=legends[i])
@@ -368,39 +360,75 @@ class Yoke_graphs():
             shutil.move("b5.png", self.path1)
         plt.show()
 
-'''
-class Single_sim():
-    def __init__(self, num, save, directory=None):
+class Impedance_graphs():
+    def __init__(self, save, directory=None):
         self.sav = save
         self.directory = directory
-        self.file = num
         if self.directory and self.sav == 1:
-                parent_dir = ""
+                parent_dir = r"C:\Users\kumar\OneDrive\Desktop\pi\mirror"
                 path1 = os.path.join(parent_dir, self.directory)
                 self.path1 = path1
                 os.mkdir(self.path1)
-    def b123(self):
-        for i in (0, len(b123_legends)):
-            plt.plot(np.array(inputdata[self.file][0]).real.tolist(), np.array(inputdata[self.file][i+3]).real.tolist(), 'o-',
-                     label=b123_legends[i])
-        plt.ylabel('block forces [N] ')
-        plt.xlabel('Inner Coil Position [mm]')
-        plt.legend()
+
+    def reactance(self):
+        for i in range(0, n):
+            plt.plot(np.array(inputdata[i][3]).real.tolist(), np.array(inputdata[i][7]).real.tolist(), 'o-')
+        plt.ylabel('reactance [Ω] ')
+        plt.xlabel('frequency [KHz]')
+        plt.title("average reactance of Fred's coil")
         if self.sav == 1:
-            plt.savefig("b123.png")
-            shutil.move("b123.png", self.path1)
+            plt.savefig("low_inn.png")
+            shutil.move("low_inn.png", self.path1)
         plt.show()
-    def b4567(self):
-        for i in (0, len(b4567_legends)):
-            plt.plot(np.array(inputdata[self.file][0]).real.tolist(), np.array(inputdata[self.file][i+6]).real.tolist(), 'o-',
-                     label=b4567_legends[i])
-        plt.ylabel('block forces [N] ')
-        plt.xlabel('Inner Coil Position [mm]')
-        plt.legend()
-        if self.sav == 1:
-            plt.savefig("b4567.png")
-            shutil.move("b4567.png", self.path1)
+    def err_rea(self):
+        for i in range(0, f):
+            rea = []
+            for j in range(0, n):
+                rea.append(inputdata[j][7][i])
+            r = abs(np.array(rea))
+            rea_err.append(np.std(r))
+            rea_mean.append(np.mean(r))
+        print("err :", rea_err)
+        #print(abs(np.array(inputdata[7][7]))/1000)
+        plt.errorbar((abs(np.array(inputdata[1][3])) / 1000)[1:8], ((np.array(rea_mean))/1000)[1:8],
+                     yerr=((np.array(rea_err))/1000)[1:8], capsize = 4)
+        #plt.errorbar(abs(np.array(inputdata[1][3]))/1000, abs(np.array(inputdata[7][7]))/1000, yerr=np.array(rea_err)/1000,  label='both limits (default)')
+        plt.xlabel("frequency [KHz]")
+        plt.ylabel("reactance [KΩ]")
         plt.show()
-'''
+    def err_ind(self):
+        for i in range(0, f):
+            ind = []
+            for j in range(0, n):
+                ind.append(inputdata[j][8][i])
+            r = abs(np.array(ind))
+            ind_err.append(np.std(r))
+            ind_mean.append(np.mean(r))
+        print("err ind :", ind_err)
+        #print(abs(np.array(inputdata[7][8]))/1000)
+        plt.errorbar((abs(np.array(inputdata[1][3])) / 1000), (np.array(ind_mean)),
+                     yerr=(np.array(ind_err)), capsize = 4,  label='both limits (default)')
+        #plt.errorbar(abs(np.array(inputdata[1][3]))/1000, abs(np.array(inputdata[7][8]))/1000, yerr=np.array(ind_err)/1000,  label='both limits (default)')
+        plt.xlabel("frequency [KHz]")
+        plt.ylabel("inductance [H]")
+        plt.show()
+    def err_imp(self):
+        for i in range(0, f):
+            ind = []
+            for j in range(0, n):
+                ind.append(inputdata[j][9][i])
+            r = abs(np.array(ind))
+            imp_err.append(np.std(r))
+            imp_mean.append(np.mean(r))
+        print("err imp :", imp_err)
+        #print(abs(np.array(inputdata[7][9]))/1000)
+        plt.errorbar((abs(np.array(inputdata[1][3])) / 1000)[1:8], ((np.array(imp_mean)))[1:8],
+                     yerr=((np.array(imp_err)))[1:8], capsize = 4)
+        #plt.errorbar(abs(np.array(inputdata[1][3]))/1000, abs(np.array(inputdata[7][9]))/1000000, yerr=np.array(imp_err)/1000,  label='both limits (default)')
+        plt.xlabel("frequency [KHz]")
+        plt.ylabel("impedance [Ω]")
+        plt.show()
+
+
 
 

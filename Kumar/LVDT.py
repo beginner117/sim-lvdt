@@ -199,9 +199,6 @@ class Analysis():
                 plt.ylabel('Magnitude Outer Coil Voltages [V]')
                 plt.xlabel('Inner Coil Position [mm]')
                 plt.legend(frameon=False)
-                if save == 1:
-                    plt.savefig("abs_low,out_vol.png")
-                    shutil.move("abs_low,out_vol.png", save_plot)
                 plt.show()
 
                 outvolt_diff = dataplot_condition.Plot_parameters(modelled.InnCoil_Positions, abs(modelled.UppOutCoil_Voltages) - abs(modelled.LowOutCoil_Voltages), 'Inner Coil Position [mm]', 'Diff. of Magnitude Outer Coil Voltages [V]', 0)
@@ -221,9 +218,6 @@ class Analysis():
                 plt.ylabel('Phase [rad]')
                 plt.xlabel('Inner Coil Position [mm]')
                 plt.legend()
-                if save == 1:
-                    plt.savefig("phase.png")
-                    shutil.move("phase.png", save_plot)
                 plt.show()
 
             Norm_OutCoil_Signals = (abs(modelled.UppOutCoil_Voltages) - abs(modelled.LowOutCoil_Voltages)) / sensor.para()[0]
@@ -272,9 +266,6 @@ class Analysis():
                 plt.xlabel('Inner Coil Position [mm]')
                 plt.ylim(0, 1.0)
                 # plt.legend()
-                if save == 1:
-                    plt.savefig("normfiterr_def.png")
-                    shutil.move("normfiterr_def.png", save_plot)
                 plt.show()
         results = Results()
 

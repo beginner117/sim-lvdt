@@ -29,8 +29,7 @@ class Analysis():
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype("32 AWG", "32 AWG")
         geo = design.Geometry(inn_ht=24, inn_rad=11, inn_layers=6, inn_dist=0, out_ht=13.5, out_rad=35, out_layers=5, out_dist=self.parameter1, mag_len=40, mag_dia=10, ver_shi=0)
-        req_plots = dataplot_condition.Req_plots(out_vol=0, inn_vol=0, phase=0, norm_signal=1, fit_error=1,
-                                                 Norm_fiterror=1, impedance=0)
+        req_plots = dataplot_condition.Req_plots(out_vol=0, inn_vol=0, phase=0, norm_signal=1, fit_error=1, Norm_fiterror=1, impedance=0)
         zero_fit = 1
         print_data = dataplot_condition.Print_data(phase=1, slope=1)
 
@@ -176,18 +175,12 @@ class Analysis():
             plt.plot(modelled.InnCoil_Positions, modelled.InnCoil_Voltages.real, 'o-')
             plt.ylabel('Inner Coil Voltage [V]')
             plt.xlabel('Inner Coil Position [mm]')
-            if save == 1:
-                plt.savefig("inn_vol.png")
-                shutil.move("inn_vol.png", path)
             plt.show()
 
             if req_plots.out_vol == 1:
                 plt.plot(modelled.InnCoil_Positions, abs(modelled.InnCoil_Voltages), 'o-')
                 plt.ylabel('Magnitude Inner Coil Voltages [V]')
                 plt.xlabel('Inner Coil Position [mm]')
-                if save == 1:
-                    plt.savefig("inn_mag_vol.png")
-                    shutil.move("inn_mag_vol.png", path)
                 plt.show()
 
                 plt.plot(modelled.InnCoil_Positions, abs(modelled.LowOutCoil_Voltages), 'o-', label="Lower outer coil")
@@ -195,9 +188,6 @@ class Analysis():
                 plt.ylabel('Magnitude Outer Coil Voltages [V]')
                 plt.xlabel('Inner Coil Position [mm]')
                 plt.legend(frameon=False)
-                if save == 1:
-                    plt.savefig("abs_low,out_vol.png")
-                    shutil.move("abs_low,out_vol.png", path)
                 plt.show()
 
                 plt.plot(modelled.InnCoil_Positions, abs(modelled.UppOutCoil_Voltages) - abs(modelled.LowOutCoil_Voltages), 'o-',
@@ -205,9 +195,6 @@ class Analysis():
                 plt.ylabel('Diff. of Magnitude Outer Coil Voltages [V]')
                 plt.xlabel('Inner Coil Position [mm]')
                 plt.legend(frameon=False)
-                if save == 1:
-                    plt.savefig("vol_diff.png")
-                    shutil.move("vol_diff.png", path)
                 plt.show()
 
             if print_data.phase == 1:
@@ -224,9 +211,6 @@ class Analysis():
                 plt.ylabel('Phase [rad]')
                 plt.xlabel('Inner Coil Position [mm]')
                 plt.legend()
-                if save == 1:
-                    plt.savefig("phase.png")
-                    shutil.move("phase.png", path)
                 plt.show()
 
             Norm_OutCoil_Signals = (abs(modelled.UppOutCoil_Voltages) - abs(modelled.LowOutCoil_Voltages)) / sensor.para()[0]
@@ -237,6 +221,11 @@ class Analysis():
             print("Fitted slope of the function:", optimizedParameters[0])
             fitted_Norm_OutCoil_Signals = linfunc(modelled.InnCoil_Positions, *optimizedParameters)
             print(optimizedParameters)
+            plt.plot(modelled.InnCoil_Positions, fitted_Norm_OutCoil_Signals, 'o-', color = "blue",  label="linear fit")
+            plt.ylabel('Response [V/A]')
+            plt.xlabel('Inner Coil Position [mm]')
+            plt.legend()
+            plt.show()
             if zero_fit == 1:
                 InnCoil_Positions1 = modelled.InnCoil_Positions[8:13]
                 Norm_OutCoil_Signals1 = Norm_OutCoil_Signals[8:13]
@@ -251,7 +240,7 @@ class Analysis():
                 if req_plots.fit_error == 1:
                     fit = dataplot_condition.Plot_parameters(modelled.InnCoil_Positions,Norm_OutCoil_Signals - optimizedparameters1[0] * (np.array(modelled.InnCoil_Positions)) +optimizedparameters1[1], 'Inner Coil Position [mm]', 'Fit error [V/A]', 0)
                     fit
-                fiterror1 = Norm_OutCoil_Signals - optimizedparameters1[0] * (np.array(modelled.InnCoil_Positions)) + optimizedparameters1[1]
+                fiterror1 = Norm_OutCoil_Signals - (optimizedparameters1[0] * (np.array(modelled.InnCoil_Positions)) + optimizedparameters1[1])
                 norm_fit_error1 = (abs(fiterror1) / abs(np.array(Norm_OutCoil_Signals))) * 100
                 fiterror = np.array(Norm_OutCoil_Signals) - np.array(fitted_Norm_OutCoil_Signals)
                 norm_fit_error = (abs(fiterror) / abs(np.array(Norm_OutCoil_Signals))) * 100
@@ -261,21 +250,18 @@ class Analysis():
                     c3 = (NSteps/2)-1
                     # plt.plot(modelled.InnCoil_Positions,  (abs(fiterror1)/ abs(np.array(Norm_OutCoil_Signals))) * 100, label="fit (-0.5,0.5)")
                     plt.plot(modelled.InnCoil_Positions[:10],
-                             (abs(fiterror) / abs(np.array(Norm_OutCoil_Signals)))[:10] * 100, 'o-',
+                             (abs(fiterror1) / abs(np.array(Norm_OutCoil_Signals)))[:10] * 100, 'o-',
                              color='blue')
                     plt.plot(modelled.InnCoil_Positions[11:],
-                             (abs(fiterror) / abs(np.array(Norm_OutCoil_Signals)))[11:] * 100, 'o-',
+                             (abs(fiterror1) / abs(np.array(Norm_OutCoil_Signals)))[11:] * 100, 'o-',
                              color='blue')
                     plt.plot([modelled.InnCoil_Positions[9], modelled.InnCoil_Positions[11]],
-                             [norm_fit_error[9], norm_fit_error[11]],
+                             [norm_fit_error1[9], norm_fit_error1[11]],
                              "--", color='black')
-                    plt.ylabel('Normalised Fit error[%]')
+                    plt.ylabel('Linearity [%]')
                     plt.xlabel('Inner Coil Position [mm]')
-                    plt.ylim(0, 0.45)
+                    plt.ylim(0, 0.76)
                     # plt.legend()
-                    if save == 1:
-                        plt.savefig("normfiterr_def.png")
-                        shutil.move("normfiterr_def.png", path)
                     plt.show()
 
             #print(fitted_Norm_OutCoil_Signals)
