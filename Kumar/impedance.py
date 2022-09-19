@@ -38,8 +38,7 @@ res_femm = [(24.025, 336.493), (4.44, 25.131),(18.170, 238.936), (5.269, 35.584)
 impedance_online = [5.34, 0.407, 3.852, 0.582, 0.707, 9.65, 3.85, 9.729]
 '''
 
-#v_in_trials = [datasets.v_in_1, datasets.v_in_2, datasets.v_in_3, datasets.v_in_4, datasets.v_in_5, datasets.v_in_6]
-#v_out_trials = [datasets.v_out_1, datasets.v_out_2, datasets.v_out_3, datasets.v_out_4, datasets.v_out_5, datasets.v_out_6]
+
 #v_in = [a1+a2+a3+a4+a5+a6  for (a1, a2, a3, a4, a5, a6, a7) in zip(datasets.v_in_1, datasets.v_in_2, datasets.v_in_3, datasets.v_in_4, datasets.v_in_5, datasets.v_in_6, datasets.v_in_7)]
 #v_out = [b1+b2+b3+b4+b5+b6  for (b1, b2, b3, b4, b5, b6, b7) in zip(datasets.v_out_1, datasets.v_out_2, datasets.v_out_3, datasets.v_out_4, datasets.v_out_5, datasets.v_out_6, datasets.v_out_7)]
 trials = 6
