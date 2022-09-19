@@ -3,13 +3,15 @@ import matplotlib.pyplot as plt
 import os
 import shutil
 import warnings
-import pickle
 warnings.filterwarnings('ignore')
 
 # output_file data : [0]-position, [1]-upp_out_vol/for, [2]-low_out_vol/for, [3]-inn_vol/mag_for, [4]-Norm_Out_Sig/for, [5]-fit_err(1) , [6]-norm-fit(1), [7]-Inn_Inductance/Linear Range, [8]-Inn_resistance
 #yoke data : [0]-position, [1]-inncoil_force, [2]-mag_force, [3]-b1, [4]-b2, [5]-b3, [6]-b4, [7]-b5, [8]-b6, [9]-b7, [10]-total
+#errorbar = [0]-correction factor, [1]-reference res, [2]-coil DC res, [3]-freq, [4]-input_vol, [5]-output_vol, [6]-ratio, [7]-reactance, [8]-inductance, [9]-impedance
+
 inputdata = []
 slopes = []
+
 res = []
 ind = []
 rea_err = []
@@ -18,6 +20,10 @@ ind_err = []
 ind_mean = []
 imp_err = []
 imp_mean = []
+v_in_mean = []
+v_in_err = []
+v_out_mean = []
+v_out_err = []
 
 #output_files = ["def_text/def_F0bench"]
 #output_files = [ "roughfiles/dia8", "roughfiles/dia10", "roughfiles/dia12"]
@@ -389,10 +395,8 @@ class Impedance_graphs():
             rea_err.append(np.std(r))
             rea_mean.append(np.mean(r))
         print("err :", rea_err)
-        #print(abs(np.array(inputdata[7][7]))/1000)
         plt.errorbar((abs(np.array(inputdata[1][3])) / 1000)[1:8], ((np.array(rea_mean))/1000)[1:8],
                      yerr=((np.array(rea_err))/1000)[1:8], capsize = 4)
-        #plt.errorbar(abs(np.array(inputdata[1][3]))/1000, abs(np.array(inputdata[7][7]))/1000, yerr=np.array(rea_err)/1000,  label='both limits (default)')
         plt.xlabel("frequency [KHz]")
         plt.ylabel("reactance [KΩ]")
         plt.show()
@@ -405,10 +409,8 @@ class Impedance_graphs():
             ind_err.append(np.std(r))
             ind_mean.append(np.mean(r))
         print("err ind :", ind_err)
-        #print(abs(np.array(inputdata[7][8]))/1000)
         plt.errorbar((abs(np.array(inputdata[1][3])) / 1000), (np.array(ind_mean)),
                      yerr=(np.array(ind_err)), capsize = 4,  label='both limits (default)')
-        #plt.errorbar(abs(np.array(inputdata[1][3]))/1000, abs(np.array(inputdata[7][8]))/1000, yerr=np.array(ind_err)/1000,  label='both limits (default)')
         plt.xlabel("frequency [KHz]")
         plt.ylabel("inductance [H]")
         plt.show()
@@ -421,12 +423,44 @@ class Impedance_graphs():
             imp_err.append(np.std(r))
             imp_mean.append(np.mean(r))
         print("err imp :", imp_err)
-        #print(abs(np.array(inputdata[7][9]))/1000)
         plt.errorbar((abs(np.array(inputdata[1][3])) / 1000)[1:8], ((np.array(imp_mean)))[1:8],
                      yerr=((np.array(imp_err)))[1:8], capsize = 4)
-        #plt.errorbar(abs(np.array(inputdata[1][3]))/1000, abs(np.array(inputdata[7][9]))/1000000, yerr=np.array(imp_err)/1000,  label='both limits (default)')
         plt.xlabel("frequency [KHz]")
         plt.ylabel("impedance [Ω]")
+        plt.show()
+    def err_rat(self):
+        for i in range(0, f):
+            v_in = []
+            v_out = []
+            for j in range(0, n):
+                v_in.append(inputdata[j][4][i])
+                v_out.append(inputdata[j][5][i])
+            r_i = abs(np.array(v_in))
+            r_o = abs(np.array(v_out))
+            v_in_err.append(np.std(r_i))
+            v_out_err.append(np.std(r_o))
+            v_in_mean.append(np.mean(r_i))
+            v_out_mean.append(np.mean(r_o))
+        a = np.array(v_out_mean)/(np.array(v_in_mean)*0.965)
+        v_o = (np.array(v_out_err)/np.array(v_out_mean))**2
+        v_i = (np.array(v_in_err) / np.array(v_in_mean)) ** 2
+        s = np.sqrt(v_o+v_i)
+        r = a*s
+        rl = 36.1
+        r1 = 990
+        p = rl+r1
+        t = (np.array(a)**2-1)
+        rea_un = (np.sqrt(t/(rl**2-(np.array(a)**2)*(p**2)))*(((p*p)-rl**2)/(n*n))*(2*r*a))/2
+        rea = np.sqrt(((rl*rl)-(a*p)**2)/t)
+        print("err v_in, mean v_in :", v_in_err, v_in_mean)
+        print("err v_out, mean v_out :", v_out_err, v_out_mean)
+        print("ratio_mean :", a)
+        print("ratio**2_un :", 2*r*a)
+        print("ratio_un :", r)
+        #plt.plot((abs(np.array(inputdata[1][3])) / 1000), 2*r*100, "o--")
+        plt.plot((abs(np.array(inputdata[1][3])) / 1000), rea_un/rea, "o--")
+        plt.xlabel("frequency [KHz]")
+        plt.ylabel("rea rel ")
         plt.show()
 
 

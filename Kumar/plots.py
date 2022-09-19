@@ -6,9 +6,8 @@ warnings.filterwarnings('ignore')
 
 graph = plot_design_text.Impedance_graphs(0)
 
-graph.err_rea()
-#graph.err_ind()
-#graph.err_imp()
+graph.err_rat()
+
 
 
 

@@ -1,11 +1,6 @@
 import design
 import femm
 import numpy as np
-import cmath
-import os
-import shutil
-import pickle
-
 
 class Femm_bc():
     def __init__(self):
@@ -93,6 +88,29 @@ class Femm_magnet():
             femm.mi_selectlabel(self.x1+self.label1, self.y2+(self.label2/2))
             femm.mi_setblockprop(self.material, 0, 0.1, "", 90, self.group, 0)
             femm.mi_clearselected()
+
+class Output():
+    def __init__(self, Nsteps):
+        self.Nsteps = Nsteps
+    def currents(self):
+        UppOutCoil_Currents = np.zeros(self.Nsteps + 1).astype(complex)
+        LowOutCoil_Currents = np.zeros(self.Nsteps + 1).astype(complex)
+        InnCoil_Currents = np.zeros(self.Nsteps + 1).astype(complex)
+        return [InnCoil_Currents, UppOutCoil_Currents, LowOutCoil_Currents]
+    def voltages(self):
+        UppOutCoil_Voltages = np.zeros(self.Nsteps + 1).astype(complex)
+        LowOutCoil_Voltages = np.zeros(self.Nsteps + 1).astype(complex)
+        InnCoil_Voltages = np.zeros(self.Nsteps + 1).astype(complex)
+        InnCoil_Positions = np.zeros(self.Nsteps + 1)
+        return [InnCoil_Voltages, UppOutCoil_Voltages, LowOutCoil_Voltages]
+    def flux(self):
+        UppOutCoil_Flux = np.zeros(self.Nsteps + 1).astype(complex)
+        LowOutCoil_Flux = np.zeros(self.Nsteps + 1).astype(complex)
+        InnCoil_Flux = np.zeros(self.Nsteps + 1).astype(complex)
+        return [InnCoil_Flux, UppOutCoil_Flux, LowOutCoil_Flux]
+    def metadata(self):
+        metadata = np.zeros(self.Nsteps + 1)
+        return metadata
 
 class EM():
     def __init__(self, steps, current=None, voltage=None, flux=None):
