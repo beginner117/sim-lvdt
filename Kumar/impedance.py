@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import datasets
+import TINA_simulation
 '''
 turns_I = [100.50, 41.88, 62.81, 33.50, 33.50, 75.38, 100.50, 75.38]
 turns_o = [56.53, 41.88, 50.25, 33.50, 33.50, 56.53, 56.53, 56.53]
