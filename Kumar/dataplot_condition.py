@@ -1,10 +1,10 @@
-import cmath
 import matplotlib.pyplot as plt
 import os
 import shutil
+import numpy as np
 
 class Req_plots():
-    def __init__(self, out_vol, inn_vol, phase, norm_signal, fit_error, Norm_fiterror, impedance=None, extras=None):
+    def __init__(self, out_vol, inn_vol, norm_signal, fit_error, Norm_fiterror, phase = None, impedance=None, extras=None):
         self.out_vol = out_vol
         self.inn_vol = inn_vol
         self.phase = phase
@@ -19,12 +19,27 @@ class Print_data():
         self.phase = phase
         self.slope = slope
 
-class Data_save():
-    def __init__(self, directory, parent_dir):
-        self.dir = directory
-        self.par_dir = parent_dir
-        self.path = os.path.join(parent_dir, directory)
-        os.makedirs(self.path)
+class Save_data():
+    def __init__(self, filename, inn_position, upp_vol=None, low_vol=None, inn_vol=None, out_sig=None, fiterr=None, norm_fit=None, Inn_ind=None, Inn_res=None, rough1=None, rough2=None):
+        self.filename = filename
+        self.inn_position = inn_position
+        self.upp_vol = upp_vol
+        self.low_vol = low_vol
+        self.inn_vol = inn_vol
+        self.out_sig = out_sig
+        self.fiterr = fiterr
+        self.norm_fit = norm_fit
+        self.inn_ind = Inn_ind
+        self.inn_res = Inn_res
+        self.rough1 = rough1
+        self.rough2 = rough2
+        #if self.rough1.any():
+            #data = np.column_stack((self.rough1, self.rough2))
+        #else:
+        data = np.column_stack((self.inn_position, self.upp_vol, self.low_vol, self.inn_vol, self.out_sig, self.fiterr, self.norm_fit, self.inn_ind, self.inn_res))
+        np.savetxt(self.filename, data)
+
+
 
 class Plot_parameters():
     def __init__(self, x, y, x_lab, y_lab, save, save_dir=None, filename=None, title=None):
@@ -45,7 +60,6 @@ class Plot_parameters():
         plt.show()
         if title:
             plt.title(title)
-
 class save_figure():
     def __init__(self, save, title, location):
         self.save = save

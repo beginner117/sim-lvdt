@@ -125,6 +125,7 @@ class EM():
             InnCoil_Voltages = np.zeros(self.steps + 1).astype(complex)
 
 
+
 '''
         # InnerCoil Structure
             femm.mi_drawrectangle(geo.inncoil()[1], position.inncoil()[2], position.inncoil()[0], position.inncoil()[1])

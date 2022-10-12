@@ -1,9 +1,5 @@
 import femm_model
 import numpy as np
-import scipy.optimize as opt
-import matplotlib.pyplot as plt
-
-
 class Sensortype():
     def __init__(self, InnCoilCurrent, Simfreq, OutCoilCurrent):
         self.InnCoilCurrent = InnCoilCurrent
@@ -13,6 +9,15 @@ class Sensortype():
     def para(self):
         return [self.InnCoilCurrent, self.Simfreq, self.OutCoilCurrent]
 
+class Simulation():
+    def __init__(self, Nsteps, stepsize, inncoil_offset, data_file, fit_points = None):
+        self.Nsteps = Nsteps
+        self.stepsize = stepsize
+        self.inncoil_offset = inncoil_offset
+        self.data_file = data_file
+        self.fit_points = fit_points
+    def parameters(self):
+        return [self.Nsteps, self.stepsize, self.inncoil_offset, self.data_file, self.fit_points]
 class Wiretype():
     def __init__(self, outcoil_material:None, inncoil_material:None):
         self.outcoil_material = outcoil_material
@@ -84,24 +89,6 @@ class Geometry1():
 
     def mag(self):
         return [self.mag_ht, self.mag_rad, self.ver_shi]
-
-'''
-class Position(Geometry1):
-    def __init__(self):
-
-        Geometry1.__init__(self)
-    def Low_Inncoil(self):
-        Low_Inncoil_OutRadius = Geometry1.Low_Inncoil()[1] + (
-                    (Wiretype.prop31()[0] + Wiretype.prop31()[1] * 2) * Geometry1.Low_Inncoil()[2])
-        Low_Inncoil_Lowend = -1 * (Geometry1.Low_Inncoil()[3] + (Geometry1.Low_Inncoil()[0]) / 2)
-        Low_Inncoil_Uppend = Low_Inncoil_Lowend + Geometry1.Low_Inncoil()[0]
-        Low_Inncoil_NrWind_p_Layer = (Geometry1.Upp_Inncoil()[0]) / (Wiretype.prop31()[0] + Wiretype.prop31()[1] * 2)
-        Low_Inncoil_NrWindings = Low_Inncoil_NrWind_p_Layer * Geometry1.Upp_Inncoil()[2]
-        Low_Inncoil_Circuit = "Low_Inncoil_Circuit"
-        return [Low_Inncoil_OutRadius, Low_Inncoil_Lowend, Low_Inncoil_Uppend, Low_Inncoil_NrWind_p_Layer,
-                Low_Inncoil_NrWindings,
-                Low_Inncoil_Circuit]
-'''
 
 class Blocks():
     def __init__(self):

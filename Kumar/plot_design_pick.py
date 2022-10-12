@@ -6,8 +6,6 @@ import os
 import shutil
 import warnings
 import pickle
-
-
 warnings.filterwarnings('ignore')
 
 # output_file data : [0]-position, [1]-upp_out_vol/for, [2]-low_out_vol/for, [3]-inn_vol/mag_for, [4]-Norm_Out_Sig/for, [5]-fit_err(1) , [6]-norm-fit(1), [7]-Linear Range
@@ -15,14 +13,16 @@ warnings.filterwarnings('ignore')
 inputdata = []
 slopes = []
 
-output_files = ["inht16", "def_F0bench", "inht20", "inht22" ]
-legends = ["inn_ht=16", "inn_ht=18(def)", "inn_ht=20", "inn_ht=22"]
+output_files = [ "irad_vc_9", "irad_vc_13", "try40", "irad_vc_15"]
+legends = ["innrad:9", "innrad:13", "def", "innrad:15"]
 b123_legends = ["b1", "b2", "b3"]
 b4567_legends = ["b4", "b5", "b6", "b7"]
-voice_coil = 0
+voice_coil = 1
+
 for i in range(0,len(output_files)):
     pickle_in = open("pick" + output_files[i], "rb")
     output_files[i] = pickle.load(pickle_in)
+
 n = len(output_files)
 
 inn1 = [2.62935675, 2.66902954, 2.67169041, 2.6682842,  2.65856084, 2.6280785,
@@ -34,7 +34,7 @@ pos1 = [-2, -1,  0,  1,  2,  3,  4,  5,  6,  7,  8]
 
 print(len(output_files[0]))
 
-plt.style.use(['science', 'grid', 'notebook'])
+#plt.style.use(['science', 'grid', 'notebook'])
 
 class Graphs():
     def __init__(self, save, directory=None):
@@ -127,10 +127,10 @@ class Graphs():
             for j in range(0, len(output_files[0])):
                 normfit.append(output_files[i][j][6])
                 posi.append(output_files[i][j][0])
-            plt.plot(np.array(posi).real.tolist(), np.array(normfit).real.tolist(), 'o-', label=legends[i])
+            plt.plot((np.array(posi).real.tolist()), (np.array(normfit).real.tolist()), 'o-', label=legends[i])
         plt.ylabel('Normalised Fit Error [%]')
         plt.xlabel('Inner Coil Position [mm]')
-        plt.ylim(0,0.8)
+        plt.ylim(0,0.08)
         plt.legend()
         if self.sav == 1:
             plt.savefig("normfiterr.png")
@@ -165,8 +165,6 @@ class Graphs():
             plt.plot(np.array(posi).real.tolist(), np.array(normfitsig).real.tolist(), 'o-', label=legends[i])
         if voice_coil == 0:
             plt.ylabel('Fit Norm. Out Coil signal [V/A]')
-        if voice_coil == 1:
-            plt.ylabel('Fit Norm. Out Coil Forces [N/A]')
         plt.xlabel('Inner Coil Position [mm]')
         plt.legend()
         if self.sav == 1:
@@ -178,14 +176,14 @@ class Graphs():
             linimp = []
             posi = []
             for j in range(0, len(output_files[0])):
-                p = 100 - ((np.array(output_files[i][j][6]/np.array(output_files[output_files.index("def_F0bench")][j][6])))*100)
+                p = 100 - ((np.array(output_files[i][j][6]/np.array(output_files[1][j][6])))*100)
                 linimp.append(p)
                 posi.append(output_files[i][j][0])
             plt.plot(np.array(posi).real.tolist(), np.array(linimp).real.tolist(), 'o-', label=legends[i])
         if voice_coil == 0:
             plt.ylabel('Linear Improvement [%]')
         plt.xlabel('Inner Coil Position [mm]')
-        plt.ylim(-33, 33)
+        plt.ylim(-61, 61)
         plt.legend()
         if self.sav == 1:
             plt.savefig("linfit.png")
@@ -201,7 +199,7 @@ class Graphs():
             m = np.polyfit(np.array(posi), np.array(normsig), 1)[0]
             slopes.append(m)
         #plt.plot(legends, slopes, 'o--')
-        plt.plot(legends, ((np.array(slopes)/slopes[output_files.index("def_F0bench")])*100) - 100, "o--")
+        plt.plot(legends, ((np.array(slopes)/slopes[1])*100) - 100, "o--")
         if voice_coil == 0:
             plt.ylabel('slope increment [%]')
         if voice_coil == 1:
@@ -221,7 +219,7 @@ class Graphs():
                     linran.append(output_files[i][j][7])
                     posi.append(output_files[i][j][0])
                 plt.plot(np.array(posi), np.array(linran), 'o-', label=legends[i])
-            plt.ylabel('Fit Norm. Out Coil Forces [%]')
+            plt.ylabel('$\dfrac{Max.Force}{Force}$*100 [%]')
             plt.xlabel('Inner Coil Position [mm]')
             plt.legend()
             #plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
