@@ -57,9 +57,16 @@ class Plot_parameters():
         if self.save == 1:
             plt.savefig(filename)
             shutil.move(filename, save_dir)
-        plt.show()
         if title:
             plt.title(title)
+class Plot_base():
+    def __init__(self, x_lab, y_lab):
+        self.x_lab = x_lab
+        self.y_lab = y_lab
+        plt.xlabel(x_lab)
+        plt.ylabel(y_lab)
+        plt.legend()
+        plt.show()
 class save_figure():
     def __init__(self, save, title, location):
         self.save = save

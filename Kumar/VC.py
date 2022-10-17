@@ -121,19 +121,12 @@ class Analysis():
             if req_plots.out_vol == 1:
                 plt.plot(modelled.InnCoil_Positions, modelled.LowOutCoil_Forces, 'o-', label = "lower")
                 plt.plot(modelled.InnCoil_Positions, modelled.UppOutCoil_Forces, 'o-', label = "upper")
-                plt.ylabel('Outer Coil Force [N]')
-                plt.xlabel('Inner Coil Position [mm]')
-                plt.legend()
-                plt.show()
+                Outforce_plot = dataplot_condition.Plot_base(x_lab='Inner Coil Position [mm]', y_lab='Outer Coil Force [N]')
             if req_plots.inn_vol == 1:
                 plt.plot(modelled.InnCoil_Positions, modelled.Magnet_Forces, 'o-')
-                plt.ylabel('Magnet Force [N]')
-                plt.xlabel('Inner Coil Position [mm]')
-                plt.show()
+                Mag_force = dataplot_condition.Plot_base(x_lab='Inner Coil Position [mm]', y_lab='Magnet Force [N]')
             plt.plot(modelled.InnCoil_Positions, modelled.Magnet_Forces / max(modelled.Magnet_Forces) * 100, 'o-', color = "blue")
-            plt.ylabel('Stability [%]')
-            plt.xlabel('Inner Coil Position [mm]')
-            plt.show()
+            stability = dataplot_condition.Plot_base(x_lab='Inner Coil Position [mm]', y_lab='Stability [%]')
             lin = modelled.Magnet_Forces / max(modelled.Magnet_Forces) * 100
             def polyfunc(x, a, b, c):
                 return a * x ** 2 + b * x + c
@@ -142,10 +135,7 @@ class Analysis():
             print("Fitted parameters of function:", optimizedParameters)
             fitted_renormalised_Forces = polyfunc(modelled.InnCoil_Positions, *optimizedParameters)
             plt.plot(modelled.InnCoil_Positions, fitted_renormalised_Forces, 'o-', color = "blue", label="poly2 fit")
-            plt.ylabel('Stability (renormalised forces) [%]')
-            plt.xlabel('Inner Coil Position [mm]')
-            plt.legend()
-            plt.show()
+            Renorm_force = dataplot_condition.Plot_base(x_lab='Inner Coil Position [mm]', y_lab='Stability (renormalised forces) [%]')
             def polyfunc(x, a, b, c):
                 return a * x ** 2 + b * x + c
             Norm_Magnet_Forces = modelled.Magnet_Forces / sensor.para()[2]
@@ -161,18 +151,13 @@ class Analysis():
                 fitted_Norm_Magnet_Forces1 = polyfunc(InnCoil_Positions1, *optimizedParameters1)
                 fiterr1 = Norm_Magnet_Forces - optimizedParameters1[0]*(np.array(modelled.InnCoil_Positions)) - optimizedParameters1[1]*(np.array(modelled.InnCoil_Positions)) - optimizedParameters1[2]
                 plt.plot(modelled.InnCoil_Positions, abs(fiterr1) / abs(Norm_Magnet_Forces) * 100)
-                plt.ylabel('Normalised Fit error [%]')
-                plt.xlabel('Inner Coil Position [mm]')
-                plt.show()
+                norm_fit = dataplot_condition.Plot_base(x_lab='Inner Coil Position [mm]', y_lab='Normalised Fit error [%]')
             nor_fit1 = abs(fiterr1) / abs(Norm_Magnet_Forces)
             plt.plot(modelled.InnCoil_Positions, Norm_Magnet_Forces, "o-", color = "blue", label="simulation")
             #plt.plot(modelled.InnCoil_Positions, fitted_Norm_Magnet_Forces, 'o-', label="poly2 fit")
             #plt.plot(modelled.InnCoil_Positions, optimizedParameters1[0]*(np.array(modelled.InnCoil_Positions)) - optimizedParameters1[1]*(
                          #np.array(modelled.InnCoil_Positions)) - optimizedParameters1[2], 'o--', label="fit")
-            plt.ylabel('Normalised VC Force [N/A]')
-            plt.xlabel('Inner Coil Position [mm]')
-            plt.legend()
-            plt.show()
+            norm_vc_force = dataplot_condition.Plot_base(x_lab='Inner Coil Position [mm]', y_lab='Normalised VC Force [N/A]')
         results = Results()
         text_datafile = dataplot_condition.Save_data(pre_simulation.parameters()[3], modelled.InnCoil_Positions,
          modelled.UppOutCoil_Voltages, modelled.LowOutCoil_Voltages, modelled.InnCoil_Voltages, results.Norm_OutCoil_Signals,
