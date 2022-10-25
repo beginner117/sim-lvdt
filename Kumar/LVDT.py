@@ -94,10 +94,6 @@ class Analysis():
         class Results():
             def __init__(self):
                 pass
-            if req_plots.out_vol == 1:
-                plt.plot(modelled.InnCoil_Positions, abs(modelled.LowOutCoil_Voltages), 'o-', label="Lower outer coil")
-                plt.plot(modelled.InnCoil_Positions, abs(modelled.UppOutCoil_Voltages), 'o-', label="Upper outer coil")
-                voltage_plot = dataplot_condition.Plot_base(x_lab = 'Inner Coil Position [mm]', y_lab = 'Magnitude Outer Coil Voltages [V]')
             InnCoil_Phases = np.angle(modelled.InnCoil_Voltages)
             LowOutCoil_Phases = np.angle(modelled.LowOutCoil_Voltages)
             UppOutCoil_Phases = np.angle(modelled.UppOutCoil_Voltages)
@@ -117,7 +113,7 @@ class Analysis():
             InnCoil_Positions1 = modelled.InnCoil_Positions[a:b]
             Norm_OutCoil_Signals1 = Norm_OutCoil_Signals[a:b]
             optimizedparameters1, pcov = opt.curve_fit(linfunc, InnCoil_Positions1, Norm_OutCoil_Signals1)
-            print("Fitted slope  (-0.5,0.5) and constant:", optimizedparameters1[0], optimizedparameters1[1])
+            print("Fitted slope (-0.5,0.5) and constant:", optimizedparameters1[0], optimizedparameters1[1])
             fitted_Norm_OutCoil_Signals1 = linfunc(InnCoil_Positions1, *optimizedparameters1)
             fiterror1 = Norm_OutCoil_Signals - optimizedparameters1[0] * (np.array(modelled.InnCoil_Positions)) + optimizedparameters1[1]
             norm_fit_error1 = (abs(fiterror1) / abs(np.array(Norm_OutCoil_Signals))) * 100
@@ -127,8 +123,8 @@ class Analysis():
                 plt.plot([modelled.InnCoil_Positions[mid-1], modelled.InnCoil_Positions[mid-1]], [norm_fit_error1[mid+1], norm_fit_error1[mid+1]], "--", color='black')
                 Normfit_plot = dataplot_condition.Plot_base(x_lab='Inner Coil Position [mm]', y_lab='Normalised Fit error[%]')
         results = Results()
-        text_datafile = dataplot_condition.Save_data(pre_simulation.parameters()[3], modelled.InnCoil_Positions, modelled.UppOutCoil_Voltages, modelled.LowOutCoil_Voltages, modelled.InnCoil_Voltages, 
-                                                     results.Norm_OutCoil_Signals, results.fiterror1, results.norm_fit_error1, Inn_Inductance, Inn_resistance)
+        #text_datafile = dataplot_condition.Save_data(pre_simulation.parameters()[3], modelled.InnCoil_Positions, modelled.UppOutCoil_Voltages, modelled.LowOutCoil_Voltages, modelled.InnCoil_Voltages,
+                                                     #results.Norm_OutCoil_Signals, results.fiterror1, results.norm_fit_error1, Inn_Inductance, Inn_resistance)
 
 
 

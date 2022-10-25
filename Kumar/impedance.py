@@ -42,11 +42,11 @@ impedance_online = [5.34, 0.407, 3.852, 0.582, 0.707, 9.65, 3.85, 9.729]
 #v_in = [a1+a2+a3+a4+a5+a6  for (a1, a2, a3, a4, a5, a6, a7) in zip(datasets.v_in_1, datasets.v_in_2, datasets.v_in_3, datasets.v_in_4, datasets.v_in_5, datasets.v_in_6, datasets.v_in_7)]
 #v_out = [b1+b2+b3+b4+b5+b6  for (b1, b2, b3, b4, b5, b6, b7) in zip(datasets.v_out_1, datasets.v_out_2, datasets.v_out_3, datasets.v_out_4, datasets.v_out_5, datasets.v_out_6, datasets.v_out_7)]
 trials = 6
-fre = TINA_simulation.fre
-v_in = TINA_simulation.vo_in_5
-v_out = TINA_simulation.vo_out_5
+fre = [10000]   #TINA_simulation.fre
+v_in = [3.973]  #TINA_simulation.vo_in_5
+v_out = [1.047] #TINA_simulation.vo_out_5
 date = "25_08out"
-save = 1
+save = 0
 #v_rat_tina = np.array([0.131, 0.163, 0.250, 0.341, 0.427, 0.504, 0.654, 0.754, 0.820, 0.864, 0.895])
 v_rat = np.array(v_out)/(np.array(v_in)*0.965)
 
@@ -60,7 +60,7 @@ correction = []
 r_ref = 990
 #r_ind = 135.4
 c = 0.965
-r_ind = 36.1
+r_ind = 23.6
 
 for i in range(0, len(fre)):
     rea[i] = np.sqrt(((r_ind ** 2) - ((r_ref + r_ind) ** 2) * (v_rat[i] ** 2)) / ((v_rat[i] ** 2) - 1))
@@ -76,7 +76,7 @@ if save == 1:
 print("impedance : ", imp)
 print("inductance : ", ind)
 print("reactance :", rea)
-
+'''
 #plt.plot(np.array(fre)/1000, np.array(imp1)/1000, "o--", label = "TINA")
 plt.plot(np.array(fre)/1000, np.array(imp)/1000, "o--", label = "c = 0.965")
 plt.xlabel("frequency [KHz]")
@@ -102,7 +102,7 @@ plt.legend()
 plt.title("reactance of Fred's coil")
 plt.grid()
 plt.show()
-
+'''
 
 
 

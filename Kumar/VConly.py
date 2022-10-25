@@ -21,11 +21,12 @@ class Analysis():
         femm.newdocument(0)
 
         outputfile = 'LVDT_10kHz_20mA_31AWG_10mm_6_7_7.out'
-        NSteps = 20
+        NSteps = 4
         StepSize = 1
-        InnCoil_Offset = -2.5
+        InnCoil_Offset = 5.5
 
-        sensor = design.Sensortype(0, 0, 1)
+        #sensor = design.Sensortype(0, 0, 1)
+        sensor = design.Sensortype(0.02, 10000, 0)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype("32 AWG", "32 AWG")
         geo = design.Geometry(inn_ht=self.parameter, inn_rad=16, inn_layers=8, inn_dist=0, out_ht=10, out_rad=25,
@@ -34,7 +35,7 @@ class Analysis():
                                                  Norm_fiterror=1, impedance=1)
 
         data_file = self.filename
-        multiple_fit = 1
+        multiple_fit = 0
         save = 0
         data_save = 0
         if data_save == 1:
@@ -87,23 +88,10 @@ class Analysis():
                                               edit_mode=4, group=1, label1=wire.prop32()[1], label2=geo.inncoil()[0], blockname=wire.prop32()[2],
                                               turns_pr_layer=position.inncoil()[4])
             inncoil_str
-
-            # Magnet Structure
-            #femm.mi_drawrectangle(0, position.magnet()[0], position.magnet()[2], position.magnet()[1])
-            femm.mi_drawrectangle(0, position.inncoil()[1], position.magnet()[2], position.inncoil()[1]-geo.mag()[0])
-            femm.mi_getmaterial(wire.mag_mat())
-            femm.mi_clearselected()
-            #femm.mi_selectrectangle(0, position.magnet()[0], position.magnet()[2], position.magnet()[1], 4)
-            femm.mi_selectrectangle(0, position.inncoil()[1], position.magnet()[2], position.inncoil()[1] - geo.mag()[0], 4)
-            femm.mi_setgroup(2)
-            femm.mi_clearselected()
-            #femm.mi_addblocklabel(position.magnet()[2] * 0.5, position.magnet()[1] + (geo.mag()[0] * 0.5))
-            #femm.mi_selectlabel(position.magnet()[2] * 0.5, position.magnet()[1] + (geo.mag()[0] * 0.5))
-            femm.mi_addblocklabel(position.magnet()[2] * 0.5, (position.inncoil()[1] - geo.mag()[0]) + (geo.mag()[0] * 0.5))
-            femm.mi_selectlabel(position.magnet()[2] * 0.5, (position.inncoil()[1] - geo.mag()[0]) + (geo.mag()[0] * 0.5))
-            femm.mi_setblockprop(wire.mag_mat(), 0, 0.1, "", 90, 2, 0)
-            femm.mi_clearselected()
-
+            magnetstr = femm_model.Femm_magnet(x1=0, y1=position.inncoil()[1], x2=position.magnet()[2],
+                                               y2=position.inncoil()[1]-geo.mag()[0], material=wire.mag_mat(), edit_mode=4, group=2,
+                                               label1=position.magnet()[2] * 0.5, label2=geo.mag()[0])
+            magnetstr
             bc = femm_model.Femm_bc()
             bc
 
@@ -145,6 +133,10 @@ class Analysis():
                 femm.mo_clearblock()
 
                 modelled.Magnet_Forces[i] = Magn_Force19
+                InnCoil_I, InnCoil_V, InnCoil_FluxLink = femm.mo_getcircuitproperties(position.inncoil()[5])
+                modelled.InnCoil_Voltages[i] = InnCoil_V
+                modelled.InnCoil_Currents[i] = InnCoil_I
+                modelled.InnCoil_Flux[i] = InnCoil_FluxLink
 
                 #femm.mi_selectgroup(1)
                 femm.mi_selectgroup(2)
@@ -154,6 +146,11 @@ class Analysis():
         loop = Computational_loop()
         print(modelled.InnCoil_Positions)
         print("magnet forces are: ", modelled.Magnet_Forces)
+        print("Inn voltages :", modelled.InnCoil_Voltages)
+        Inn_Inductance = abs(modelled.InnCoil_Flux / modelled.InnCoil_Currents)
+        Inn_resistance = abs(modelled.InnCoil_Voltages / modelled.InnCoil_Currents)
+        print("average Inn coil Inductance is :", sum(Inn_Inductance) / len(Inn_Inductance))
+        print("average Inn coil resistance is :", sum(Inn_resistance) / len(Inn_resistance))
 
         if NSteps > 2:
             modelled.MetaData[0] = NSteps
@@ -195,15 +192,15 @@ class Analysis():
             print("Fitted parameters of function:", optimizedParameters)
             fitted_Norm_Magnet_Forces = polyfunc(modelled.InnCoil_Positions, *optimizedParameters)
             print("Normalised forces:", Norm_Magnet_Forces)
+            if multiple_fit==1:
+                InnCoil_Positions1 = modelled.InnCoil_Positions[8:13]
+                Norm_Magnet_Forces1 = Norm_Magnet_Forces[8:13]
+                optimizedParameters1, pcov = opt.curve_fit(polyfunc, InnCoil_Positions1, Norm_Magnet_Forces1)
+                print("Fitted parameters of function at (-0.5,0.5):", optimizedParameters1)
+                fitted_Norm_Magnet_Forces1 = polyfunc(InnCoil_Positions1, *optimizedParameters1)
+                print("Normalised forces fitted:", Norm_Magnet_Forces1)
 
-            InnCoil_Positions1 = modelled.InnCoil_Positions[8:13]
-            Norm_Magnet_Forces1 = Norm_Magnet_Forces[8:13]
-            optimizedParameters1, pcov = opt.curve_fit(polyfunc, InnCoil_Positions1, Norm_Magnet_Forces1)
-            print("Fitted parameters of function at (-0.5,0.5):", optimizedParameters1)
-            fitted_Norm_Magnet_Forces1 = polyfunc(InnCoil_Positions1, *optimizedParameters1)
-            print("Normalised forces fitted:", Norm_Magnet_Forces1)
-
-            fiterr1 = Norm_Magnet_Forces - optimizedParameters1[0]*((np.array(modelled.InnCoil_Positions))**2) - optimizedParameters1[1]*(np.array(modelled.InnCoil_Positions)) - optimizedParameters1[2]
+                fiterr1 = Norm_Magnet_Forces - optimizedParameters1[0]*((np.array(modelled.InnCoil_Positions))**2) - optimizedParameters1[1]*(np.array(modelled.InnCoil_Positions)) - optimizedParameters1[2]
 
             plt.plot(modelled.InnCoil_Positions, Norm_Magnet_Forces, label="simulation")
             #plt.plot(modelled.InnCoil_Positions, fitted_Norm_Magnet_Forces, 'o--', label="poly2 fit")
@@ -240,7 +237,7 @@ class Analysis():
             nor_fit1 = abs(fiterr1) / abs(Norm_Magnet_Forces)
         results = Results()
 
-'''
+#'''
         class Save_data():
             def __init__(self):
                 pass
@@ -250,5 +247,5 @@ class Analysis():
                                     results.Norm_Magnet_Forces, results.fiterr1, results.nor_fit1, results.lin))
             np.savetxt(data_file, data)
         saved_data = Save_data()
-'''
+#'''
 
