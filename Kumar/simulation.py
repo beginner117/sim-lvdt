@@ -7,10 +7,11 @@ class Femm_simulation():
     def execute(self):
         for item in self.input:
             print(item)
-            a = self.sensor_type.Analysis(item[0], item[1])
-            lis.append(a)
-        for item in lis:
-            item.simulate()
+            try:
+                a = self.sensor_type.Analysis(item[0], item[1], item[2])
+            except:
+                a = self.sensor_type.Analysis(item[0], item[1])
+            a.simulate()
             
 
 

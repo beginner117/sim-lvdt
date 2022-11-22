@@ -3,20 +3,20 @@ import numpy as np
 import scipy.optimize as opt
 import matplotlib.pyplot as plt
 import design
-import pickle
 import dataplot_condition
 import coil
 import femm_model
 
 class Analysis():
-    def __init__(self, parameter, filename: str):
+    def __init__(self, parameter, filename: str, fit=None):
         self.parameter = parameter
         self.filename = filename
+        self.fit = fit
     def simulate(self):
         femm.openfemm()  # The package must be initialized with the openfemm command.
         femm.newdocument(0)  # We need to create a new Magnetostatics document to work on.
 
-        pre_simulation = design.Simulation(Nsteps=20, stepsize=0.1, inncoil_offset=-1.0, data_file=self.filename, fit_points=5)
+        pre_simulation = design.Simulation(Nsteps=20, stepsize=0.1, inncoil_offset=-1.0, data_file=self.filename, fit_points=self.fit)
         sensor = design.Sensortype(0, 0, 1)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype("32 AWG", "32 AWG")
@@ -130,7 +130,7 @@ class Analysis():
             print("Fitted parameters of mag_force/max_force:", optimizedParameters)
             fitted_renormalised_Forces = polyfunc(modelled.InnCoil_Positions, *optimizedParameters)
             plt.plot(modelled.InnCoil_Positions, fitted_renormalised_Forces, 'o-', color = "blue", label="poly2 fit")
-            Renorm_force = dataplot_condition.Plot_base(x_lab='Inner Coil Position [mm]', y_lab='Stability (renormalised forces) [%]')
+            Renorm_force = dataplot_condition.Plot_base(x_lab='Inner Coil Position [mm]', y_lab='Stability (normalised forces) [%]')
             def polyfunc(x, a, b, c):
                 return a * x ** 2 + b * x + c
             Norm_Magnet_Forces = modelled.Magnet_Forces / sensor.para()[2]
@@ -138,7 +138,7 @@ class Analysis():
             print("Fitted parameters of mag_force/current:", optimizedParameters)
             fitted_Norm_Magnet_Forces = polyfunc(modelled.InnCoil_Positions, *optimizedParameters)
             print(Norm_Magnet_Forces)
-            if pre_simulation.parameters()[4] > 0:
+            if self.fit:
                 InnCoil_Positions1 = modelled.InnCoil_Positions[8:13]
                 Norm_Magnet_Forces1 = Norm_Magnet_Forces[8:13]
                 optimizedParameters1, pcov = opt.curve_fit(polyfunc, InnCoil_Positions1, Norm_Magnet_Forces1)

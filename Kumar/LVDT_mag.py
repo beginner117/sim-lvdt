@@ -3,26 +3,25 @@ import femm
 import numpy as np
 import scipy.optimize as opt
 import matplotlib.pyplot as plt
-import math
-import pickle
 import dataplot_condition
 import femm_model
 import coil
 
 class Analysis():
-    def __init__(self, parameter1, filename: str):
+    def __init__(self, parameter1, filename: str, fit=None):
         self.parameter1 = parameter1
         self.filename = filename
+        self.fit = fit
     def simulate(self):
 
         femm.openfemm()   # The package must be initialized with the openfemm command.
         femm.newdocument(0)   # We need to create a new Magnetostatics document to work on.
 
-        pre_simulation = design.Simulation(Nsteps=40, stepsize=1, inncoil_offset=-20, data_file =self.filename, fit_points=self.parameter1)
+        pre_simulation = design.Simulation(Nsteps=10, stepsize=1, inncoil_offset=-5, data_file =self.filename, fit_points=self.fit)
         sensor = design.Sensortype(InnCoilCurrent = 0.02, Simfreq = 10000, OutCoilCurrent = 0)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype("32 AWG", "32 AWG")
-        geo = design.Geometry(inn_ht=24, inn_rad=11, inn_layers=6, inn_dist=0, out_ht=13.5, out_rad=35, out_layers=5, out_dist=54.5, mag_len=40, mag_dia=10, ver_shi=0)
+        geo = design.Geometry(inn_ht=self.parameter1, inn_rad=11, inn_layers=6, inn_dist=0, out_ht=13.5, out_rad=35, out_layers=5, out_dist=54.5, mag_len=40, mag_dia=10, ver_shi=0)
         req_plots = dataplot_condition.Req_plots(out_vol=0, inn_vol=0, norm_signal=0, fit_error=0, Norm_fiterror=1, impedance=0)
         print_data = dataplot_condition.Print_data(phase=1, slope=1)
 
@@ -105,7 +104,7 @@ class Analysis():
         class Results():
             def __init__(self):
                 pass
-            print(np.array(modelled.InnCoil_Voltages))
+            print("inn vol : ", np.array(modelled.InnCoil_Voltages))
             if req_plots.out_vol == 1:
                 plt.plot(modelled.InnCoil_Positions, abs(modelled.LowOutCoil_Voltages), 'o-', label="Lower outer coil")
                 plt.plot(modelled.InnCoil_Positions, abs(modelled.UppOutCoil_Voltages), 'o-', label="Upper outer coil")
@@ -117,9 +116,9 @@ class Analysis():
                 LowOutCoil_Phases = np.angle(modelled.LowOutCoil_Voltages)
                 UppOutCoil_Phases = np.angle(modelled.UppOutCoil_Voltages)
                 print("Phase offset:", InnCoil_Phases[0] - LowOutCoil_Phases[0], InnCoil_Phases[pre_simulation.parameters()[0]] - UppOutCoil_Phases[pre_simulation.parameters()[0]])
-            Norm_OutCoil_Signals = (abs(modelled.UppOutCoil_Voltages) - abs(modelled.LowOutCoil_Voltages)) / (sensor.para()[0])
-            OutCoil_Signals1 = (abs(modelled.UppOutCoil_Voltages) - abs(modelled.LowOutCoil_Voltages))
-            print("signal1 : ", OutCoil_Signals1)
+            Norm_OutCoil_Signals = (abs(modelled.UppOutCoil_Voltages) - abs(modelled.LowOutCoil_Voltages)) / abs(np.array(modelled.InnCoil_Voltages))
+            OutCoil_Signals = (abs(modelled.UppOutCoil_Voltages) - abs(modelled.LowOutCoil_Voltages))
+            print("signal1 : ", OutCoil_Signals)
             print("Normalised out coil signals :", Norm_OutCoil_Signals)
             def linfunc(x, a, b):
                 return a * x + b   #ydata: Norm_OutCoil_Signals, xdata: InnCoil_Position
@@ -133,9 +132,10 @@ class Analysis():
             norm_fit_error = (abs(fiterror) / abs(np.array(Norm_OutCoil_Signals))) * 100
 
             mid = int(pre_simulation.parameters()[0]/2)
-            if pre_simulation.parameters()[4] > 0 :
-                a = mid - int((pre_simulation.parameters()[4] - 1) / 2)
-                b = mid + int((pre_simulation.parameters()[4] - 1) / 2) + 1
+            #if pre_simulation.parameters()[4] > 0 :
+            if self.fit:
+                a = mid - pre_simulation.parameters()[4]
+                b = mid + pre_simulation.parameters()[4] + 1
                 InnCoil_Positions1 = modelled.InnCoil_Positions[a:b]
                 Norm_OutCoil_Signals1 = Norm_OutCoil_Signals[a:b]
                 optimizedparameters1, pcov = opt.curve_fit(linfunc, InnCoil_Positions1, Norm_OutCoil_Signals1)
@@ -146,10 +146,9 @@ class Analysis():
         results = Results()
         class Linearity():
             slopes = []
-            theta = []
             def __init__(self):
                 pass
-            if req_plots.Norm_fiterror == 1:
+            if req_plots.Norm_fiterror == 1 and self.fit:
                 plt.plot(modelled.InnCoil_Positions[:results.mid],
                          (abs(results.fiterror1) / abs(np.array(results.Norm_OutCoil_Signals)))[:results.mid] * 100, 'o-', color='blue')
                 plt.plot(modelled.InnCoil_Positions[results.mid+1:],
@@ -167,20 +166,15 @@ class Analysis():
                 if not i == results.mid:
                     m = np.polyfit([modelled.InnCoil_Positions[i], modelled.InnCoil_Positions[results.mid]], [results.Norm_OutCoil_Signals[i], results.Norm_OutCoil_Signals[results.mid]], 1)[0]
                     slopes.append(m)
-                    theta.append(math.degrees(math.atan(m)))
-            m1 = results.optimizedparameters1[0]
-            y = (np.array(theta)-math.degrees(math.atan(m1)))/np.array(theta)
-            y1 = (np.array(slopes)-m1)/np.array(slopes)
-            plt.plot(modelled.InnCoil_Positions[results.mid+1:], slopes[results.mid:], "o--", color = 'b')
-            plt.plot(modelled.InnCoil_Positions[:results.mid], slopes[:results.mid], "o--", color = 'b')
-            slope_plot = dataplot_condition.Plot_base(x_lab='Inner Coil Position [mm]', y_lab="slope [tan(θ)]")
-            plt.plot(modelled.InnCoil_Positions[:results.mid], abs(np.array(y1) * 1)[:results.mid], "o--", color = 'b')
-            plt.plot(modelled.InnCoil_Positions[results.mid+1:], abs(np.array(y1) * 1)[results.mid:], "o--", color = 'b')
-            rel_slope_plot = dataplot_condition.Plot_base(x_lab='Inner Coil Position [mm]', y_lab="Relative slope error [$\dfrac{abs(fit - actual)}{tan(θ)}$]")
+            if self.fit:
+                m1 = results.optimizedparameters1[0]
+                y1 = (np.array(slopes)-m1)/np.array(slopes)
+                plt.plot(modelled.InnCoil_Positions[results.mid+1:], slopes[results.mid:], "o--", color = 'b')
+                plt.plot(modelled.InnCoil_Positions[:results.mid], slopes[:results.mid], "o--", color = 'b')
+                slope_plot = dataplot_condition.Plot_base(x_lab='Inner Coil Position [mm]', y_lab="slope [tan(θ)]")
+                plt.plot(modelled.InnCoil_Positions[:results.mid], abs(np.array(y1) * 1)[:results.mid], "o--", color = 'b')
+                plt.plot(modelled.InnCoil_Positions[results.mid+1:], abs(np.array(y1) * 1)[results.mid:], "o--", color = 'b')
+                rel_slope_plot = dataplot_condition.Plot_base(x_lab='Inner Coil Position [mm]', y_lab="Relative slope error [$\dfrac{abs(fit - actual)}{tan(θ)}$]")
         linearity = Linearity()
-        #text_datafile = dataplot_condition.Save_data(pre_simulation.parameters()[3], modelled.InnCoil_Positions,
-                                                    # modelled.UppOutCoil_Voltages, modelled.LowOutCoil_Voltages,
-                                                    # modelled.InnCoil_Voltages, results.Norm_OutCoil_Signals,
-                                                    # results.fiterror1, results.norm_fit_error1, Inn_Inductance,
-                                                    # Inn_resistance, rough1=linearity.lin3, rough2=linearity.theta)
-
+        text_datafile = dataplot_condition.Save_data(self.filename, modelled.InnCoil_Positions, modelled.UppOutCoil_Voltages, modelled.LowOutCoil_Voltages, modelled.InnCoil_Voltages,
+                                results.Norm_OutCoil_Signals, results.fiterror, results.norm_fit_error)

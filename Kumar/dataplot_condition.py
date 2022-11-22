@@ -36,7 +36,7 @@ class Save_data():
         #if self.rough1.any():
             #data = np.column_stack((self.rough1, self.rough2))
         #else:
-        data = np.column_stack((self.inn_position, self.upp_vol, self.low_vol, self.inn_vol, self.out_sig, self.fiterr, self.norm_fit, self.inn_ind, self.inn_res))
+        data = np.column_stack((self.inn_position, self.upp_vol, self.low_vol, self.inn_vol, self.out_sig, self.fiterr, self.norm_fit))
         np.savetxt(self.filename, data)
 
 
