@@ -17,7 +17,7 @@ class Analysis():
         femm.openfemm()   # The package must be initialized with the openfemm command.
         femm.newdocument(0)   # We need to create a new Magnetostatics document to work on.
 
-        pre_simulation = design.Simulation(Nsteps=10, stepsize=1, inncoil_offset=-5, data_file =self.filename, fit_points=self.fit)
+        pre_simulation = design.Simulation(Nsteps=4, stepsize=1, inncoil_offset=-2, data_file =self.filename, fit_points=self.fit)
         sensor = design.Sensortype(InnCoilCurrent = 0.02, Simfreq = 10000, OutCoilCurrent = 0)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype("32 AWG", "32 AWG")
@@ -31,6 +31,8 @@ class Analysis():
         length = coil.Length(geo.inncoil()[2], geo.inncoil()[1], wire.prop32()[0], wire.prop32()[1],
                              position.inncoil()[3], geo.outcoil()[2], geo.outcoil()[1], wire.prop32()[0],
                              wire.prop32()[1], position.upp_outcoil()[3])
+        print(position.inncoil())
+        print(position.upp_outcoil())
         class Modelling():
             def __init__(self):
                 pass
@@ -157,11 +159,6 @@ class Analysis():
                          [results.norm_fit_error1[results.mid+1], results.norm_fit_error1[results.mid+1]], "--", color='black')
                 res_plot = dataplot_condition.Plot_base(x_lab='Inner Coil Position [mm]', y_lab='Linearity [%]')
 
-                #plt.plot(modelled.InnCoil_Positions, np.array(np.rad2deg(np.arctan(results.norm_fit_error1))), "o--")
-                #aape_plot = dataplot_condition.Plot_base(x_lab='Inner Coil Position [mm]', y_lab='AAPE [θ]')
-                lin1 = (abs(results.fiterror1) / abs(np.array(results.Norm_OutCoil_Signals)))[:results.mid] * 100
-                lin2 = (abs(results.fiterror1) / abs(np.array(results.Norm_OutCoil_Signals)))[results.mid+1:] * 100
-                lin3 = np.concatenate([lin1, lin2])
             for i in range(0, len(results.Norm_OutCoil_Signals)):
                 if not i == results.mid:
                     m = np.polyfit([modelled.InnCoil_Positions[i], modelled.InnCoil_Positions[results.mid]], [results.Norm_OutCoil_Signals[i], results.Norm_OutCoil_Signals[results.mid]], 1)[0]
@@ -176,5 +173,5 @@ class Analysis():
                 plt.plot(modelled.InnCoil_Positions[results.mid+1:], abs(np.array(y1) * 1)[results.mid:], "o--", color = 'b')
                 rel_slope_plot = dataplot_condition.Plot_base(x_lab='Inner Coil Position [mm]', y_lab="Relative slope error [$\dfrac{abs(fit - actual)}{tan(θ)}$]")
         linearity = Linearity()
-        text_datafile = dataplot_condition.Save_data(self.filename, modelled.InnCoil_Positions, modelled.UppOutCoil_Voltages, modelled.LowOutCoil_Voltages, modelled.InnCoil_Voltages,
-                                results.Norm_OutCoil_Signals, results.fiterror, results.norm_fit_error)
+
+        #np.savez_compressed(self.filename, IC_positions = modelled.InnCoil_Positions, IC_voltages = modelled.InnCoil_Voltages, UOC_voltages = modelled.UppOutCoil_Voltages, LOC_voltages = modelled.LowOutCoil_Voltages)
