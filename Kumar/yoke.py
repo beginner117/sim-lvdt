@@ -1,8 +1,11 @@
+import sys
+sys.path.insert(1, "C://Users//kumar//PycharmProjects//lvdtsimulations//Kumar//modules")
 import design
 import femm
 import numpy as np
 import matplotlib.pyplot as plt
-import os
+import femm_model
+import coil
 import shutil
 femm.openfemm()
 femm.newdocument(0)
@@ -11,7 +14,7 @@ outputfile = 'small_F0_MirrorTower_1mA_32AWG_6_5_5.out'
 NSteps = 6
 StepSize = 1
 Upp_Inncoil_Offset = -5.5
-save = 1
+save = 0
 
 sensor = design.Sensortype(1, 0, 0)
 femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
@@ -30,9 +33,7 @@ class Position():
         Low_Inncoil_NrWind_p_Layer = (geo.Upp_Inncoil()[0]) / (wire.prop31()[0] + wire.prop31()[1] * 2)
         Low_Inncoil_NrWindings = Low_Inncoil_NrWind_p_Layer * geo.Upp_Inncoil()[2]
         Low_Inncoil_Circuit = "Low_Inncoil_Circuit"
-        return [Low_Inncoil_OutRadius, Low_Inncoil_Lowend, Low_Inncoil_Uppend, Low_Inncoil_NrWind_p_Layer,
-                Low_Inncoil_NrWindings,
-                Low_Inncoil_Circuit]
+        return [Low_Inncoil_OutRadius, Low_Inncoil_Lowend, Low_Inncoil_Uppend, Low_Inncoil_NrWind_p_Layer, Low_Inncoil_NrWindings, Low_Inncoil_Circuit]
 position = Position()
 
 class Yoke():
