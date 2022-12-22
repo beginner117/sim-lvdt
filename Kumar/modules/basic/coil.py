@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 class Position():
     def __init__(self, inn_ht, inn_rad, inn_layers, inn_dist, out_ht, out_rad, out_layers,  out_dist,
@@ -101,6 +100,14 @@ class Length():
         print("Total length of lower out coil wire (mm):", LowOutCoil_TotalWire)
         print("\n")
         return LowOutCoil_TotalWire
+
+
+
+
+
+
+
+
 
 
 

@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas
 import csv
 
 with open('TINA/tcurve_r_vf5.txt', 'r') as f:

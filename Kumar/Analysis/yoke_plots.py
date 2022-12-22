@@ -5,13 +5,11 @@ import shutil
 import warnings
 warnings.filterwarnings('ignore')
 
-# output_file data : [0]-position, [1]-upp_out_vol/for, [2]-low_out_vol/for, [3]-inn_vol/mag_for, [4]-Norm_Out_Sig/for, [5]-fit_err(1) , [6]-norm-fit(1), [7]-Inn_Inductance/Linear Range, [8]-Inn_resistance
 #yoke data : [0]-position, [1]-inncoil_force, [2]-mag_force, [3]-b1, [4]-b2, [5]-b3, [6]-b4, [7]-b5, [8]-b6, [9]-b7, [10]-total
 #errorbar = [0]-correction factor, [1]-reference res, [2]-coil DC res, [3]-freq, [4]-input_vol, [5]-output_vol, [6]-ratio, [7]-reactance, [8]-inductance, [9]-impedance
 
-inputdata = []
 slopes = []
-
+files = []
 res = []
 ind = []
 rea_err = []
@@ -25,198 +23,24 @@ v_in_err = []
 v_out_mean = []
 v_out_err = []
 
-#output_files = ["def_text/def_F0bench"]
-#output_files = [ "roughfiles/dia8", "roughfiles/dia10", "roughfiles/dia12"]
-output_files = [ "impedance/17_08out", "impedance/18_08out", "impedance/19_08out", "impedance/25_08out", "impedance/24_08out"]
-legends = ["magdia:8", "def", "magdia:12"]
-voice_coil = 0
+output_files = ["def_typeA_lv.npz"]
+legends = ["trial"]
 for i in range(0,len(output_files)):
-    X = np.loadtxt(output_files[i], dtype=complex)
-    inputarray = [[X[j][i] for j in range(len(X))] for i in range(len(X[0]))]
-    inputdata.append(inputarray)
+    b = np.load(output_files[i])
+    files.append(b)
 n = len(output_files)
 f = 11
-print(len(output_files[0]))
-class Graphs():
-    def __init__(self, save, directory=None):
-        self.sav = save
-        self.directory = directory
-        if self.directory and self.sav == 1:
-                parent_dir = r"C:\Users\kumar\OneDrive\Desktop\pi\lvdt\small_IP\res"
-                path1 = os.path.join(parent_dir, self.directory)
-                self.path1 = path1
-                os.mkdir(self.path1)
-    def uppout_vol(self):
-        for i in range(0,n):
-            plt.plot(np.array(inputdata[i][0]).real.tolist(), np.array(inputdata[i][1]).real.tolist(), 'o-', label=legends[i])
-        if voice_coil == 0:
-            plt.ylabel('Upper Out Coil Voltage [V] ')
-        if voice_coil == 1:
-            plt.ylabel('Upper Out Force [N] ')
-        plt.xlabel('Inner Coil Position [mm]')
-        plt.legend()
-        if self.sav == 1:
-            plt.savefig("upp_out.png")
-            shutil.move("upp_out.png", self.path1)
-        plt.show()
-    def lowout_vol(self):
-        for i in range(0,n):
-            plt.plot(np.array(inputdata[i][0]).real.tolist(), np.array(inputdata[i][2]).real.tolist(), 'o-', label=legends[i])
-        if voice_coil == 0:
-            plt.ylabel('Lower Out Coil Voltage [V] ')
-        if voice_coil == 1:
-            plt.ylabel('Lower Out Coil Force [N]')
-        plt.xlabel('Inner Coil Position [mm]')
-        plt.legend()
-        if self.sav == 1:
-            plt.savefig("low_out.png")
-            shutil.move("low_out.png", self.path1)
-        plt.show()
-    def inncoil_vol(self):
-        for i in range(0,n):
-            plt.plot(np.array(inputdata[i][0]).real.tolist(), np.array(inputdata[i][3]).real.tolist(), 'o-', label=legends[i])
-        if voice_coil == 0:
-            plt.ylabel('Inner Out Coil Voltage [V]')
-        if voice_coil == 1:
-            plt.ylabel('Magnet Force [N] ')
-        plt.xlabel('Inner Coil Position [mm]')
-        plt.legend()
-        if self.sav == 1:
-            plt.savefig("Inn_vol.png")
-            shutil.move("Inn_vol.png", self.path1)
-        plt.show()
-    def norm_sig(self):
-        for i in range(0,n):
-            plt.plot(np.array(inputdata[i][0]).real.tolist(), np.array(inputdata[i][4]).real.tolist(), 'o-', label=legends[i])
-        if voice_coil == 0:
-            plt.ylabel('Normalised Out Coil signal [V/A]')
-        if voice_coil == 1:
-            plt.ylabel('Normalised Magnet Force [N/A]')
-        plt.xlabel('Inner Coil Position [mm]')
-        plt.legend()
-        #plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-        if self.sav == 1:
-            plt.savefig("norm_sig.png")
-            shutil.move("norm_sig.png", self.path1)
-        plt.show()
-    def norm_fit(self):
-        for i in range(0,n):
-            plt.plot(np.array(inputdata[i][0]).real.tolist(), np.array(inputdata[i][6]).real.tolist(), 'o-', label=legends[i])
-        plt.ylabel('Normalised Fit Error [%]')
-        plt.xlabel('Inner Coil Position [mm]')
-        plt.ylim(0,0.1)
-        plt.legend()
-        if self.sav == 1:
-            plt.savefig("normfiterr.png")
-            shutil.move("normfiterr.png", self.path1)
-        plt.show()
-    def fit(self):
-        for i in range(0,n):
-            plt.plot(np.array(inputdata[i][0]).real.tolist(), np.array(inputdata[i][5]).real.tolist(), 'o-', label=legends[i])
-        if voice_coil == 0:
-            plt.ylabel('Fit Error [V/A]')
-        if voice_coil == 1:
-            plt.ylabel('Fit Error [N/A]')
-        plt.xlabel('Inner Coil Position [mm]')
-        plt.legend()
-        if self.sav == 1:
-            plt.savefig("fiterr.png")
-            shutil.move("fiterr.png", self.path1)
-        plt.show()
-    def norm_fit_sig(self):
-        for i in range(0,n):
-            plt.plot(np.array(inputdata[i][0]).real.tolist(), np.array(inputdata[i][7]).real.tolist(), 'o-', label=legends[i])
-        if voice_coil == 0:
-            plt.ylabel('Fit Norm. Out Coil signal [V/A]')
-        if voice_coil == 1:
-            plt.ylabel('Fit Norm. Out Coil Forces [N/A]')
-        plt.xlabel('Inner Coil Position [mm]')
-        plt.legend()
-        if self.sav == 1:
-            plt.savefig("fit_norm_sig.png")
-            shutil.move("fit_norm_sig.png", self.path1)
-        plt.show()
-    def inductance(self):
-        for i in range(0,n):
-            #plt.plot(np.array(inputdata[i][0]).real.tolist(), (np.array(inputdata[i][7]).real.tolist())*1000, 'o-', label=legends[i])
-            induct = sum((np.array(inputdata[i][7]).real.tolist())*1000)/len(np.array(inputdata[i][7]).real.tolist())
-            ind.append(induct)
-        print(ind)
-        plt.plot(legends, np.array(ind), "o-")
-        plt.ylabel("Flux/current [mH]")
-        plt.xlabel("Inn coil position")
-        plt.show()
-        if self.sav == 1:
-            plt.savefig("inn_ind.png")
-            shutil.move("inn_ind.png", self.path1)
-    def resistance(self):
-        for i in range(0,n):
-            #plt.plot(np.array(inputdata[i][0]).real.tolist(), np.abs(inputdata[i][8]).tolist(), 'o-', label=legends[i])
-            r = sum(np.abs(inputdata[i][8]).tolist())/len(np.abs(inputdata[i][8]).tolist())
-            res.append(r)
-        if voice_coil == 0:
-            plt.ylabel('Inner coil resistance [ohms]')
-        if voice_coil == 1:
-            plt.ylabel('Fit Norm. Out Coil Forces [N/A]')
-        plt.xlabel('Inner Coil Position [mm]')
-        plt.legend()
-        if self.sav == 1:
-            plt.savefig("inn_res.png")
-            shutil.move("inn_res.png", self.path1)
-        plt.show()
-        plt.plot(legends, np.array(res), "o-")
-        plt.ylabel("resistance [ohms]")
-        plt.xlabel("Inn coil position")
-        plt.legend()
-        plt.show()
-    def lin_imp(self):
-        for i in range(0,n):
-            plt.plot(np.array(inputdata[i][0]).real.tolist(), 100 - (np.array(inputdata[i][6])/np.array(inputdata[legends.index("def")][6]))*100, 'o-', label=legends[i])
-        if voice_coil == 0:
-            plt.ylabel('Linear Improvement [%]')
-        plt.xlabel('Inner Coil Position [mm]')
-        plt.ylim(-33, 33)
-        plt.legend()
-        if self.sav == 1:
-            plt.savefig("linfit.png")
-            shutil.move("linfit.png", self.path1)
-        plt.show()
-    def slope(self):
-        for i in range(0,n):
-            m = np.polyfit(np.array(inputdata[i][0]).real.tolist(), np.array(inputdata[i][4]).real.tolist(), 1)[0]
-            slopes.append(m)
-        #plt.plot(legends, slopes, 'o--')
-        print("slopes are : ", m)
-        plt.plot(legends, ((np.array(slopes)/slopes[legends.index("def")])*100) - 100, "o--")
-        if voice_coil == 0:
-            plt.ylabel('slope increment [%]')
-        if voice_coil == 1:
-            plt.ylabel('slope increment [%]')
-        plt.xlabel('Inner Coil Position [mm]')
-        plt.legend()
-        if self.sav == 1:
-            plt.savefig("norm_sig.png")
-            shutil.move("norm_sig.png", self.path1)
-        plt.show()
-    def linear_range(self):
-        if voice_coil == 1:
-            for i in range(0, n):
-                plt.plot(np.array(inputdata[i][0]).real.tolist(), np.array(inputdata[i][7]).real.tolist(), 'o-', label=legends[i])
-            plt.ylabel('Fit Norm. Out Coil Forces [%]')
-            plt.xlabel('Inner Coil Position [mm]')
-            plt.legend()
-            #plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-            if self.sav == 1:
-                plt.savefig("fit_norm_sig.png")
-                shutil.move("fit_norm_sig.png", self.path1)
-            plt.show()
 
+
+
+
+'''
 class Yoke_graphs():
     def __init__(self, save, directory=None):
         self.sav = save
         self.directory = directory
         if self.directory and self.sav == 1:
-                parent_dir = r"C:\Users\kumar\OneDrive\Desktop\pi\mirror"
+                parent_dir = r""
                 path1 = os.path.join(parent_dir, self.directory)
                 self.path1 = path1
                 os.mkdir(self.path1)
@@ -371,7 +195,7 @@ class Impedance_graphs():
         self.sav = save
         self.directory = directory
         if self.directory and self.sav == 1:
-                parent_dir = r"C:\Users\kumar\OneDrive\Desktop\pi\mirror"
+                parent_dir = r""
                 path1 = os.path.join(parent_dir, self.directory)
                 self.path1 = path1
                 os.mkdir(self.path1)
@@ -463,6 +287,4 @@ class Impedance_graphs():
         plt.ylabel("rea rel ")
         plt.show()
 
-
-
-
+'''

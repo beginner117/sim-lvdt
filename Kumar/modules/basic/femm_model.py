@@ -1,4 +1,3 @@
-import design
 import femm
 import numpy as np
 
