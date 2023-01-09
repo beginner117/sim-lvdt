@@ -1,8 +1,8 @@
 import femm
-import basic.design as design
-import basic.femm_model as femm_model
-import basic.coil as coil
-import basic.feed as feed
+import design
+import femm_model
+import coil
+import feed
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -24,7 +24,7 @@ class Analysis():
         wire = design.Wiretype("32 AWG", "32 AWG")
         if self.default=='yes':
             geo = design.Geometry(value[self.design_type]["inn_ht"], value[self.design_type]['inn_rad'], value[self.design_type]['inn_layers'], value[self.design_type]['inn_dist'], value[self.design_type]['out_ht'], value[self.design_type]['out_rad'],
-                              value[self.design_type]['out_layers'], value[self.design_type]['out_dist'], value[self.design_type]['mag_len'], value[self.design_type]['mag_dia'], value[self.design_type]['ver_shi'])
+                                  value[self.design_type]['out_layers'], value[self.design_type]['out_dist'], value[self.design_type]['mag_len'], value[self.design_type]['mag_dia'], value[self.design_type]['ver_shi'])
         else:
             geo = design.Geometry(inn_ht=24, inn_rad=self.parameter1, inn_layers=6, inn_dist=0, out_ht=13.5, out_rad=35, out_layers=5, out_dist=54.5, mag_len=40, mag_dia=10, ver_shi=0)
         position = coil.Position(geo.inncoil()[0], geo.inncoil()[1], geo.inncoil()[2], geo.inncoil()[3], geo.outcoil()[0], geo.outcoil()[1], geo.outcoil()[2], geo.outcoil()[3],
@@ -35,17 +35,17 @@ class Analysis():
             def __init__(self):
                 pass
             inncoil_str = femm_model.Femm_coil(x1=geo.inncoil()[1], y1=position.inncoil()[2], x2=position.inncoil()[0], y2=position.inncoil()[1],
-                                              circ_name=position.inncoil()[5], circ_current=sensor.para()[0], circ_type=1, material=wire.inncoil_material,
-                                              edit_mode=4, group=1, label1=wire.prop32()[1], label2=geo.inncoil()[0], blockname=wire.prop32()[2],
-                                              turns_pr_layer=position.inncoil()[4])
+                                               circ_name=position.inncoil()[5], circ_current=sensor.para()[0], circ_type=1, material=wire.inncoil_material,
+                                               edit_mode=4, group=1, label1=wire.prop32()[1], label2=geo.inncoil()[0], blockname=wire.prop32()[2],
+                                               turns_pr_layer=position.inncoil()[4])
             uppoutstr = femm_model.Femm_coil(x1=geo.outcoil()[1], y1=position.upp_outcoil()[2], x2=position.upp_outcoil()[0], y2=position.upp_outcoil()[1],
-                                            circ_name=position.upp_outcoil()[5], circ_current=sensor.para()[2], circ_type=1, material=wire.inncoil_material,
-                                            edit_mode=4, group=3, label1=wire.prop32()[1],
-                                            label2=geo.outcoil()[0], blockname=wire.prop32()[2], turns_pr_layer=position.upp_outcoil()[4])
+                                             circ_name=position.upp_outcoil()[5], circ_current=sensor.para()[2], circ_type=1, material=wire.inncoil_material,
+                                             edit_mode=4, group=3, label1=wire.prop32()[1],
+                                             label2=geo.outcoil()[0], blockname=wire.prop32()[2], turns_pr_layer=position.upp_outcoil()[4])
             lowoutstr = femm_model.Femm_coil(x1=geo.outcoil()[1], y1=position.low_outcoil()[1], x2=position.low_outcoil()[0], y2=position.low_outcoil()[2],
-                                            circ_name=position.low_outcoil()[5], circ_current=-sensor.para()[2], circ_type=1, material=wire.inncoil_material,
-                                            edit_mode=4, group=4, label1=wire.prop32()[0],
-                                            label2=geo.outcoil()[0], blockname=wire.prop32()[2], turns_pr_layer=position.low_outcoil()[4])
+                                             circ_name=position.low_outcoil()[5], circ_current=-sensor.para()[2], circ_type=1, material=wire.inncoil_material,
+                                             edit_mode=4, group=4, label1=wire.prop32()[0],
+                                             label2=geo.outcoil()[0], blockname=wire.prop32()[2], turns_pr_layer=position.low_outcoil()[4])
             magnetstr = femm_model.Femm_magnet(x1=0, y1=position.magnet()[0], x2=position.magnet()[2], y2=position.magnet()[1], material=wire.mag_mat(), edit_mode=4, group=2, label1=0.5, label2=geo.mag()[0])
             bc = femm_model.Femm_bc()
 

@@ -1,8 +1,8 @@
 import femm
-import basic.design as design
-import basic.femm_model as femm_model
-import basic.coil as coil
-import basic.feed as feed
+import design
+import femm_model
+import coil
+import feed
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -24,13 +24,13 @@ class Analysis():
         wire = design.Wiretype("32 AWG", "32 AWG")
         if self.default=='yes':
             geo = design.Geometry(value[self.design_type]["inn_ht"], value[self.design_type]['inn_rad'], value[self.design_type]['inn_layers'], value[self.design_type]['inn_dist'], value[self.design_type]['out_ht'], value[self.design_type]['out_rad'],
-                              value[self.design_type]['out_layers'], value[self.design_type]['out_dist'], value[self.design_type]['mag_len'], value[self.design_type]['mag_dia'], value[self.design_type]['ver_shi'])
+                                  value[self.design_type]['out_layers'], value[self.design_type]['out_dist'], value[self.design_type]['mag_len'], value[self.design_type]['mag_dia'], value[self.design_type]['ver_shi'])
         else:
             geo = design.Geometry(inn_ht=8, inn_rad=7, inn_layers=6, inn_dist=0, out_ht=self.parameter1, out_rad=11.5, out_layers=7, out_dist=10, mag_len=0, mag_dia=0, ver_shi=0)
         position = coil.Position(geo.inncoil()[0], geo.inncoil()[1], geo.inncoil()[2], geo.inncoil()[3], geo.outcoil()[0], geo.outcoil()[1], geo.outcoil()[2], geo.outcoil()[3],
                                  geo.mag()[2], wire.prop32()[0], wire.prop32()[1], wire.prop32()[0], wire.prop32()[1], geo.mag()[0], geo.mag()[1])
         length = coil.Length(geo.inncoil()[2], geo.inncoil()[1], wire.prop32()[0], wire.prop32()[1], position.inncoil()[3], geo.outcoil()[2], geo.outcoil()[1],
-                              wire.prop32()[0], wire.prop32()[1], position.upp_outcoil()[3])
+                             wire.prop32()[0], wire.prop32()[1], position.upp_outcoil()[3])
         print(position.inncoil(), position.upp_outcoil())
         class Modelling():
             def __init__(self):

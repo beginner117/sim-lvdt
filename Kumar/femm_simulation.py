@@ -1,7 +1,10 @@
-import modules.basic as basic
+#import modules.basic as basic
+import sys
+#sys.path.insert(1, "Kumar/modules/basic")
+sys.path.append('./modules/basic/')
 import modules.LVDT as LVDT
 import modules.VC as VC
-#import modules.basic
+
 class lvdt():
     def __init__(self, save, sim_range, default, data):
         self.save = save

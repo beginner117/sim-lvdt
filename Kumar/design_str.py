@@ -1,9 +1,8 @@
 import pandas as pd
-from pandas import Series, DataFrame
-import modules.basic.feed
+import lvdtsimulations.Kumar.modules.feed
 
 
-ip1 = modules.basic.feed.Input()
+ip1 = lvdtsimulations.Kumar.modules.feed.Input()
 class Values():
     def __init__(self, design_type):
         self.design_type = design_type
