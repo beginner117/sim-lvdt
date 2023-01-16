@@ -51,10 +51,10 @@ class Femm_coil():
                 self.turns_pr_layer = turns_pr_layer
                 femm.mi_drawrectangle(self.x1, self.y1, self.x2, self.y2)
                 femm.mi_addcircprop(self.circ_name, self.circ_current, self.circ_type)
-                #if wire.inncoil_material == "31 AWG":
-                        #femm.mi_addmaterial('31 AWG', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2261)
-                #if wire.inncoil_material == "32 AWG":
-                femm.mi_getmaterial(self.material)
+                if self.material == "31 AWG":
+                    femm.mi_addmaterial('31 AWG', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2261)
+                if self.material == "32 AWG":
+                    femm.mi_getmaterial(self.material)
                 femm.mi_clearselected()
                 femm.mi_selectrectangle(self.x1, self.y1, self.x2,
                                         self.y2, self.edit_mode)

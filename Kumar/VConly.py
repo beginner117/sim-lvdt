@@ -1,13 +1,11 @@
-import design
+import modules.design as design
 import femm
 import numpy as np
 import scipy.optimize as opt
 import matplotlib.pyplot as plt
-import os
-import shutil
-import pickle
 import dataplot_condition
-import femm_model
+import modules.femm_model as femm_model
+import modules.coil as coil
 
 
 class Analysis():
@@ -33,27 +31,26 @@ class Analysis():
                               out_layers=7, out_dist=36, mag_len=6, mag_dia=3, ver_shi=0)
         req_plots = dataplot_condition.Req_plots(out_vol=0, inn_vol=1, phase=0, norm_signal=1, fit_error=0,
                                                  Norm_fiterror=1, impedance=1)
-
-        data_file = self.filename
         multiple_fit = 0
-        save = 0
-        data_save = 0
-        if data_save == 1:
-            directory = data_file
-            parent_dir = "C:\\Users\\kumar\\OneDrive\\Desktop\\pi\\lvdt\\small_IP\\datavc"
-            path = os.path.join(parent_dir, directory)
-            os.mkdir(path)
-            save_plot = path
+        '''
+        position = coil.Position(geo.inncoil()[0], geo.inncoil()[1], geo.inncoil()[2], geo.inncoil()[3],
+                                 geo.outcoil()[0], geo.outcoil()[1], geo.outcoil()[2], geo.outcoil()[3],
+                                 geo.mag()[2], wire.prop32()[0], wire.prop32()[1], wire.prop32()[0], wire.prop32()[1],
+                                 geo.mag()[0], geo.mag()[1])
+        length = coil.Length(geo.inncoil()[2], geo.inncoil()[1], wire.prop32()[0], wire.prop32()[1],
+                             position.inncoil()[3], geo.outcoil()[2], geo.outcoil()[1],
+                             wire.prop32()[0], wire.prop32()[1], position.upp_outcoil()[3])
+        '''
 
         class Position():
             def __init__(self):
                 pass
 
             def inncoil(self):
-                InnCoil_OutRadius = geo.inncoil()[1] + ((wire.prop32()[0] + wire.prop32()[1] * 2) * geo.inncoil()[2])
+                InnCoil_OutRadius = geo.inncoil()[1] + ((wire.prop_inn()[0] + wire.prop_inn()[1] * 2) * geo.inncoil()[2])
                 InnCoil_Lowend = (geo.inncoil()[3] - geo.inncoil()[0]) / 2
                 InnCoil_Uppend = InnCoil_Lowend + geo.inncoil()[0]
-                InnCoil_NrWind_p_Layer = (geo.inncoil()[0]) / (wire.prop32()[0] + wire.prop32()[1] * 2)
+                InnCoil_NrWind_p_Layer = (geo.inncoil()[0]) / (wire.prop_inn()[0] + wire.prop_inn()[1] * 2)
                 InnCoil_NrWindings = InnCoil_NrWind_p_Layer * geo.inncoil()[2]
                 InnCoil_Circuit = "InnCoil_Circuit"
                 return [InnCoil_OutRadius, InnCoil_Lowend, InnCoil_Uppend, InnCoil_NrWind_p_Layer, InnCoil_NrWindings,
@@ -170,17 +167,11 @@ class Analysis():
                 plt.plot(modelled.InnCoil_Positions, modelled.Magnet_Forces, 'o-')
                 plt.ylabel('Magnet Force [N]')
                 plt.xlabel('Inner Coil Position [mm]')
-                if save == 1:
-                    plt.savefig("mf.png")
-                    shutil.move("mf.png", save_plot)
                 plt.show()
 
             plt.plot(modelled.InnCoil_Positions, modelled.Magnet_Forces / max(modelled.Magnet_Forces) * 100, 'o-')
             plt.ylabel('Magnet Forces/max force [%]')
             plt.xlabel('Inner Coil Position [mm]')
-            if save == 1:
-                plt.savefig("nmf.png")
-                shutil.move("nmf.png", save_plot)
             plt.show()
             lin = modelled.Magnet_Forces / max(modelled.Magnet_Forces) * 100
 
@@ -210,9 +201,6 @@ class Analysis():
             plt.ylabel('Normalised Magnet Force [N/A]')
             plt.xlabel('Inner Coil Position [mm]')
             plt.legend()
-            if save == 1:
-                plt.savefig("fit for.png")
-                shutil.move("fit for.png", save_plot)
             plt.show()
 
             print(Norm_Magnet_Forces - fitted_Norm_Magnet_Forces)
@@ -220,18 +208,12 @@ class Analysis():
             plt.plot(modelled.InnCoil_Positions, fiterr1)
             plt.ylabel('Fit error [N/A]')
             plt.xlabel('Inner Coil Position [mm]')
-            if save == 1:
-                plt.savefig("fit err.png")
-                shutil.move("fit err.png", save_plot)
             plt.show()
 
             print((abs(Norm_Magnet_Forces - fitted_Norm_Magnet_Forces) / abs(Norm_Magnet_Forces)) * 100)
             plt.plot(modelled.InnCoil_Positions, abs(fiterr1) / abs(Norm_Magnet_Forces) * 100)
             plt.ylabel('Normalised Fit error [%]')
             plt.xlabel('Inner Coil Position [mm]')
-            if save == 1:
-                plt.savefig("norfit.png")
-                shutil.move("norfit.png", save_plot)
             # plt.ylim(0.0,0.01)
             plt.show()
             nor_fit1 = abs(fiterr1) / abs(Norm_Magnet_Forces)
@@ -245,7 +227,6 @@ class Analysis():
             data = np.column_stack((modelled.InnCoil_Positions, modelled.UppOutCoil_Forces,
                                     modelled.LowOutCoil_Forces, modelled.Magnet_Forces,
                                     results.Norm_Magnet_Forces, results.fiterr1, results.nor_fit1, results.lin))
-            np.savetxt(data_file, data)
         saved_data = Save_data()
 #'''
 

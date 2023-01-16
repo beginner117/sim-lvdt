@@ -1,13 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-sys.path.insert(1, "C://Users//kumar//PycharmProjects//lvdtsimulations//Kumar//modules")
+#sys.path.insert(1, "C://Users//kumar//PycharmProjects//lvdtsimulations//Kumar//Analysis")
 import os
 import shutil
 import warnings
 warnings.filterwarnings('ignore')
 
-# output_file data : [0]-position, [1]-upp_out_vol/for, [2]-low_out_vol/for, [3]-inn_vol/mag_for, [4]-Norm_Out_Sig/for, [5]-fit_err(1) , [6]-norm-fit(1), [7]-Inn_Inductance/Linear Range, [8]-Inn_resistance
+# output_file data : [0]-Inncoil position, [1]-Inncoil vol [2]-Uppout vol [3]-lowout vol [4]-Inn coil curr [5]-uppout cur [6]-Lowout cu [7]-Inncoil flux
 
 slopes = []
 files = []
@@ -20,8 +20,8 @@ ind_mean = []
 imp_err = []
 imp_mean = []
 
-output_files = ["def3.npz"]
-legends = ["trial"]
+output_files = ['f_innrad_21p5.npz', 'f_innrad_22', 'f_innrad_22p5.npz', 'f_innrad_23', 'f_innrad_23p5']
+legends = ["innrad_21.5", "innrad_22", "innrad_22.5", "innrad_23", "innrad_23.5"]
 for i in range(0,len(output_files)):
     b = np.load(output_files[i])
     files.append(b)

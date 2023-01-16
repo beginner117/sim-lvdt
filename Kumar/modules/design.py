@@ -22,11 +22,18 @@ class Wiretype():
         self.outcoil_material = outcoil_material
         self.inncoil_material = inncoil_material
 # wire diamater, insulation thickness, wire type, electrical conductivity, resistivity(ohm*m), mag_perm(H/m)
-    def prop31(self):
-        return [0.2261, 0.0190, "31 AWG"]
+    def prop_out(self):
+        if self.outcoil_material == "31 AWG":
+            return [0.2261, 0.0190, "31 AWG"]
+        if self.outcoil_material == "32 AWG":
+            return [0.2032, 0.0178, "32 AWG", 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))]
 
-    def prop32(self):
-        return [0.2032, 0.0178, "32 AWG",  58, 1.68*(10**(-8)), 1.256*(10**(-6))]
+    def prop_inn(self):
+        if self.inncoil_material == "31 AWG":
+            return [0.2261, 0.0190, "31 AWG"]
+        if self.inncoil_material == "32 AWG":
+            return [0.2032, 0.0178, "32 AWG", 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))]
+
         #return [0.200, 0.03/2, "32 AWG", 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))]
 
     def mag_mat(self):
