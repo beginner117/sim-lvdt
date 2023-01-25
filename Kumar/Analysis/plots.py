@@ -10,8 +10,8 @@ warnings.filterwarnings('ignore')
 
 
 graph = plot_design.Lvdt(0)
-graph.norm_sig()
-graph.norm_fit("error")
-graph.norm_fit("slope")
+#graph.norm_sig()
+graph.norm_fit("signal")
+#graph.norm_fit("slope")
 
 

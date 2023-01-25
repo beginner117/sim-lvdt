@@ -20,13 +20,12 @@ ind_mean = []
 imp_err = []
 imp_mean = []
 
-output_files = ['f_innrad_21p5.npz', 'f_innrad_22', 'f_innrad_22p5.npz', 'f_innrad_23', 'f_innrad_23p5']
-legends = ["innrad_21.5", "innrad_22", "innrad_22.5", "innrad_23", "innrad_23.5"]
+output_files = ['defA.npz']
+legends = ["linear fit"]
 for i in range(0,len(output_files)):
     b = np.load(output_files[i])
     files.append(b)
 n = len(output_files)
-f = 11
 
 class Lvdt():
     def __init__(self, save, directory=None):
@@ -70,9 +69,10 @@ class Lvdt():
     def norm_sig(self):
         for i in range(0,n):
             out_sig = abs(np.array(files[i]["UOC_voltages"])) - abs(np.array(files[i]["LOC_voltages"]))
-            norm_sig = out_sig / abs(np.array(files[i]["IC_voltages"]))
+            #norm_sig = out_sig / abs(np.array(files[i]["IC_voltages"]))
+            norm_sig = out_sig / abs(np.array(files[i]["IC_currents"]))
             plt.plot(np.array(files[i]["IC_positions"]), norm_sig, 'o-', label=legends[i])
-        plt.ylabel('Normalised Out Coil signal [V/v]')
+        plt.ylabel('Normalised Out Coil signal [V/A]')
         plt.xlabel('Inner Coil Position [mm]')
         plt.legend()
         if self.sav == 1:
@@ -83,26 +83,29 @@ class Lvdt():
         for i in range(0,n):
             inn_pos = np.array(files[i]["IC_positions"])
             out_sig = abs(np.array(files[i]["UOC_voltages"])) - abs(np.array(files[i]["LOC_voltages"]))
-            norm_sig = out_sig / abs(np.array(files[i]["IC_voltages"]))
+            norm_sig = out_sig / files[i]["IC_voltages"]
+            #norm_sig = out_sig / abs(np.array(files[i]["IC_currents"]))
             m_fem, co_fem = np.polyfit(inn_pos, norm_sig, 1)
-            print("femm signal slope :", m_fem, co_fem)
-            slopes.append(m_fem)
-            sim_fit = m_fem * np.array(inn_pos) + co_fem
+            sim_fit = abs(m_fem) * np.array(inn_pos) + abs(co_fem)
             relerr_fem = ((abs(sim_fit - norm_sig)) / abs(norm_sig)) * 100
             fiterr_fem = (sim_fit - (norm_sig))
             if par == 'signal':
-                plt.plot(inn_pos, sim_fit, 'o-', label=legends[i])
+                plt.plot(inn_pos, sim_fit, 'o-', label=legends[i], color = "blue")
             if par == 'error' :
                 plt.plot(inn_pos, relerr_fem, 'o-', label=legends[i])
+            if par == 'slope':
+                print("femm signal slope, constant :", abs(m_fem), co_fem)
+                slopes.append(m_fem)
         if par == 'signal' :
-            plt.ylabel('Normalised Fit  [V/v]')
+            plt.ylabel('LVDT response  [V/v]')
             plt.xlabel('Inner Coil Position [mm]')
         if par == 'error':
+            plt.ylim(0, 1.5)
             plt.ylabel('Relative error [$\dfrac{abs(fit error)}{actual}$] [%]')
             plt.xlabel('Inner Coil Position [mm]')
         if par == 'slope':
             plt.plot(legends, slopes, "o--")
-            plt.ylabel('Slope')
+            plt.ylabel('Slope[V/mmv]')
             plt.xlabel('types')
         #plt.ylim(0,0.1)
         plt.legend()
@@ -110,7 +113,6 @@ class Lvdt():
             plt.savefig("normfiterr.png")
             shutil.move("normfiterr.png", self.path1)
         plt.show()
-
     def resitance(self, par:str):
         for i in range(0,n):
             indu = np.array(files[i]["IC_flux"])/np.array(files[i]["IC_currents"])
