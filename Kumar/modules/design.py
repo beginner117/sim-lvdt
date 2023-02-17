@@ -18,7 +18,7 @@ class Simulation():
     def parameters(self):
         return [self.Nsteps, self.stepsize, self.inncoil_offset, self.data_file, self.fit_points]
 class Wiretype():
-    def __init__(self, outcoil_material:None, inncoil_material:None):
+    def __init__(self, outcoil_material, inncoil_material):
         self.outcoil_material = outcoil_material
         self.inncoil_material = inncoil_material
 # wire diamater, insulation thickness, wire type, electrical conductivity, resistivity(ohm*m), mag_perm(H/m)
@@ -27,17 +27,21 @@ class Wiretype():
             return [0.2261, 0.0190, "31 AWG"]
         if self.outcoil_material == "32 AWG":
             return [0.2032, 0.0178, "32 AWG", 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))]
+        if self.outcoil_material == "34 AWG":
+            return [0.1602, 0.01652, "34 AWG"]
 
     def prop_inn(self):
         if self.inncoil_material == "31 AWG":
             return [0.2261, 0.0190, "31 AWG"]
         if self.inncoil_material == "32 AWG":
             return [0.2032, 0.0178, "32 AWG", 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))]
+        if self.outcoil_material == "34 AWG":
+            return [0.1602, 0.01652, "34 AWG"]
 
         #return [0.200, 0.03/2, "32 AWG", 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))]
 
     def mag_mat(self):
-        mat = "N40"
+        mat = "N45"
         return mat
 
     def yoke_mat(self):
@@ -69,7 +73,7 @@ class Geometry():
         return [self.mag_len, self.mag_dia, self.ver_shi]
 
 
-class Geometry1():
+class Geometry_yoke():
     def __init__(self, innUP_ht:float, innLOW_ht:float, inn_rad:float, inn_layers:float, inn_dist:float, out_ht:float, out_rad:float, out_layers:float, out_dist:float, mag_ht:float, mag_rad:float, ver_shi:float):
 
         self.innUP_ht = innUP_ht

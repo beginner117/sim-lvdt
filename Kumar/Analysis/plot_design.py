@@ -20,8 +20,10 @@ ind_mean = []
 imp_err = []
 imp_mean = []
 
-output_files = ['defA.npz']
-legends = ["linear fit"]
+#output_files = ['tr_12.npz', 'tr_25.npz', 'tr_37.npz', 'tr4_50.npz', 'tr_62.npz']
+output_files = ['tr_6m.npz', 'tr_12m.npz', 'tr_20m.npz', 'tr_50m.npz', 'tr_80m.npz', 'tr_100m.npz', 'tr_300m.npz', 'tr_700m.npz', 'tr_1000m.npz']
+#legends = ["12.25mA", "25mA", "37.25mA", "50mA", "62.25mA"]
+legends = ["6mA", "12mA", "20mA", "50mA", "80mA", "0.1A", "0.3A", "0.7A", "1A"]
 for i in range(0,len(output_files)):
     b = np.load(output_files[i])
     files.append(b)
@@ -85,7 +87,7 @@ class Lvdt():
             out_sig = abs(np.array(files[i]["UOC_voltages"])) - abs(np.array(files[i]["LOC_voltages"]))
             norm_sig = out_sig / files[i]["IC_voltages"]
             #norm_sig = out_sig / abs(np.array(files[i]["IC_currents"]))
-            m_fem, co_fem = np.polyfit(inn_pos, norm_sig, 1)
+            m_fem, co_fem = np.polyfit(inn_pos, norm_sig*69, 1)
             sim_fit = abs(m_fem) * np.array(inn_pos) + abs(co_fem)
             relerr_fem = ((abs(sim_fit - norm_sig)) / abs(norm_sig)) * 100
             fiterr_fem = (sim_fit - (norm_sig))
@@ -150,6 +152,17 @@ class Lvdt():
             plt.savefig("linfit.png")
             shutil.move("linfit.png", self.path1)
         plt.show()
+    def power(self):
+        for i in range(0,n):
+            power = files[i]['IC_currents']*files[i]['IC_voltages']
+            plt.plot(np.array(files[i]["IC_positions"]), power, "o--", label = legends[i])
+        plt.ylabel('Inner coil Power [W]')
+        plt.xlabel('Inner Coil Position [mm]')
+        plt.legend()
+        if self.sav == 1:
+            plt.savefig("Inn_vol.png")
+            shutil.move("Inn_vol.png", self.path1)
+        plt.show()
 
 class VC():
     def __init__(self, save, directory=None):
@@ -190,25 +203,43 @@ class VC():
             plt.savefig("Inn_vol.png")
             shutil.move("Inn_vol.png", self.path1)
         plt.show()
-    def force_fit(self):
+    def force_fit(self, para:None):
         for i in range(0, n):
             inn_pos = np.array(files[i]["IC_positions"])
             a1, a2, a3 = np.polyfit(inn_pos, abs(np.array(files[i]["Mag_forces"])),2)
             fit_for = (a1*(inn_pos**2))+(a2*(inn_pos))+a3
-            plt.plot(np.array(files[i]["IC_positions"]), fit_for, 'o-', label=legends[i])
-        plt.ylabel('Fitted Magnet Force [N]')
+            if para:
+                plt.plot(np.array(files[i]["IC_positions"]), fit_for/np.array(files[i]["UOC_currents"]), 'o-', label=legends[i])
+                plt.ylabel('Normalised Fitted Magnet Force [N/A]')
+            else:
+                plt.plot(np.array(files[i]["IC_positions"]), fit_for, 'o-', label=legends[i])
+                plt.ylabel('Fitted Magnet Force [N]')
+        plt.xlabel('Inner Coil Position [mm]')
+        plt.legend()
+        if self.sav == 1:
+            plt.savefig("Inn_vol.png")
+            shutil.move("Inn_vol.png", self.path1)
+        plt.grid()
+        plt.show()
+    def stability(self):
+        for i in range(0,n):
+            inn_pos = np.array(files[i]["IC_positions"])
+            renormalised_forces = (abs(np.array(files[i]["Mag_forces"]))/max(abs(np.array(files[i]["Mag_forces"]))))*100
+            a1, a2, a3 = np.polyfit(np.array(files[i]["IC_positions"]), renormalised_forces, 2)
+            fit_renormalised_forces = (a1*(inn_pos**2))+(a2*(inn_pos))+a3
+            plt.plot(np.array(files[i]["IC_positions"]), fit_renormalised_forces, "o--", label = legends[i])
+        plt.ylabel('Fitted Normalised Forces [$\dfrac{Magnet force}{Maximum force}$*100] [%]')
         plt.xlabel('Inner Coil Position [mm]')
         plt.legend()
         if self.sav == 1:
             plt.savefig("Inn_vol.png")
             shutil.move("Inn_vol.png", self.path1)
         plt.show()
-    def stability(self):
+    def power(self):
         for i in range(0,n):
-            renormalised_forces = (abs(np.array(files[i]["Mag_forces"]))/max(abs(np.array(files[i]["Mag_forces"]))))*100
-            renormalised_force_fit = np.polyfit(np.array(files[i]["IC_positions"]), renormalised_forces, 2)
-            plt.plot(np.array(files[i]["IC_positions"]), renormalised_force_fit, "o--", label = legends[i])
-        plt.ylabel('Fitted Normalised Forces [$\dfrac{Magnet force}{Maximum force}$*100] [%]')
+            power = files[i]['UOC_currents']*files[i]['UOC_voltages']
+            plt.plot(np.array(files[i]["IC_positions"]), power, "o--", label = legends[i])
+        plt.ylabel('Power [W]')
         plt.xlabel('Inner Coil Position [mm]')
         plt.legend()
         if self.sav == 1:
