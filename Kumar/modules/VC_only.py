@@ -19,7 +19,7 @@ class Analysis:
         femm.newdocument(0)
         value = feed.data
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file=self.filename)
-        sensor = design.Sensortype(InnCoilCurrent=0, Simfreq=10000, OutCoilCurrent=0.02)
+        sensor = design.Sensortype(InnCoilCurrent=0, Simfreq=0, OutCoilCurrent=1)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype(outcoil_material='32 AWG', inncoil_material='32 AWG')
         if self.default == 'yes':
@@ -47,6 +47,7 @@ class Analysis:
                              out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1],
                              outwind_pr_layer=position.upp_outcoil()[3])
         print(position.upp_outcoil())
+        print('out dc data :', (162 * length.upp_outcoil()) / 304800)
         uppoutstr = femm_model.Femm_coil(x1=geo.outcoil()[1], y1=position.upp_outcoil()[2],
                                          x2=position.upp_outcoil()[0], y2=position.upp_outcoil()[1],
                                          circ_name=position.upp_outcoil()[5],
@@ -102,10 +103,11 @@ class Analysis:
         Upp_Inductance = abs(UppOutCoil_Flux / UppOutCoil_Currents)
         Upp_resistance = abs(UppOutCoil_Voltages / UppOutCoil_Currents)
         print("average Upper out coil Ind, res is :", sum(Upp_Inductance) / len(Upp_resistance), sum(Upp_resistance) / len(Upp_resistance))
-
+        print('upp out res :', abs(Upp_resistance))
         plt.plot(UppCoil_Positions, Magnet_Forces, 'o-')
-        plt.xlabel('Coil Position(centre) relative to Magnet (centre) [mm]')
+        plt.xlabel('Coil (centre) Position relative to Magnet (centre) [mm]')
         plt.ylabel('Magnet Force [N]')
-        plt.show()
+        #plt.grid()
+        plt.title('Simulated force [Type : I, 1A_DC excitation]')
         plt.show()
 

@@ -2,16 +2,21 @@ import femm
 
 class Femm_bc():
     def __init__(self, AirSpaceRadius_1, AirSpaceRadius_2, BC_Name, BC_Group, material:str):
+        """
+        defines the boundary conditions of the FEMM model
+        _____________INPUT_________
+        AirSpaceRadius_1: radius of the selected space1_(float)
+        AirSpaceRadius_2: radius of the selected space2_(float)
+        :param BC_Name:
+        :param BC_Group:
+        :param material:
+        """
         self.AirSpaceRadius_1 = AirSpaceRadius_1
         self.AirSpaceRadius_2 = AirSpaceRadius_2
         self.BC_Name = BC_Name
         self.BC_Group = BC_Group
         self.material = material
-        # AirSurrounding Structure
-        # AirSpaceRadius_1 = 100
-        # AirSpaceRadius_2 = 300
-        # BC_Name = "Outside"
-        # BC_Group = 10
+
         # Airspace1
         femm.mi_drawline(0, self.AirSpaceRadius_1, 0, -self.AirSpaceRadius_1)
         femm.mi_drawarc(0, -self.AirSpaceRadius_1, 0, self.AirSpaceRadius_1, 180, 2)
@@ -30,7 +35,7 @@ class Femm_bc():
         femm.mi_selectlabel(self.AirSpaceRadius_2 / 2, self.AirSpaceRadius_2 / 1.2)
         femm.mi_setblockprop("Air", 1, 0, '', 0, 0, 0)
         femm.mi_clearselected()
-# Boundary properties
+        # Boundary properties
         femm.mi_addboundprop(self.BC_Name, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
         femm.mi_clearselected()
         femm.mi_selectarcsegment(0, self.AirSpaceRadius_2)
@@ -94,6 +99,26 @@ class Femm_magnet():
             femm.mi_setblockprop(self.material, 0, 0.1, "", 90, self.group, 0)
             femm.mi_clearselected()
 
+class Femm_move:
+    def __init__(self, groups:list, x_dist, y_dist):
+        """
+        moves the selected groups/blocks to the specified coordinates
+        __________INPUT__________
+        groups : groups that need to be translated_(list)
+        x_dist : target x-coordinate_(float)
+        y_dist : target y-coordinate_(float)
+        __________OUTPUT_______
+        output : moves the selected blocks (no return values)
+
+        """
+        self.group = groups
+        self.x_dist = x_dist
+        self.y_dist = y_dist
+
+        for i in range(len(self.group)):
+            femm.mi_selectgroup(self.group[i])
+        femm.mi_movetranslate(self.x_dist, self.y_dist)
+        femm.mi_clearselected()
 
 class Femm_block():
     def __init__(self, x1, y1, x2, y2, material, edit_mode, group, label1, label2):
@@ -117,75 +142,3 @@ class Femm_block():
         femm.mi_selectlabel(self.x1 + (self.label1/2), self.y2 + (self.label2 / 2))
         femm.mi_setblockprop(self.material, 0, 0.1, "", 0, self.group, 0)
         femm.mi_clearselected()
-
-'''
-        # InnerCoil Structure
-            femm.mi_drawrectangle(geo.inncoil()[1], position.inncoil()[2], position.inncoil()[0], position.inncoil()[1])
-            femm.mi_addcircprop(position.inncoil()[5], sensor.para()[0], 1)
-            if wire.inncoil_material == "31 AWG":
-                femm.mi_addmaterial('31 AWG', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2261)
-            if wire.inncoil_material == "32 AWG":
-                femm.mi_getmaterial(wire.inncoil_material)
-            femm.mi_clearselected()
-            femm.mi_selectrectangle(geo.inncoil()[1], position.inncoil()[2], position.inncoil()[0],
-                                    position.inncoil()[1], 4)
-            femm.mi_setgroup(1)
-            femm.mi_clearselected()
-            femm.mi_addblocklabel(geo.inncoil()[1] + wire.prop32()[1], position.inncoil()[1] + (geo.inncoil()[0] / 2))
-            femm.mi_selectlabel(geo.inncoil()[1] + wire.prop32()[1], position.inncoil()[1] + (geo.inncoil()[0] / 2))
-            femm.mi_setblockprop(wire.prop32()[2], 1, 0, position.inncoil()[5], 0, 1, position.inncoil()[4])
-            femm.mi_clearselected()
-
-        # UpperOutCoil Structure
-            femm.mi_drawrectangle(geo.outcoil()[1], position.upp_outcoil()[2], position.upp_outcoil()[0],
-                                  position.upp_outcoil()[1])
-            femm.mi_addcircprop(position.upp_outcoil()[5], sensor.para()[2], 1)
-            if wire.outcoil_material == "31 AWG":
-                femm.mi_addmaterial('31 AWG', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2261)
-            if wire.outcoil_material == "32 AWG":
-                femm.mi_getmaterial(wire.inncoil_material)
-            femm.mi_clearselected()
-            femm.mi_selectrectangle(geo.outcoil()[1], position.upp_outcoil()[2], position.upp_outcoil()[0],
-                                    position.upp_outcoil()[1], 4)
-            femm.mi_setgroup(3)
-            femm.mi_clearselected()
-            femm.mi_addblocklabel(geo.outcoil()[1] + wire.prop32()[1],
-                                  position.upp_outcoil()[2] - (geo.outcoil()[0] * 0.5))
-            femm.mi_selectlabel(geo.outcoil()[1] + wire.prop32()[1],
-                                position.upp_outcoil()[2] - (geo.outcoil()[0] * 0.5))
-            femm.mi_setblockprop(wire.prop32()[2], 0, 0.1, position.upp_outcoil()[5], 0, 3, position.upp_outcoil()[4])
-            femm.mi_clearselected()
-            
-        # LowerOutCoil Structure
-            femm.mi_drawrectangle(geo.outcoil()[1], position.low_outcoil()[1], position.low_outcoil()[0],
-                                  position.low_outcoil()[2])
-            femm.mi_addcircprop(position.low_outcoil()[5], -sensor.para()[2], 1)
-            if wire.outcoil_material == "31 AWG":
-                femm.mi_addmaterial('31 AWG', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2261)
-            if wire.outcoil_material == "32 AWG":
-                femm.mi_getmaterial(wire.inncoil_material)
-            femm.mi_clearselected()
-            femm.mi_selectrectangle(geo.outcoil()[1], position.low_outcoil()[1], position.low_outcoil()[0],
-                                    position.low_outcoil()[2], 4)
-            femm.mi_setgroup(4)
-            femm.mi_clearselected()
-            femm.mi_addblocklabel(geo.outcoil()[1] + wire.prop32()[0],
-                                  position.low_outcoil()[2] + (geo.outcoil()[0] * 0.5))
-            femm.mi_selectlabel(geo.outcoil()[1] + wire.prop32()[0],
-                                position.low_outcoil()[2] + (geo.outcoil()[0] * 0.5))
-            femm.mi_setblockprop(wire.prop32()[2], 0, 0.1, position.low_outcoil()[5], 0, 4, position.low_outcoil()[4])
-            femm.mi_clearselected()
-'''
-'''
-            # Magnet Structure
-            femm.mi_drawrectangle(0, position.magnet()[0], position.magnet()[2], position.magnet()[1])
-            femm.mi_getmaterial(wire.mag_mat())
-            femm.mi_clearselected()
-            femm.mi_selectrectangle(0, position.magnet()[0], position.magnet()[2], position.magnet()[1], 4)
-            femm.mi_setgroup(2)
-            femm.mi_clearselected()
-            femm.mi_addblocklabel(position.magnet()[2] * 0.5, position.magnet()[1] + (geo.mag()[0] * 0.5))
-            femm.mi_selectlabel(position.magnet()[2] * 0.5, position.magnet()[1] + (geo.mag()[0] * 0.5))
-            femm.mi_setblockprop(wire.mag_mat(), 0, 0.1, "", 90, 2, 0)
-            femm.mi_clearselected()
-'''

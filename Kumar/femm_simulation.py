@@ -1,11 +1,12 @@
 import sys
-sys.path.append('./modules/basic/')
+#sys.path.append('./modules/basic/')
+sys.path.append('./modules/')
 import modules.LVDT as LVDT
 import modules.VC as VC
 import modules.VC_only as VC_only
 import modules.YOKE as YOKE
 
-class Position_sesnor:
+class Position_sensor:
     def __init__(self, save, sim_range, data):
         self.save = save
         self.sim_range = sim_range

@@ -1,11 +1,24 @@
 
-class Sensortype():
+class Sensortype:
     def __init__(self, InnCoilCurrent, Simfreq, OutCoilCurrent):
+        """
+        determines the type of sensor. In general, 20mA-10khZ Inner coil current with no outer coil current indicates LVDT. 1A DC outer coil current with no inner coil current indicates VC
+
+        ________INPUT________
+        InnCoilCurrent: Inner coil current in Amps_(float)
+        Simfreq: Frequency in Hz_(float)
+        OutCoilCurrent: Outer coil current in Amps_(float)
+
+        """
         self.InnCoilCurrent = InnCoilCurrent
         self.Simfreq = Simfreq
         self.OutCoilCurrent = OutCoilCurrent
 
     def para(self):
+        """
+        returns the list containing inner coil current, excitation frequency, outer coil current
+        :return:
+        """
         return [self.InnCoilCurrent, self.Simfreq, self.OutCoilCurrent]
 
 class Simulation():
@@ -38,10 +51,8 @@ class Wiretype():
         if self.outcoil_material == "34 AWG":
             return [0.1602, 0.01652, "34 AWG"]
 
-        #return [0.200, 0.03/2, "32 AWG", 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))]
-
     def mag_mat(self):
-        mat = "N45"
+        mat = "N40"
         return mat
 
     def yoke_mat(self):
@@ -65,10 +76,8 @@ class Geometry():
 
     def inncoil(self):
         return [self.inn_ht, self.inn_rad, self.inn_layers, self.inn_dist]
-
     def outcoil(self):
         return [self.out_ht, self.out_rad, self.out_layers, self.out_dist]
-
     def mag(self):
         return [self.mag_len, self.mag_dia, self.ver_shi]
 
@@ -91,13 +100,10 @@ class Geometry_yoke():
 
     def Upp_Inncoil(self):
         return [self.innUP_ht, self.inn_rad, self.inn_layers, self.inn_dist]
-
     def Low_Inncoil(self):
         return [self.innLOW_ht, self.inn_rad, self.inn_layers, self.inn_dist]
-
     def outcoil(self):
         return [self.out_ht, self.out_rad, self.out_layers, self.out_dist]
-
     def mag(self):
         return [self.mag_ht, self.mag_rad, self.ver_shi]
 

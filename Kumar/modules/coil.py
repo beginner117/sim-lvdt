@@ -1,6 +1,9 @@
 import numpy as np
 
 class Position():
+    """
+    Positioning of the coils considering the geometric parameters, for instance, radius, height of the coils
+    """
     def __init__(self, inn_ht, inn_rad, inn_layers, inn_dist, out_ht, out_rad, out_layers,  out_dist,
                  ver_shi, inn_wiredia, inn_wireins, out_wiredia, out_wireins, mag_len, mag_dia):
         self.inn_ht = inn_ht
@@ -78,8 +81,6 @@ class Length():
             # circ = 2*np.pi*InnCoil_InRadius+i*(InnCoil_WireDiam+InnCoil_WireInsul)
             circ = 2 * np.pi * (self.inn_rad + i * (self.inn_wiredia + self.inn_wireins * 2))
             InnCoil_TotalWire += circ * self.innwind_pr_layer
-        print("Total length of inn coil wire (mm):", InnCoil_TotalWire)
-        print("\n")
         return InnCoil_TotalWire
 
     def upp_outcoil(self):
@@ -87,8 +88,6 @@ class Length():
         for i in range(0, self.out_layers):
             circ = 2 * np.pi * (self.out_rad + i * (self.out_wiredia + self.out_wireins * 2))
             UppOutCoil_TotalWire += circ * self.outwind_pr_layer
-        print("Total length of upper out wire (mm):", UppOutCoil_TotalWire)
-        print("\n")
         return UppOutCoil_TotalWire
 
     def low_outcoil(self):
@@ -101,92 +100,27 @@ class Length():
         print("\n")
         return LowOutCoil_TotalWire
 
-
-
-
-
-
-
-
-
-
-
-'''
-class Length():
-    def __init__(self):
-        pass
-
+class Coil_prop:
+    def __init__(self, steps):
+        self.steps = steps
     def inncoil(self):
-        InnCoil_TotalWire = 0
-        for i in range(0, geo.inncoil()[2]):
-            # circ = 2*np.pi*InnCoil_InRadius+i*(InnCoil_WireDiam+InnCoil_WireInsul)
-            circ = 2 * np.pi * (geo.inncoil()[1] + i * (wire.prop32()[0] + wire.prop32()[1] * 2))
-            InnCoil_TotalWire += circ * position.inncoil()[3]
-        print("Total length of inn coil wire (mm):", InnCoil_TotalWire)
-        print("\n")
-        return InnCoil_TotalWire
-
-    def upp_outcoil(self):
-        UppOutCoil_TotalWire = 0
-        for i in range(0, geo.outcoil()[2]):
-            # circ = 2*np.pi*(UppOutCoil_InRadius+i*(UppOutCoil_WireDiam+UppOutCoil_WireInsul))
-            circ = 2 * np.pi * (geo.outcoil()[1] + i * (wire.prop32()[0] + wire.prop32()[1] * 2))
-            UppOutCoil_TotalWire += circ * position.upp_outcoil()[3]
-        print("Total length of upper out wire (mm):", UppOutCoil_TotalWire)
-        print("\n")
-        return UppOutCoil_TotalWire
-
-    def low_outcoil(self):
-        LowOutCoil_TotalWire = 0
-        for i in range(0, geo.outcoil()[2]):
-            # circ = 2*np.pi*LowOutCoil_InRadius+i*(LowOutCoil_WireDiam+LowOutCoil_WireInsul)
-            circ = 2 * np.pi * (geo.outcoil()[1] + i * (wire.prop32()[0] + wire.prop32()[1] * 2))
-            LowOutCoil_TotalWire += circ * position.low_outcoil()[3]
-        print("Total length of lower out coil wire (mm):", LowOutCoil_TotalWire)
-        print("\n")
-        return LowOutCoil_TotalWire
-length = Length()
-'''
-'''
-       class Position():
-           def __init__(self):
-               pass
-
-           def inncoil(self):
-               InnCoil_OutRadius = geo.inncoil()[1] + ((wire.prop32()[0] + wire.prop32()[1] * 2) * geo.inncoil()[2])
-               InnCoil_Lowend = (geo.inncoil()[3] - geo.inncoil()[0]) / 2
-               InnCoil_Uppend = InnCoil_Lowend + geo.inncoil()[0]
-               InnCoil_NrWind_p_Layer = (geo.inncoil()[0]) / (wire.prop32()[0] + wire.prop32()[1] * 2)
-               InnCoil_NrWindings = InnCoil_NrWind_p_Layer * geo.inncoil()[2]
-               InnCoil_Circuit = "InnCoil_Circuit"
-               return [InnCoil_OutRadius, InnCoil_Lowend, InnCoil_Uppend, InnCoil_NrWind_p_Layer, InnCoil_NrWindings,
-                       InnCoil_Circuit]
-
-           def upp_outcoil(self):
-               UppOutCoil_OutRadius = geo.outcoil()[1] + ((wire.prop32()[0] + wire.prop32()[1] * 2) * geo.outcoil()[2])
-               UppOutCoil_LowEnd = (geo.outcoil()[3] - geo.outcoil()[0]) / 2
-               UppOutCoil_UppEnd = UppOutCoil_LowEnd + geo.outcoil()[0]
-               UppOutCoil_NrWind_p_Layer = (geo.outcoil()[0]) / (wire.prop32()[0] + wire.prop32()[1] * 2)
-               UppOutCoil_NrWindings = UppOutCoil_NrWind_p_Layer * geo.outcoil()[2]
-               UppOutCoil_Circuit = "UppOutCoil_Circuit"
-               return [UppOutCoil_OutRadius, UppOutCoil_LowEnd, UppOutCoil_UppEnd, UppOutCoil_NrWind_p_Layer,
-                       UppOutCoil_NrWindings, UppOutCoil_Circuit]
-
-           def low_outcoil(self):
-               LowOutCoil_OutRadius = geo.outcoil()[1] + ((wire.prop32()[0] + wire.prop32()[1] * 2) * geo.outcoil()[2])
-               LowOutCoil_UppEnd = -1 * ((geo.outcoil()[3] - geo.outcoil()[0]) / 2)
-               LowOutCoil_LowEnd = LowOutCoil_UppEnd - geo.outcoil()[0]
-               LowOutCoil_NrWind_p_Layer = (LowOutCoil_UppEnd - LowOutCoil_LowEnd) / (
-                           wire.prop32()[0] + wire.prop32()[1] * 2)
-               LowOutCoil_NrWindings = LowOutCoil_NrWind_p_Layer * geo.outcoil()[2]
-               LowOutCoil_Circuit = "LowOutCoil_Circuit"
-               return [LowOutCoil_OutRadius, LowOutCoil_UppEnd, LowOutCoil_LowEnd, LowOutCoil_NrWind_p_Layer,
-                       LowOutCoil_NrWindings, LowOutCoil_Circuit]
-
-           def magnet(self):
-               Magnet_UppEnd = geo.mag()[0] / 2 + geo.mag()[2]
-               Magnet_LowEnd = -geo.mag()[0] / 2 + geo.mag()[2]
-               Magnet_Radius = geo.mag()[1] / 2
-               return [Magnet_UppEnd, Magnet_LowEnd, Magnet_Radius]
-       position = Position()
-'''
+        inncoil_currents = np.zeros(self.steps + 1).astype(complex)
+        inncoil_voltages = np.zeros(self.steps + 1).astype(complex)
+        inncoil_flux = np.zeros(self.steps + 1).astype(complex)
+        inncoil_forces = np.zeros(self.steps + 1).astype(complex)
+        inncoil_positions = np.zeros(self.steps + 1).astype(complex)
+        return {'Inncoil_current' : inncoil_currents, 'Inncoil_voltage': inncoil_voltages, 'Inncoil_flux':inncoil_flux, 'Inncoil_force':inncoil_forces, 'Inncoil_position':inncoil_positions}
+    def uppout(self):
+        uppout_currents = np.zeros(self.steps + 1).astype(complex)
+        uppout_voltages = np.zeros(self.steps + 1).astype(complex)
+        uppout_flux = np.zeros(self.steps + 1).astype(complex)
+        uppout_forces = np.zeros(self.steps + 1).astype(complex)
+        uppout_positions = np.zeros(self.steps + 1).astype(complex)
+        return {'UppOut_current':uppout_currents, 'UppOut_voltage':uppout_voltages, 'UppOut_flux':uppout_flux, 'UppOut_force':uppout_forces, 'UppOut_position':uppout_positions}
+    def lowout(self):
+        lowout_currents = np.zeros(self.steps + 1).astype(complex)
+        lowout_voltages = np.zeros(self.steps + 1).astype(complex)
+        lowout_flux = np.zeros(self.steps + 1).astype(complex)
+        lowout_forces = np.zeros(self.steps + 1).astype(complex)
+        lowout_positions = np.zeros(self.steps + 1).astype(complex)
+        return {'LowOut_current':lowout_currents, 'LowOut_voltage':lowout_voltages, 'LowOut_flux':lowout_flux, 'LowOut_force':lowout_forces, 'LowOut_position':lowout_positions}

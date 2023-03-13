@@ -20,10 +20,11 @@ ind_mean = []
 imp_err = []
 imp_mean = []
 
-#output_files = ['tr_12.npz', 'tr_25.npz', 'tr_37.npz', 'tr4_50.npz', 'tr_62.npz']
-output_files = ['tr_6m.npz', 'tr_12m.npz', 'tr_20m.npz', 'tr_50m.npz', 'tr_80m.npz', 'tr_100m.npz', 'tr_300m.npz', 'tr_700m.npz', 'tr_1000m.npz']
-#legends = ["12.25mA", "25mA", "37.25mA", "50mA", "62.25mA"]
-legends = ["6mA", "12mA", "20mA", "50mA", "80mA", "0.1A", "0.3A", "0.7A", "1A"]
+
+output_files = ["6.15.npz", "12.29.npz", "18.43.npz", "24.58.npz", "30.72.npz", "36.87.npz", "43.0.npz", "49.16.npz", "55.3.npz"]
+output_files = ['1nm_50p_A_lvdt_2mm_off.npz']
+legends = ["6.15mA(1V)", "12.29mA(2V)", "18.43mA(3V)", "24.58mA(4V)", "30.72mA(5V)", "36.87mA(6V)", "43.01mA(7V)", "49.16mA(8V)", "55.3mA(9V)"]
+legends = ['1nm']
 for i in range(0,len(output_files)):
     b = np.load(output_files[i])
     files.append(b)
@@ -71,12 +72,14 @@ class Lvdt():
     def norm_sig(self):
         for i in range(0,n):
             out_sig = abs(np.array(files[i]["UOC_voltages"])) - abs(np.array(files[i]["LOC_voltages"]))
-            #norm_sig = out_sig / abs(np.array(files[i]["IC_voltages"]))
+            norm_sig = out_sig / abs(np.array(files[i]["IC_voltages"]))
             norm_sig = out_sig / abs(np.array(files[i]["IC_currents"]))
             plt.plot(np.array(files[i]["IC_positions"]), norm_sig, 'o-', label=legends[i])
-        plt.ylabel('Normalised Out Coil signal [V/A]')
-        plt.xlabel('Inner Coil Position [mm]')
         plt.legend()
+        plt.grid()
+        plt.ylabel('Normalised Out Coil signal [V/v]')
+        plt.xlabel('Inner Coil Position [mm]')
+
         if self.sav == 1:
             plt.savefig("norm_sig.png")
             shutil.move("norm_sig.png", self.path1)
@@ -85,11 +88,12 @@ class Lvdt():
         for i in range(0,n):
             inn_pos = np.array(files[i]["IC_positions"])
             out_sig = abs(np.array(files[i]["UOC_voltages"])) - abs(np.array(files[i]["LOC_voltages"]))
-            norm_sig = out_sig / files[i]["IC_voltages"]
-            #norm_sig = out_sig / abs(np.array(files[i]["IC_currents"]))
+            norm_sig = out_sig / abs(np.array(files[i]["IC_voltages"]))
+            norm_sig_c = out_sig / abs(np.array(files[i]["IC_currents"]))
             m_fem, co_fem = np.polyfit(inn_pos, norm_sig*69, 1)
-            sim_fit = abs(m_fem) * np.array(inn_pos) + abs(co_fem)
-            relerr_fem = ((abs(sim_fit - norm_sig)) / abs(norm_sig)) * 100
+            m_fem_c, co_fem_c = np.polyfit(inn_pos, norm_sig_c, 1)
+            sim_fit = (abs(m_fem) * np.array(inn_pos))+ abs(co_fem)
+            relerr_fem = ((abs(sim_fit - (norm_sig*69))) / abs(norm_sig)) * (100/69)
             fiterr_fem = (sim_fit - (norm_sig))
             if par == 'signal':
                 plt.plot(inn_pos, sim_fit, 'o-', label=legends[i], color = "blue")
@@ -97,12 +101,13 @@ class Lvdt():
                 plt.plot(inn_pos, relerr_fem, 'o-', label=legends[i])
             if par == 'slope':
                 print("femm signal slope, constant :", abs(m_fem), co_fem)
+                print("femm signal with current slope, constant :", abs(m_fem_c), co_fem_c)
                 slopes.append(m_fem)
         if par == 'signal' :
             plt.ylabel('LVDT response  [V/v]')
             plt.xlabel('Inner Coil Position [mm]')
         if par == 'error':
-            plt.ylim(0, 1.5)
+            #plt.ylim(0, 1)
             plt.ylabel('Relative error [$\dfrac{abs(fit error)}{actual}$] [%]')
             plt.xlabel('Inner Coil Position [mm]')
         if par == 'slope':
@@ -203,24 +208,28 @@ class VC():
             plt.savefig("Inn_vol.png")
             shutil.move("Inn_vol.png", self.path1)
         plt.show()
-    def force_fit(self, para:None):
+    def force_fit(self, para:str):
+        forc = []
         for i in range(0, n):
             inn_pos = np.array(files[i]["IC_positions"])
             a1, a2, a3 = np.polyfit(inn_pos, abs(np.array(files[i]["Mag_forces"])),2)
             fit_for = (a1*(inn_pos**2))+(a2*(inn_pos))+a3
-            if para:
+            if para == 'norm':
                 plt.plot(np.array(files[i]["IC_positions"]), fit_for/np.array(files[i]["UOC_currents"]), 'o-', label=legends[i])
                 plt.ylabel('Normalised Fitted Magnet Force [N/A]')
             else:
                 plt.plot(np.array(files[i]["IC_positions"]), fit_for, 'o-', label=legends[i])
                 plt.ylabel('Fitted Magnet Force [N]')
+                forc.append(max(fit_for))
         plt.xlabel('Inner Coil Position [mm]')
-        plt.legend()
+        plt.legend(title = 'Outer coil Excitations')
+        plt.title('Simulated VC Forces [Type : A]')
         if self.sav == 1:
             plt.savefig("Inn_vol.png")
             shutil.move("Inn_vol.png", self.path1)
         plt.grid()
         plt.show()
+        print(forc)
     def stability(self):
         for i in range(0,n):
             inn_pos = np.array(files[i]["IC_positions"])
@@ -236,15 +245,23 @@ class VC():
             shutil.move("Inn_vol.png", self.path1)
         plt.show()
     def power(self):
+        po = []
         for i in range(0,n):
-            power = files[i]['UOC_currents']*files[i]['UOC_voltages']
+            power = (files[i]['LOC_currents']*files[i]['LOC_voltages'])/1000000
+            po.append(max(power))
             plt.plot(np.array(files[i]["IC_positions"]), power, "o--", label = legends[i])
-        plt.ylabel('Power [W]')
+        plt.ylabel('Lower out coil Power [W]')
         plt.xlabel('Inner Coil Position [mm]')
         plt.legend()
         if self.sav == 1:
             plt.savefig("Inn_vol.png")
             shutil.move("Inn_vol.png", self.path1)
+        plt.show()
+        print(po)
+        plt.plot(legends, po*2, "o--")
+        plt.ylabel('out coil Power [W]')
+        plt.xlabel('Out coil currents ')
+        plt.legend()
         plt.show()
 
 
