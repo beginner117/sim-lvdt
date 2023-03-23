@@ -2,7 +2,8 @@
 class Sensortype:
     def __init__(self, InnCoilCurrent, Simfreq, OutCoilCurrent):
         """
-        determines the type of sensor. In general, 20mA-10khZ Inner coil current with no outer coil current indicates LVDT. 1A DC outer coil current with no inner coil current indicates VC
+        class to determine the type of sensor.
+        In general, 20mA-10khZ Inner coil current with no outer coil current indicates LVDT. 1A DC outer coil current with no inner coil current indicates VC
 
         ________INPUT________
         InnCoilCurrent: Inner coil current in Amps_(float)
@@ -16,12 +17,19 @@ class Sensortype:
 
     def para(self):
         """
-        returns the list containing inner coil current, excitation frequency, outer coil current
-        :return:
+        method in the class 'Sensortype' that returns the list containing inner coil current, excitation frequency, outer coil current
+        returns a list containing sensor parameters
+        _______Output_______
+        Inner coil current
+        Frequency
+        Outer coil current
         """
         return [self.InnCoilCurrent, self.Simfreq, self.OutCoilCurrent]
 
-class Simulation():
+class Simulation:
+    """
+    class to determine the coil motion parameters
+    """
     def __init__(self, Nsteps, stepsize, inncoil_offset, data_file, fit_points = None):
         self.Nsteps = Nsteps
         self.stepsize = stepsize

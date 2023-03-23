@@ -4,12 +4,19 @@ import femm_simulation
 
 
 
-c = {'steps_size_offset':[[10, 1, -5]]}  #[[no.of steps, step size, initial offset]]
-c1 = [10, 1, -5]
-sim_code = femm_simulation.Position_sensor(save=False, sim_range={'steps_size_offset':[c1]},
-                                data = {'filename(s)':["type_F_40mm"], 'is default':['yes'], 'design or parameter':['A']})
-sim_code.vc()
+ #[[no.of steps, step size, initial offset]]
 
+saveall = []
+input = {'sensor_type' : ['VC_only'], 'SaveFile' : False,
+            'file_names' : [ "tr4"],
+            'default_design' : ['yes'],
+            'type_or_parameter' : ['H'],
+            'TotalSteps_StepSize_Offset' : [ [6, 1, -1]]}
+
+
+sim_code = femm_simulation.Position_sensor(sensor_type = input['sensor_type'], save=input['SaveFile'], sim_range={'steps_size_offset':input['TotalSteps_StepSize_Offset']},
+                                data = {'filename(s)':input['file_names'], 'is default':input['default_design'], 'design or parameter':input['type_or_parameter']})
+sim_code.execute()
 
 
 

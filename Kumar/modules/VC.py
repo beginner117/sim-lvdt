@@ -22,22 +22,25 @@ class Analysis:
         sensor = design.Sensortype(InnCoilCurrent=0, Simfreq=0, OutCoilCurrent=1)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype("32 AWG", "32 AWG")
+        input_par1 = {'TotalSteps_StepSize_Offset': self.sim_range, 'uppercoil Diameter_Insulation_Wiretype': wire.prop_out(),
+                      'innercoil Diameter_Insulation_Wiretype': wire.prop_inn(), 'Innercoil_current': sensor.para()[0], 'Frequency': sensor.para()[1],
+                      'Outercoil_current': sensor.para()[2], 'Magnet_material':wire.mag_mat()}
         if self.default=='yes':
             geo = design.Geometry(value[self.design_type]["inn_ht"], value[self.design_type]['inn_rad'], value[self.design_type]['inn_layers'], value[self.design_type]['inn_dist'], value[self.design_type]['out_ht'], value[self.design_type]['out_rad'],
                                   value[self.design_type]['out_layers'], value[self.design_type]['out_dist'], value[self.design_type]['mag_len'], value[self.design_type]['mag_dia'], value[self.design_type]['ver_shi'])
-            input_par = 'type'+self.design_type
+            input_par2 = 'type'+self.design_type
         else:
-            input_par = {'IC_height': 24, 'IC_radius': 11, 'IC_layers': 6, 'IC_distance': 0, 'OC_height': 13.5, 'OC_radius': 35, 'OC_layers': 5,
+            input_par2 = {'IC_height': 24, 'IC_radius': 11, 'IC_layers': 6, 'IC_distance': 0, 'OC_height': 13.5, 'OC_radius': 35, 'OC_layers': 5,
                          'OC_distance': 54.5, 'mag_len': 40, 'mag_dia': 10, 'ver_shi': 0}
-            geo = design.Geometry(input_par['IC_height'], input_par['IC_radius'], input_par['IC_layers'], input_par['IC_distance'],
-                                  input_par['OC_height'], input_par['OC_radius'], input_par['OC_layers'], input_par['OC_distance'],
-                                  input_par['mag_len'], input_par['mag_dia'], input_par['ver_shi'])
+            geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'],
+                                  input_par2['OC_height'], input_par2['OC_radius'], input_par2['OC_layers'], input_par2['OC_distance'],
+                                  input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
         position = coil.Position(inn_ht=geo.inncoil()[0], inn_rad=geo.inncoil()[1], inn_layers=geo.inncoil()[2], inn_dist=geo.inncoil()[3], out_ht=geo.outcoil()[0], out_rad=geo.outcoil()[1], out_layers=geo.outcoil()[2], out_dist=geo.outcoil()[3],
                                  ver_shi=geo.mag()[2], inn_wiredia=wire.prop_inn()[0], inn_wireins=wire.prop_inn()[1], out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1], mag_len=geo.mag()[0], mag_dia=geo.mag()[1])
         length = coil.Length(inn_layers=geo.inncoil()[2], inn_rad=geo.inncoil()[1], inn_wiredia=wire.prop_inn()[0], inn_wireins=wire.prop_inn()[1], innwind_pr_layer=position.inncoil()[3], out_layers=geo.outcoil()[2],
                              out_rad=geo.outcoil()[1], out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1], outwind_pr_layer=position.upp_outcoil()[3])
         print(position.inncoil(), position.upp_outcoil())
-        print('out dc data :', (162 * length.upp_outcoil()) / 304800)
+        print('outcoil dc :', (162 * length.upp_outcoil()) / 304800)
 
         inncoil_str = femm_model.Femm_coil(x1=geo.inncoil()[1], y1=position.inncoil()[2], x2=position.inncoil()[0], y2=position.inncoil()[1],
                                            circ_name=position.inncoil()[5], circ_current=sensor.para()[0], circ_type=1, material=wire.inncoil_material,
@@ -102,5 +105,5 @@ class Analysis:
             move_group = femm_model.Femm_move(groups=[1, 2], x_dist=0, y_dist=pre_simulation.parameters()[1])
 
         if self.save:
-            np.savez_compressed(self.filename, Input_parameters = input_par, IC_positions = inn_prop['Inncoil_position'], UOC_forces = uppout_prop['UppOut_force'], LOC_forces = lowout_prop['LowOut_force'], Mag_forces = inn_prop['Inncoil_force'], IC_flux = inn_prop['Inncoil_flux'],
+            np.savez_compressed(self.filename, Design = input_par2, Input_parameters = input_par1,  IC_positions = inn_prop['Inncoil_position'], UOC_forces = uppout_prop['UppOut_force'], LOC_forces = lowout_prop['LowOut_force'], Mag_forces = inn_prop['Inncoil_force'], IC_flux = inn_prop['Inncoil_flux'],
               IC_currents = inn_prop['Inncoil_current'], UOC_currents=uppout_prop['UppOut_current'], LOC_currents = lowout_prop['LowOut_current'], UOC_voltages = uppout_prop['UppOut_voltage'], LOC_voltages = lowout_prop['LowOut_voltage'], IC_voltages = inn_prop['Inncoil_voltage'])

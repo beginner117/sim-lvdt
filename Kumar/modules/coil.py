@@ -124,3 +124,6 @@ class Coil_prop:
         lowout_forces = np.zeros(self.steps + 1).astype(complex)
         lowout_positions = np.zeros(self.steps + 1).astype(complex)
         return {'LowOut_current':lowout_currents, 'LowOut_voltage':lowout_voltages, 'LowOut_flux':lowout_flux, 'LowOut_force':lowout_forces, 'LowOut_position':lowout_positions}
+    def magnet(self):
+        magnet_forces = np.zeros(self.steps+1).astype(complex)
+        return {'Magnet_forces':magnet_forces}

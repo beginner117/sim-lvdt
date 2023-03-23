@@ -5,9 +5,8 @@ import coil
 import feed
 import numpy as np
 import matplotlib.pyplot as plt
-
 class Analysis:
-    def __init__(self, save, sim_range:list, default, filename:str, design_type:None, parameter1:None):
+    def __init__(self, save, sim_range:list, default, filename:str, design_type:None, parameter1=None):
         self.save = save
         self.sim_range = sim_range
         self.filename = filename
@@ -19,7 +18,7 @@ class Analysis:
         femm.newdocument(0)
         value = feed.data
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file=self.filename)
-        sensor = design.Sensortype(InnCoilCurrent=0, Simfreq=0, OutCoilCurrent=self.parameter1)
+        sensor = design.Sensortype(InnCoilCurrent=0, Simfreq=0, OutCoilCurrent=1)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype("32 AWG", "32 AWG")
         block = design.Blocks()
@@ -29,7 +28,7 @@ class Analysis:
             input_par = 'design type : ' + self.design_type + 'with YOKE'
         else:
             input_par = {'inn_ht': 18, 'lowinn_ht': 23, 'inn_rad': 21, 'inn_layers': 6, 'inn_dist': 60.5, 'out_ht': 13.5,
-     'out_rad': 31.5, 'out_layers': 5, 'out_dist': 14.5, 'mag_len': 0, 'mag_rad': 0, 'ver_shi': 0}
+                        'out_rad': 31.5, 'out_layers': 5, 'out_dist': 14.5, 'mag_len': 0, 'mag_rad': 0, 'ver_shi': 0}
             geo = design.Geometry_yoke(innUP_ht=input_par['inn_ht'], innLOW_ht=input_par['lowinn_ht'],  inn_rad=input_par['IC_radius'],
                                   inn_layers=input_par['IC_layers'], inn_dist=input_par['IC_distance'],
                                   out_ht=input_par['OC_height'], out_rad=input_par['OC_radius'],
@@ -38,10 +37,10 @@ class Analysis:
                                   ver_shi=input_par['ver_shi'])
 
         Low_Inncoil_OutRadius = geo.Low_Inncoil()[1] + (
-                    (wire.prop31()[0] + wire.prop31()[1] * 2) * geo.Low_Inncoil()[2])
+                    (wire.prop_inn()[0] + wire.prop_inn()[1] * 2) * geo.Low_Inncoil()[2])
         Low_Inncoil_Lowend = -1 * (geo.Low_Inncoil()[3] + (geo.Low_Inncoil()[0]) / 2)
         Low_Inncoil_Uppend = Low_Inncoil_Lowend + geo.Low_Inncoil()[0]
-        Low_Inncoil_NrWind_p_Layer = (geo.Upp_Inncoil()[0]) / (wire.prop31()[0] + wire.prop31()[1] * 2)
+        Low_Inncoil_NrWind_p_Layer = (geo.Upp_Inncoil()[0]) / (wire.prop_inn()[0] + wire.prop_inn()[1] * 2)
         Low_Inncoil_NrWindings = Low_Inncoil_NrWind_p_Layer * geo.Upp_Inncoil()[2]
         Low_Inncoil_Circuit = "Low_Inncoil_Circuit"
 
