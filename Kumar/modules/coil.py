@@ -22,7 +22,6 @@ class Position():
         self.mag_len = mag_len
         self.mag_dia = mag_dia
 
-        
     def inncoil(self):
         InnCoil_OutRadius = self.inn_rad + ((self.inn_wiredia + self.inn_wireins * 2) * self.inn_layers)
         InnCoil_Lowend = (self.inn_dist - self.inn_ht) / 2

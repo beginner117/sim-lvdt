@@ -85,6 +85,22 @@ class Analysis:
             mag_for['Magnet_forces'][i] = Magn_Force19
             move_group = femm_model.Femm_move(groups=[3], x_dist=0, y_dist=pre_simulation.parameters()[1])
 
+        Upp_Inductance = abs(uppout_prop['UppOut_voltage'] / uppout_prop['UppOut_current'])
+        Upp_out_power = abs(uppout_prop['UppOut_voltage']) * sensor.para()[2]
+        upp_power = abs(uppout_prop['UppOut_voltage']) * sensor.para()[2]
+        print('upp power :', upp_power)
+        Upp_Inductance = abs(uppout_prop['UppOut_flux'] / uppout_prop['UppOut_current'])
+        Upp_resistance = abs(uppout_prop['UppOut_voltage'] / uppout_prop['UppOut_current'])
+        print("average Upper out coil Ind, res is :", sum(Upp_Inductance) / len(Upp_resistance),
+              sum(Upp_resistance) / len(Upp_resistance))
+        print('upp out res :', abs(Upp_resistance))
+        plt.plot(uppout_prop['UppOut_position'], mag_for['Magnet_forces'], 'o-')
+        plt.xlabel('Coil (centre) Position relative to Magnet (centre) [mm]')
+        plt.ylabel('Magnet Force [N]')
+        # plt.grid()
+        plt.title('Simulated force [Type : I, 1A_DC excitation]')
+        plt.show()
+
         if self.save:
             np.savez_compressed(self.filename, Design = input_par2, Input_parameters = input_par1,  UOC_positions = uppout_prop['UppOut_position'], UOC_forces = uppout_prop['UppOut_force'], Mag_forces = mag_for['Magnet_forces'],
                UOC_currents=uppout_prop['UppOut_current'])

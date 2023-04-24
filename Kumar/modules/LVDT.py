@@ -18,27 +18,32 @@ class Analysis:
         femm.newdocument(0)   # We need to create a new Magnetostatics document to work on.
         value = feed.data
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file =self.filename)
-        sensor = design.Sensortype(InnCoilCurrent = 0.02, Simfreq = 10000, OutCoilCurrent = 0) #can be changed
+        sensor = design.Sensortype(InnCoilCurrent=0.02, Simfreq=10000, OutCoilCurrent=0) #can be changed
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
-        wire = design.Wiretype(outcoil_material="32 AWG", inncoil_material="32 AWG") #can be changed
-        input_par1 = {'TotalSteps_StepSize_Offset' : self.sim_range, 'uppercoil Diameter_Insulation_Wiretype':wire.prop_out(), 'innercoil Diameter_Insulation_Wiretype': wire.prop_inn(),
+        wire = design.Wiretype(outcoil_material='32 AWG', inncoil_material='32 AWG') #can be changed
+        input_par1 = {'TotalSteps_StepSize_Offset' : self.sim_range, 'outercoil Diameter_Insulation_Wiretype':wire.prop_out(), 'innercoil Diameter_Insulation_Wiretype': wire.prop_inn(),
                      'Innercoil_current':sensor.para()[0], 'Frequency':sensor.para()[1], 'Outercoil_current':sensor.para()[2], 'Magnet_material':wire.mag_mat()}
         if self.default=='yes':
             geo = design.Geometry(value[self.design_type]["inn_ht"], value[self.design_type]['inn_rad'], value[self.design_type]['inn_layers'], value[self.design_type]['inn_dist'], value[self.design_type]['out_ht'], value[self.design_type]['out_rad'],
                                   value[self.design_type]['out_layers'], value[self.design_type]['out_dist'], value[self.design_type]['mag_len'], value[self.design_type]['mag_dia'], value[self.design_type]['ver_shi'])
             input_par2 = 'design type : '+self.design_type
         else:
-            input_par2 = {'IC_height':18, 'IC_radius':21, 'IC_layers':6, 'IC_distance':0, 'OC_height':13.5, 'OC_radius':31.5, 'OC_layers':self.parameter1, 'OC_distance':31.5, 'mag_len':0, 'mag_dia':0, 'ver_shi':0}
+            input_par2 = {'IC_height':18, 'IC_radius':21, 'IC_layers':6, 'IC_distance':0, 'OC_height':13.5, 'OC_radius':31.5, 'OC_layers':5, 'OC_distance':14.5, 'mag_len':0, 'mag_dia':0, 'ver_shi':0}
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
+
+        other_par = {'inner coil current_frequency_wire': [sensor.para()[0], sensor.para()[1], wire.inncoil_material],
+                     'outer coil_current_frequency_wire': [sensor.para()[2], sensor.para()[1], wire.outcoil_material]}
         position = coil.Position(inn_ht=geo.inncoil()[0], inn_rad=geo.inncoil()[1], inn_layers=geo.inncoil()[2], inn_dist=geo.inncoil()[3], out_ht=geo.outcoil()[0], out_rad=geo.outcoil()[1], out_layers=geo.outcoil()[2], out_dist=geo.outcoil()[3],
                                  ver_shi=geo.mag()[2], inn_wiredia=wire.prop_inn()[0], inn_wireins=wire.prop_inn()[1], out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1], mag_len=geo.mag()[0], mag_dia=geo.mag()[1])
         length = coil.Length(inn_layers=geo.inncoil()[2], inn_rad=geo.inncoil()[1], inn_wiredia=wire.prop_inn()[0], inn_wireins=wire.prop_inn()[1], innwind_pr_layer=position.inncoil()[3], out_layers=geo.outcoil()[2], out_rad=geo.outcoil()[1],
                              out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1], outwind_pr_layer=position.upp_outcoil()[3])
         print(position.inncoil(), position.upp_outcoil())
-        print('inn, out, total coil lengths : ', length.inncoil(), length.upp_outcoil(), length.inncoil()+(2*length.upp_outcoil()))
-        inn_dc = (length.inncoil()*162)/304800
-        print('inner coil Dc resistance as per datasheet (in ohms) :', inn_dc)
+        print('inn, out(upp), total coil lengths : ', length.inncoil(), length.upp_outcoil(), length.inncoil()+(2*length.upp_outcoil()))
+        if wire.prop_out()[3] and wire.prop_inn()[3]:
+            inn_dc = length.inncoil()*wire.prop_inn()[3]
+            out_dc = length.upp_outcoil()*wire.prop_out()[3]
+            print('inner, upper outer coil Dc resistance as per datasheet (in ohms) :', inn_dc, out_dc)
 
         inncoil_str = femm_model.Femm_coil(x1=geo.inncoil()[1], y1=position.inncoil()[2], x2=position.inncoil()[0], y2=position.inncoil()[1], circ_name=position.inncoil()[5],
                                            circ_current=sensor.para()[0], circ_type=1, material=wire.inncoil_material, edit_mode=4, group=1, label1=wire.prop_inn()[1],
@@ -88,8 +93,25 @@ class Analysis:
 
             move_group = femm_model.Femm_move(groups=[1, 2], x_dist=0, y_dist=pre_simulation.parameters()[1])
 
+        Inn_Inductance = abs(inn_prop['Inncoil_flux'] / inn_prop['Inncoil_current'])
+        Inn_resistance = abs(inn_prop['Inncoil_voltage'] / inn_prop['Inncoil_current'])
+        Out_resistance = abs(uppout_prop['UppOut_voltage'] / uppout_prop['UppOut_current'])
+        print('Inn Inductance, Inn impedance, Upp resistance : ', Inn_Inductance, Inn_resistance, Out_resistance)
+
+        OutCoil_Signals = (abs(uppout_prop['UppOut_voltage']) - abs(lowout_prop['LowOut_voltage']))
+        Norm_OutCoil_Signals = OutCoil_Signals / abs(inn_prop['Inncoil_current'])
+        gainfactor = 65
+        Norm_OutCoil_Signals_v = OutCoil_Signals / abs(inn_prop['Inncoil_voltage'])
+        b1, b2 = np.polyfit(inn_prop['Inncoil_position'], Norm_OutCoil_Signals_v * gainfactor, 1)
+        print("Fitted slope & const of voltage normalised signals:", abs(b1), abs(b2))
+        # plt.plot(inn_prop['Inncoil_position'], Norm_OutCoil_Signals, 'o-', label="simulated response")
+        # plt.xlabel('Inner Coil Position [mm]')
+        # plt.ylabel('Normalised Response [V/A]')
+        # plt.legend()
+        # plt.show()
+
         if self.save:
-            np.savez_compressed(self.filename, Design = input_par2, Input_parameters = input_par1,  IC_positions = inn_prop['Inncoil_position'], IC_voltages = inn_prop['Inncoil_voltage'],
-                                UOC_voltages = uppout_prop['UppOut_voltage'], LOC_voltages = lowout_prop['LowOut_voltage'], IC_currents = inn_prop['Inncoil_current'],
-                                UOC_currents=uppout_prop['UppOut_current'], LOC_currents = lowout_prop['LowOut_current'], IC_flux = inn_prop['Inncoil_flux'],
-                                UOC_flux = uppout_prop['UppOut_flux'], LOC_flux = lowout_prop['LowOut_flux'])
+            np.savez_compressed(self.filename, Design = input_par2, Input_parameters = input_par1, Input_config = other_par, IC_positions = inn_prop['Inncoil_position'],
+                                IC_voltages = inn_prop['Inncoil_voltage'], UOC_voltages = uppout_prop['UppOut_voltage'], LOC_voltages = lowout_prop['LowOut_voltage'],
+                                IC_currents = inn_prop['Inncoil_current'], UOC_currents=uppout_prop['UppOut_current'], LOC_currents = lowout_prop['LowOut_current'],
+                                IC_flux = inn_prop['Inncoil_flux'], UOC_flux = uppout_prop['UppOut_flux'], LOC_flux = lowout_prop['LowOut_flux'])

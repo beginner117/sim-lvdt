@@ -42,22 +42,34 @@ class Wiretype():
     def __init__(self, outcoil_material, inncoil_material):
         self.outcoil_material = outcoil_material
         self.inncoil_material = inncoil_material
-# wire diamater, insulation thickness, wire type, electrical conductivity, resistivity(ohm*m), mag_perm(H/m)
+# wire diamater, insulation thickness, wire type, resistance(Ω/mm), electrical conductivity, resistivity(ohm*m), mag_perm(H/m)
     def prop_out(self):
+        if self.outcoil_material == "30 AWG":
+            return [0.254, 0.0216, "30 AWG", 103.7/304800]
         if self.outcoil_material == "31 AWG":
-            return [0.2261, 0.0190, "31 AWG"]
+            return [0.2261, 0.0190, "31 AWG", 130.9/304800]
         if self.outcoil_material == "32 AWG":
-            return [0.2032, 0.0178, "32 AWG", 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))]
+            return [0.2032, 0.0178, "32 AWG", 162/304800, 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))]
         if self.outcoil_material == "34 AWG":
-            return [0.1602, 0.01652, "34 AWG"]
+            return [0.1602, 0.01652, "34 AWG", 261.3/304800]
+        if self.outcoil_material == "test1":
+            return [0.190+0.01-0.01, 0.016, "test1"]
+        if self.outcoil_material == "test2":
+            return [0.200+0.009-0.009, 0.016, "test2"]
 
     def prop_inn(self):
+        if self.inncoil_material == "30 AWG":
+            return [0.254, 0.0216, "30 AWG", 103.7/304800]
         if self.inncoil_material == "31 AWG":
-            return [0.2261, 0.0190, "31 AWG"]
+            return [0.2261, 0.0190, "31 AWG", 130.9/304800]
         if self.inncoil_material == "32 AWG":
-            return [0.2032, 0.0178, "32 AWG", 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))]
-        if self.outcoil_material == "34 AWG":
-            return [0.1602, 0.01652, "34 AWG"]
+            return [0.2032, 0.0178, "32 AWG", 162/304800, 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))]
+        if self.inncoil_material == "34 AWG":
+            return [0.1602, 0.01652, "34 AWG", 261.3/304800]
+        if self.inncoil_material == "test1":
+            return [0.221, 0.001, "test1"]
+        if self.inncoil_material == "test2":
+            return [0.230, 0.001, "test2"]
 
     def mag_mat(self):
         mat = "N40"
