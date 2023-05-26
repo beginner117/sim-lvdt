@@ -108,7 +108,7 @@ class Analysis:
 
         # Upp_Inductance = abs(uppout_prop['UppOut_flux'] / uppout_prop['UppOut_current'])
         # Upp_resistance = abs(uppout_prop['UppOut_voltage'] / uppout_prop['UppOut_current'])
-        # print("mag for :", inn_prop['Inncoil_force'])
+        print("mag for :", inn_prop['Inncoil_force'])
         # print('upp ind, imp :', Upp_Inductance[1], Upp_resistance[1])
 
         # plt.plot(inn_prop['Inncoil_position'], abs(inn_prop['Inncoil_force']), 'o-')
