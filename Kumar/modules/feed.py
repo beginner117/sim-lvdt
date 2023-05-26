@@ -53,5 +53,5 @@ class Input:
         return J
 
 
-yi = Input()
-print(yi.general())
+# yi = Input()
+# print(yi.general())
