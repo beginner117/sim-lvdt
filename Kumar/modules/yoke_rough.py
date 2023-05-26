@@ -1,12 +1,11 @@
-import sys
-sys.path.insert(1, "C://Users//kumar//PycharmProjects//lvdtsimulations//Kumar//modules")
-import design
 import femm
-import numpy as np
-import matplotlib.pyplot as plt
+import design
 import femm_model
 import coil
-import shutil
+import feed
+import numpy as np
+import matplotlib.pyplot as plt
+
 femm.openfemm()
 femm.newdocument(0)
 
@@ -20,7 +19,7 @@ sensor = design.Sensortype(1, 0, 0)
 femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
 wire = design.Wiretype("32 AWG", "32 AWG")
 block = design.Blocks()
-geo = design.Geometry1(innUP_ht=18, innLOW_ht=23, inn_rad=21, inn_layers=6, inn_dist=60.5, out_ht=13.5, out_rad=31.5,
+geo = design.Geometry_yoke(innUP_ht=18, innLOW_ht=23, inn_rad=21, inn_layers=6, inn_dist=60.5, out_ht=13.5, out_rad=31.5,
                        out_layers=5, out_dist=14.5, mag_ht=6.35, mag_rad=12.80, ver_shi=0)
 
 class Position():

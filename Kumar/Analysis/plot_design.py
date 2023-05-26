@@ -21,10 +21,9 @@ imp_err = []
 imp_mean = []
 
 
-output_files = ["6.15.npz", "12.29.npz", "18.43.npz", "24.58.npz", "30.72.npz", "36.87.npz", "43.0.npz", "49.16.npz", "55.3.npz"]
-output_files = ['1nm_50p_A_lvdt_2mm_off.npz']
-legends = ["6.15mA(1V)", "12.29mA(2V)", "18.43mA(3V)", "24.58mA(4V)", "30.72mA(5V)", "36.87mA(6V)", "43.01mA(7V)", "49.16mA(8V)", "55.3mA(9V)"]
-legends = ['1nm']
+
+output_files = ['']
+legends = ['type_A_simulation']
 for i in range(0,len(output_files)):
     b = np.load(output_files[i])
     files.append(b)
@@ -73,13 +72,12 @@ class Lvdt():
         for i in range(0,n):
             out_sig = abs(np.array(files[i]["UOC_voltages"])) - abs(np.array(files[i]["LOC_voltages"]))
             norm_sig = out_sig / abs(np.array(files[i]["IC_voltages"]))
-            norm_sig = out_sig / abs(np.array(files[i]["IC_currents"]))
-            plt.plot(np.array(files[i]["IC_positions"]), norm_sig, 'o-', label=legends[i])
+            #norm_sig = out_sig / abs(np.array(files[i]["IC_currents"]))
+            plt.plot(np.array(files[i]["IC_positions"]), abs(norm_sig)*65, 'o-', label=legends[i])
         plt.legend()
         plt.grid()
         plt.ylabel('Normalised Out Coil signal [V/v]')
         plt.xlabel('Inner Coil Position [mm]')
-
         if self.sav == 1:
             plt.savefig("norm_sig.png")
             shutil.move("norm_sig.png", self.path1)
@@ -90,7 +88,7 @@ class Lvdt():
             out_sig = abs(np.array(files[i]["UOC_voltages"])) - abs(np.array(files[i]["LOC_voltages"]))
             norm_sig = out_sig / abs(np.array(files[i]["IC_voltages"]))
             norm_sig_c = out_sig / abs(np.array(files[i]["IC_currents"]))
-            m_fem, co_fem = np.polyfit(inn_pos, norm_sig*69, 1)
+            m_fem, co_fem = np.polyfit(inn_pos, norm_sig*65, 1)
             m_fem_c, co_fem_c = np.polyfit(inn_pos, norm_sig_c, 1)
             sim_fit = (abs(m_fem) * np.array(inn_pos))+ abs(co_fem)
             relerr_fem = ((abs(sim_fit - (norm_sig*69))) / abs(norm_sig)) * (100/69)
@@ -115,7 +113,7 @@ class Lvdt():
             plt.ylabel('Slope[V/mmv]')
             plt.xlabel('types')
         #plt.ylim(0,0.1)
-        plt.legend()
+        #plt.legend()
         if self.sav == 1:
             plt.savefig("normfiterr.png")
             shutil.move("normfiterr.png", self.path1)
