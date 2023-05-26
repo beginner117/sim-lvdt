@@ -19,7 +19,7 @@ class Analysis():
         femm.newdocument(0)
 
         outputfile = 'LVDT_10kHz_20mA_31AWG_10mm_6_7_7.out'
-        NSteps = 4
+        NSteps = 10
         StepSize = 1
         InnCoil_Offset = 5.5
 
@@ -27,10 +27,8 @@ class Analysis():
         sensor = design.Sensortype(0.02, 10000, 0)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype("32 AWG", "32 AWG")
-        geo = design.Geometry(inn_ht=self.parameter, inn_rad=16, inn_layers=8, inn_dist=0, out_ht=10, out_rad=25,
-                              out_layers=7, out_dist=36, mag_len=6, mag_dia=3, ver_shi=0)
-        req_plots = dataplot_condition.Req_plots(out_vol=0, inn_vol=1, phase=0, norm_signal=1, fit_error=0,
-                                                 Norm_fiterror=1, impedance=1)
+        geo = design.Geometry(inn_ht=5.2, inn_rad=10, inn_layers=8, inn_dist=self.parameter, out_ht=10, out_rad=25,
+                              out_layers=7, out_dist=36, mag_len=3, mag_dia=1.5, ver_shi=0)
         multiple_fit = 0
         '''
         position = coil.Position(geo.inncoil()[0], geo.inncoil()[1], geo.inncoil()[2], geo.inncoil()[3],
@@ -84,13 +82,11 @@ class Analysis():
                                               circ_name=position.inncoil()[5], circ_current=sensor.para()[2], circ_type=1, material=wire.inncoil_material,
                                               edit_mode=4, group=1, label1=wire.prop32()[1], label2=geo.inncoil()[0], blockname=wire.prop32()[2],
                                               turns_pr_layer=position.inncoil()[4])
-            inncoil_str
             magnetstr = femm_model.Femm_magnet(x1=0, y1=position.inncoil()[1], x2=position.magnet()[2],
                                                y2=position.inncoil()[1]-geo.mag()[0], material=wire.mag_mat(), edit_mode=4, group=2,
                                                label1=position.magnet()[2] * 0.5, label2=geo.mag()[0])
-            magnetstr
             bc = femm_model.Femm_bc()
-            bc
+
 
             InnCoil_Voltages = np.zeros(NSteps + 1).astype(complex)
             InnCoil_Positions = np.zeros(NSteps + 1)
@@ -149,84 +145,52 @@ class Analysis():
         print("average Inn coil Inductance is :", sum(Inn_Inductance) / len(Inn_Inductance))
         print("average Inn coil resistance is :", sum(Inn_resistance) / len(Inn_resistance))
 
-        if NSteps > 2:
-            modelled.MetaData[0] = NSteps
-            modelled.MetaData[1] = StepSize
-            modelled.MetaData[2] = sensor.para()[2]
-            np.savetxt(outputfile, (
-            modelled.InnCoil_Positions, modelled.Magnet_Forces,
-            modelled.MetaData))
 
-        class Results():
-            def __init__(self):
-                pass
 
-            plt.style.use(['science', 'grid', 'notebook'])
+        plt.plot(modelled.InnCoil_Positions, modelled.Magnet_Forces, 'o-')
+        plt.ylabel('Magnet Force [N]')
+        plt.xlabel('Inner Coil Position [mm]')
+        plt.show()
 
-            if req_plots.inn_vol == 1:
-                plt.plot(modelled.InnCoil_Positions, modelled.Magnet_Forces, 'o-')
-                plt.ylabel('Magnet Force [N]')
-                plt.xlabel('Inner Coil Position [mm]')
-                plt.show()
+        plt.plot(modelled.InnCoil_Positions, modelled.Magnet_Forces / max(modelled.Magnet_Forces) * 100, 'o-')
+        plt.ylabel('Magnet Forces/max force [%]')
+        plt.xlabel('Inner Coil Position [mm]')
+        plt.show()
+        lin = modelled.Magnet_Forces / max(modelled.Magnet_Forces) * 100
 
-            plt.plot(modelled.InnCoil_Positions, modelled.Magnet_Forces / max(modelled.Magnet_Forces) * 100, 'o-')
-            plt.ylabel('Magnet Forces/max force [%]')
-            plt.xlabel('Inner Coil Position [mm]')
-            plt.show()
-            lin = modelled.Magnet_Forces / max(modelled.Magnet_Forces) * 100
+        def polyfunc(x, a, b, c):
+            return a * x ** 2 + b * x + c
 
-            def polyfunc(x, a, b, c):
-                return a * x ** 2 + b * x + c
+        Norm_Magnet_Forces = modelled.Magnet_Forces / sensor.para()[2]
+        optimizedParameters, pcov = opt.curve_fit(polyfunc, modelled.InnCoil_Positions, Norm_Magnet_Forces)
+        print("Fitted parameters of function:", optimizedParameters)
+        fitted_Norm_Magnet_Forces = polyfunc(modelled.InnCoil_Positions, *optimizedParameters)
+        fiterr = Norm_Magnet_Forces - optimizedParameters[0]*((np.array(modelled.InnCoil_Positions))**2) - optimizedParameters[1]*(np.array(modelled.InnCoil_Positions)) - optimizedParameters[2]
 
-            Norm_Magnet_Forces = modelled.Magnet_Forces / sensor.para()[2]
-            optimizedParameters, pcov = opt.curve_fit(polyfunc, modelled.InnCoil_Positions, Norm_Magnet_Forces)
-            print("Fitted parameters of function:", optimizedParameters)
-            fitted_Norm_Magnet_Forces = polyfunc(modelled.InnCoil_Positions, *optimizedParameters)
-            print("Normalised forces:", Norm_Magnet_Forces)
-            if multiple_fit==1:
-                InnCoil_Positions1 = modelled.InnCoil_Positions[8:13]
-                Norm_Magnet_Forces1 = Norm_Magnet_Forces[8:13]
-                optimizedParameters1, pcov = opt.curve_fit(polyfunc, InnCoil_Positions1, Norm_Magnet_Forces1)
-                print("Fitted parameters of function at (-0.5,0.5):", optimizedParameters1)
-                fitted_Norm_Magnet_Forces1 = polyfunc(InnCoil_Positions1, *optimizedParameters1)
-                print("Normalised forces fitted:", Norm_Magnet_Forces1)
+        plt.plot(modelled.InnCoil_Positions, Norm_Magnet_Forces, label="simulation")
+        #plt.plot(modelled.InnCoil_Positions, fitted_Norm_Magnet_Forces, 'o--', label="poly2 fit")
+        plt.plot(modelled.InnCoil_Positions,
+                 optimizedParameters[0]*((np.array(modelled.InnCoil_Positions))**2) - optimizedParameters[1]*(
+                     np.array(modelled.InnCoil_Positions)) - optimizedParameters[2], 'o--', label="fit")
+        plt.ylabel('Normalised Magnet Force [N/A]')
+        plt.xlabel('Inner Coil Position [mm]')
+        plt.legend()
+        plt.show()
 
-                fiterr1 = Norm_Magnet_Forces - optimizedParameters1[0]*((np.array(modelled.InnCoil_Positions))**2) - optimizedParameters1[1]*(np.array(modelled.InnCoil_Positions)) - optimizedParameters1[2]
+        print((abs(Norm_Magnet_Forces - fitted_Norm_Magnet_Forces) / abs(Norm_Magnet_Forces)) * 100)
+        plt.plot(modelled.InnCoil_Positions, abs(fiterr) / abs(Norm_Magnet_Forces) * 100)
+        plt.ylabel('Normalised Fit error [%]')
+        plt.xlabel('Inner Coil Position [mm]')
+        # plt.ylim(0.0,0.01)
+        plt.show()
+        nor_fit1 = abs(fiterr) / abs(Norm_Magnet_Forces)
 
-            plt.plot(modelled.InnCoil_Positions, Norm_Magnet_Forces, label="simulation")
-            #plt.plot(modelled.InnCoil_Positions, fitted_Norm_Magnet_Forces, 'o--', label="poly2 fit")
-            plt.plot(modelled.InnCoil_Positions,
-                     optimizedParameters1[0]*((np.array(modelled.InnCoil_Positions))**2) - optimizedParameters1[1]*(
-                         np.array(modelled.InnCoil_Positions)) - optimizedParameters1[2], 'o--', label="fit")
-            plt.ylabel('Normalised Magnet Force [N/A]')
-            plt.xlabel('Inner Coil Position [mm]')
-            plt.legend()
-            plt.show()
 
-            print(Norm_Magnet_Forces - fitted_Norm_Magnet_Forces)
-            plt.plot(modelled.InnCoil_Positions, Norm_Magnet_Forces - fitted_Norm_Magnet_Forces)
-            plt.plot(modelled.InnCoil_Positions, fiterr1)
-            plt.ylabel('Fit error [N/A]')
-            plt.xlabel('Inner Coil Position [mm]')
-            plt.show()
+si = Analysis('tr', 0)
+si.simulate()
 
-            print((abs(Norm_Magnet_Forces - fitted_Norm_Magnet_Forces) / abs(Norm_Magnet_Forces)) * 100)
-            plt.plot(modelled.InnCoil_Positions, abs(fiterr1) / abs(Norm_Magnet_Forces) * 100)
-            plt.ylabel('Normalised Fit error [%]')
-            plt.xlabel('Inner Coil Position [mm]')
-            # plt.ylim(0.0,0.01)
-            plt.show()
-            nor_fit1 = abs(fiterr1) / abs(Norm_Magnet_Forces)
-        results = Results()
 
-#'''
-        class Save_data():
-            def __init__(self):
-                pass
 
-            data = np.column_stack((modelled.InnCoil_Positions, modelled.UppOutCoil_Forces,
-                                    modelled.LowOutCoil_Forces, modelled.Magnet_Forces,
-                                    results.Norm_Magnet_Forces, results.fiterr1, results.nor_fit1, results.lin))
-        saved_data = Save_data()
-#'''
+
+
 
