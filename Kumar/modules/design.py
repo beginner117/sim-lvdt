@@ -53,9 +53,15 @@ class Wiretype():
         if self.outcoil_material == "34 AWG":
             return [0.1602, 0.01652, "34 AWG", 261.3/304800]
         if self.outcoil_material == "test1":
-            return [0.190+0.01-0.01, 0.016, "test1"]
+            return [0.190+0.01, 0.016, "test1", 0.6029/1000]
         if self.outcoil_material == "test2":
-            return [0.200+0.009-0.009, 0.016, "test2"]
+            return [0.200+0.007-0.007, 0.016, "test2", 0.5441/1000]
+        if self.outcoil_material == "32 AWG_corrected_1":
+            #return [0.2032+0.0062, 0.0178, "32 AWG_corrected_1", 162/304800]
+            return [0.2032, 0.0178+(0.0062/2), "32 AWG_corrected_1", 162 / 304800, 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))]
+        if self.outcoil_material == "32 AWG_corrected_2":
+            #return [0.2032+0.0202, 0.0178, "32 AWG_corrected_2", 162/304800]
+            return [0.2032, 0.0178+(0.0202/2), "32 AWG_corrected_2", 162 / 304800, 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))]
 
     def prop_inn(self):
         if self.inncoil_material == "30 AWG":
@@ -67,9 +73,15 @@ class Wiretype():
         if self.inncoil_material == "34 AWG":
             return [0.1602, 0.01652, "34 AWG", 261.3/304800]
         if self.inncoil_material == "test1":
-            return [0.221, 0.001, "test1"]
+            return [0.190+0.01-0.01, 0.016, "test1", 0.6029/1000]
         if self.inncoil_material == "test2":
-            return [0.230, 0.001, "test2"]
+            return [0.200+0.007, 0.016, "test2", 0.5441/1000]
+        if self.inncoil_material == "32 AWG_corrected_1":
+            #return [0.2032+0.0062, 0.0178, "32 AWG_corrected_1", 162/304800]
+            return [0.2032, 0.0178 + (0.0062 / 2), "32 AWG_corrected_1", 162 / 304800, 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))]
+        if self.inncoil_material == "32 AWG_corrected_2":
+            #return [0.2032+0.0202, 0.0178, "32 AWG_corrected_2", 162/304800]
+            return [0.2032, 0.0178 + (0.0202 / 2), "32 AWG_corrected_2", 162 / 304800, 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))]
 
     def mag_mat(self):
         mat = "N40"
