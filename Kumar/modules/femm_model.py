@@ -76,6 +76,8 @@ class Femm_coil():
                     femm.mi_addmaterial('32 AWG_corrected_1', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2032)
                 if self.material == "32 AWG_corrected_2":
                     femm.mi_addmaterial('32 AWG_corrected_2', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2032)
+                if self.material == "RS":
+                    femm.mi_addmaterial('rs', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2)
 
                 femm.mi_clearselected()
                 femm.mi_selectrectangle(self.x1, self.y1, self.x2,
