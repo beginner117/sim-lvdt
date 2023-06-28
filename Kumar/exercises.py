@@ -4,7 +4,7 @@ import femm_simulation
 
 #[[no.of steps, step size, initial offset]]
 
-input_para = {'sensor_type' : ['VC_fields'], 'SaveFile' : False,
+input_para = {'sensor_type' : ['LVDT'], 'SaveFile' : False,
             'file_names' : ['tr1'],
             'default_design' : ['no'],
             'type_or_parameter_OR_angle' : [0],
