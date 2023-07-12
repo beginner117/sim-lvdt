@@ -19,7 +19,7 @@ class Analysis:
         femm.newdocument(0)  # We need to create a new Magnetostatics document to work on.
         value = feed.data
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file=self.filename)
-        sensor = design.Sensortype(InnCoilCurrent=0, Simfreq=0, OutCoilCurrent=1)
+        sensor = design.Sensortype(InnCoilCurrent=0, Simfreq=0, OutCoilCurrent=self.parameter1)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype("32 AWG", "32 AWG")
         input_par1 = {'TotalSteps_StepSize_Offset': self.sim_range, 'outercoil Diameter_Insulation_Wiretype': wire.prop_out(), 'innercoil Diameter_Insulation_Wiretype': wire.prop_inn(),
@@ -43,6 +43,7 @@ class Analysis:
         if wire.prop_out()[3] and wire.prop_inn()[3]:
             inn_dc = length.inncoil() * wire.prop_inn()[3]
             out_dc = length.upp_outcoil() * wire.prop_out()[3]
+            lowout_dc = length.low_outcoil() * wire.prop_out()[3]
             print('inner, upper outer coil Dc resistance as per datasheet (in ohms) :', inn_dc, out_dc)
         inncoil_str = femm_model.Femm_coil(x1=geo.inncoil()[1], y1=position.inncoil()[2], x2=position.inncoil()[0], y2=position.inncoil()[1],
                                            circ_name=position.inncoil()[5], circ_current=sensor.para()[0], circ_type=1, material=wire.inncoil_material,
@@ -117,5 +118,10 @@ class Analysis:
         # plt.show()
 
         if self.save:
-            np.savez_compressed(self.filename, Design = input_par2, Input_parameters = input_par1, Input_config = other_par,  IC_positions = inn_prop['Inncoil_position'], UOC_forces = uppout_prop['UppOut_force'], LOC_forces = lowout_prop['LowOut_force'], Mag_forces = inn_prop['Inncoil_force'], IC_flux = inn_prop['Inncoil_flux'],
-              IC_currents = inn_prop['Inncoil_current'], UOC_currents=uppout_prop['UppOut_current'], LOC_currents = lowout_prop['LowOut_current'], UOC_voltages = uppout_prop['UppOut_voltage'], LOC_voltages = lowout_prop['LowOut_voltage'], IC_voltages = inn_prop['Inncoil_voltage'])
+            np.savez_compressed(self.filename, Design = input_par2, Input_parameters = input_par1, Input_config = other_par,
+                                Innercoil_config=position.inncoil(), UpperOutcoil_config=position.upp_outcoil(), LowerOutercoil_config=position.low_outcoil(),
+                                UOC_forces = uppout_prop['UppOut_force'], LOC_forces = lowout_prop['LowOut_force'], Mag_forces = inn_prop['Inncoil_force'],
+                                IC_currents = inn_prop['Inncoil_current'], UOC_currents=uppout_prop['UppOut_current'], LOC_currents = lowout_prop['LowOut_current'],
+                                UOC_voltages = uppout_prop['UppOut_voltage'], LOC_voltages = lowout_prop['LowOut_voltage'], IC_voltages = inn_prop['Inncoil_voltage'],
+                                IC_positions = inn_prop['Inncoil_position'], IC_flux=inn_prop['Inncoil_flux'], UOC_flux=uppout_prop['UppOut_flux'], LOC_flux=lowout_prop['LowOut_flux'],
+                                Inn_Uppout_Lowout_DCR_as_per_catalog = [inn_dc, out_dc, lowout_dc])

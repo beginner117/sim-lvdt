@@ -1,13 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-#sys.path.insert(1, "C://Users//kumar//PycharmProjects//lvdtsimulations//Kumar//Analysis")
 import os
 import shutil
 import warnings
 warnings.filterwarnings('ignore')
-
-# output_file data : [0]-Inncoil position, [1]-Inncoil vol [2]-Uppout vol [3]-lowout vol [4]-Inn coil curr [5]-uppout cur [6]-Lowout cu [7]-Inncoil flux
 
 slopes = []
 files = []
@@ -20,12 +17,14 @@ ind_mean = []
 imp_err = []
 imp_mean = []
 
-
-
-output_files = ['']
-legends = ['type_A_simulation']
+output_files = ["C:/Users/kumar/PycharmProjects/lvdtsimulations/Kumar/modules/tr1.npz", "C:/Users/kumar/PycharmProjects/lvdtsimulations/Kumar/modules/tr2.npz"]
+legends = ['1', '2']
+# output_files = ["C:/Users/kumar/PycharmProjects/lvdtsimulations/Kumar/Analysis/typeA_vc/typeA_{}mA_10offset.npz".format(i) for i in ['2p5', 5, '7p5', 10]]
+# legends = ['{}mA'.format(i) for i in ['2.5', 5, '7.5', 10]]
 for i in range(0,len(output_files)):
-    b = np.load(output_files[i])
+    b = np.load(output_files[i], allow_pickle=True)
+
+    print(b['Input_config'])
     files.append(b)
 n = len(output_files)
 
@@ -38,35 +37,23 @@ class Lvdt():
                 path1 = os.path.join(parent_dir, self.directory)
                 self.path1 = path1
                 os.mkdir(self.path1)
-    def uppout_vol(self):
+    def vol(self, par):
         for i in range(0,n):
-            plt.plot(np.array(files[i]["IC_positions"]), abs(np.array(files[i]["UOC_voltages"])), 'o-', label=legends[i])
-        plt.ylabel('Upper Out Coil Voltage [V] ')
+            upp_out = np.array(files[i]["UOC_voltages"])
+            low_out = np.array(files[i]["LOC_voltages"])
+            inner = np.array(files[i]["IC_voltages"])
+            if par == 'inner':
+                plt.plot(np.array(files[i]["IC_positions"]), abs(inner), 'o-', label=legends[i])
+            if par == 'upp_out':
+                plt.plot(np.array(files[i]["IC_positions"]), abs(upp_out), 'o-', label=legends[i])
+            if par == 'low_out':
+                plt.plot(np.array(files[i]["IC_positions"]), abs(low_out), 'o-', label=legends[i])
+        plt.ylabel('{} Coil Voltage [V] '.format(par))
         plt.xlabel('Inner Coil Position [mm]')
         plt.legend()
         if self.sav == 1:
             plt.savefig("upp_out.png")
             shutil.move("upp_out.png", self.path1)
-        plt.show()
-    def lowout_vol(self):
-        for i in range(0,n):
-            plt.plot(np.array(files[i]["IC_positions"]), abs(np.array(files[i]["LOC_voltages"])), 'o-', label=legends[i])
-        plt.ylabel('Lower Out Coil Voltage [V] ')
-        plt.xlabel('Inner Coil Position [mm]')
-        plt.legend()
-        if self.sav == 1:
-            plt.savefig("low_out.png")
-            shutil.move("low_out.png", self.path1)
-        plt.show()
-    def inncoil_vol(self):
-        for i in range(0,n):
-            plt.plot(np.array(files[i]["IC_positions"]), abs(np.array(files[i]["IC_voltages"])), 'o-', label=legends[i])
-        plt.ylabel('Inner Out Coil Voltage [V]')
-        plt.xlabel('Inner Coil Position [mm]')
-        plt.legend()
-        if self.sav == 1:
-            plt.savefig("Inn_vol.png")
-            shutil.move("Inn_vol.png", self.path1)
         plt.show()
     def norm_sig(self):
         for i in range(0,n):
@@ -167,7 +154,7 @@ class Lvdt():
             shutil.move("Inn_vol.png", self.path1)
         plt.show()
 
-class VC():
+class VC:
     def __init__(self, save, directory=None):
         self.sav = save
         self.directory = directory
@@ -176,63 +163,94 @@ class VC():
                 path1 = os.path.join(parent_dir, self.directory)
                 self.path1 = path1
                 os.mkdir(self.path1)
-    def uppout_for(self):
+    def coil_force(self, par):
         for i in range(0,n):
-            plt.plot(np.array(files[i]["IC_positions"]), abs(np.array(files[i]["UOC_forces"])), 'o-', label=legends[i])
-        plt.ylabel('Upper Out Coil Force [N] ')
+            if par == 'upp_out':
+                plt.plot(np.array(files[i]["IC_positions"]), abs(np.array(files[i]["UOC_forces"])), 'o-', label=legends[i])
+            if par == 'low_out':
+                plt.plot(np.array(files[i]["IC_positions"]), abs(np.array(files[i]["LOC_forces"])), 'o-', label=legends[i])
+        plt.ylabel('{} Coil Force [N] '.format(par))
         plt.xlabel('Inner Coil Position [mm]')
         plt.legend()
         if self.sav == 1:
             plt.savefig("upp_out.png")
             shutil.move("upp_out.png", self.path1)
         plt.show()
-    def lowout_for(self):
+    def mag_for(self, para=None):
         for i in range(0,n):
-            plt.plot(np.array(files[i]["IC_positions"]), abs(np.array(files[i]["LOC_forces"])), 'o-', label=legends[i])
-        plt.ylabel('Lower Out Coil Force [N] ')
-        plt.xlabel('Inner Coil Position [mm]')
-        plt.legend()
-        if self.sav == 1:
-            plt.savefig("low_out.png")
-            shutil.move("low_out.png", self.path1)
-        plt.show()
-    def mag_for(self):
-        for i in range(0,n):
-            plt.plot(np.array(files[i]["IC_positions"]), abs(np.array(files[i]["Mag_forces"])), 'o-', label=legends[i])
-        plt.ylabel('Magnet Force [N]')
+            inn_pos = np.array(files[i]["UOC_positions"])
+            mag_force = abs(np.array(files[i]["Mag_forces"]))
+            #mag_force = abs(np.array(files[i]["UOC_forces"]))
+            currents = np.array(files[i]["UOC_currents"])
+            if para == 'norm':
+                plt.plot(inn_pos, mag_force/currents, 'o-', label = legends[i])
+                plt.ylabel('Normalised Magnet Force [N/A]')
+                #plt.ylim(-0.75, 0.75)
+            else:
+                plt.plot(np.array(inn_pos), abs(np.array(files[i]["Mag_forces"])), 'o-', label=legends[i])
+                plt.ylabel('Magnet Force [N]')
         plt.xlabel('Inner Coil Position [mm]')
         plt.legend()
         if self.sav == 1:
             plt.savefig("Inn_vol.png")
             shutil.move("Inn_vol.png", self.path1)
+        plt.title('VC Forces [Type : A]')
+        plt.grid()
         plt.show()
-    def force_fit(self, para:str):
+    def force_fit(self, para=None):
         forc = []
         for i in range(0, n):
-            inn_pos = np.array(files[i]["IC_positions"])
-            a1, a2, a3 = np.polyfit(inn_pos, abs(np.array(files[i]["Mag_forces"])),2)
-            fit_for = (a1*(inn_pos**2))+(a2*(inn_pos))+a3
+            #inn_pos = np.array(files[i]["IC_positions"])
+            inn_pos = np.array(files[i]["UOC_positions"])
+            mag_force = abs(np.array(files[i]["Mag_forces"]))
+            #mag_force = abs(np.array(files[i]["UOC_forces"]))
+            currents = np.array(files[i]["UOC_currents"])
+            p1 = 1; p2 = 101
+            a1, a2, a3 = np.polyfit(inn_pos[p1:p2], abs(mag_force[p1:p2])/1,2)
+            fit_for = (a1*(inn_pos**2))+(a2*inn_pos)+a3
             if para == 'norm':
-                plt.plot(np.array(files[i]["IC_positions"]), fit_for/np.array(files[i]["UOC_currents"]), 'o-', label=legends[i])
-                plt.ylabel('Normalised Fitted Magnet Force [N/A]')
-            else:
-                plt.plot(np.array(files[i]["IC_positions"]), fit_for, 'o-', label=legends[i])
-                plt.ylabel('Fitted Magnet Force [N]')
-                forc.append(max(fit_for))
+                plt.plot(inn_pos, fit_for/currents, 'o-', label = legends[i])
+                plt.ylabel(' Fitted normalised Magnet Force [N/A]')
+            if para == 'error':
+                plt.plot(inn_pos[p1:p2], abs(fit_for[p1:p2]-mag_force[p1:p2])/currents[p1:p2], 'o-', label = legends[i])
+                plt.ylabel('Fit Force error [N/A]')
+            if para == 'rel_error':
+                plt.plot(inn_pos[p1:p2], (abs(fit_for[p1:p2]-mag_force[p1:p2])/mag_force[p1:p2])*100, 'o-', label = legends[i])
+                plt.ylim(0, 200)
+                plt.ylabel('relative fit Force error [%]')
         plt.xlabel('Inner Coil Position [mm]')
-        plt.legend(title = 'Outer coil Excitations')
-        plt.title('Simulated VC Forces [Type : A]')
+        plt.legend()
+        plt.title('VC Forces [Type : A]')
         if self.sav == 1:
             plt.savefig("Inn_vol.png")
             shutil.move("Inn_vol.png", self.path1)
         plt.grid()
         plt.show()
         print(forc)
+    def linearity(self, par:list):
+
+        for j in range(len(par)):
+            force = []
+            for i in range(0,n):
+                currents = np.array(files[i]["UOC_currents"])
+                mag_force = abs(np.array(files[i]["Mag_forces"]))
+                force.append(mag_force[par[j]])
+            plt.plot(legends, force, 'o--', label = par[j]-40)
+        #plt.xticks(rotation = 15)
+        plt.xlabel('outer coil current')
+        plt.ylabel('Force [N]')
+        plt.title('force at various positions ')
+        plt.legend(title = 'position(mm)')
+        if self.sav == 1:
+            plt.savefig("Inn_vol.png")
+            shutil.move("Inn_vol.png", self.path1)
+        plt.grid()
+        plt.show()
     def stability(self):
         for i in range(0,n):
             inn_pos = np.array(files[i]["IC_positions"])
             renormalised_forces = (abs(np.array(files[i]["Mag_forces"]))/max(abs(np.array(files[i]["Mag_forces"]))))*100
-            a1, a2, a3 = np.polyfit(np.array(files[i]["IC_positions"]), renormalised_forces, 2)
+            a1, a2, a3 = np.polyfit(inn_pos, renormalised_forces, 2)
             fit_renormalised_forces = (a1*(inn_pos**2))+(a2*(inn_pos))+a3
             plt.plot(np.array(files[i]["IC_positions"]), fit_renormalised_forces, "o--", label = legends[i])
         plt.ylabel('Fitted Normalised Forces [$\dfrac{Magnet force}{Maximum force}$*100] [%]')
@@ -256,11 +274,7 @@ class VC():
             shutil.move("Inn_vol.png", self.path1)
         plt.show()
         print(po)
-        plt.plot(legends, po*2, "o--")
-        plt.ylabel('out coil Power [W]')
-        plt.xlabel('Out coil currents ')
-        plt.legend()
-        plt.show()
+
 
 
 

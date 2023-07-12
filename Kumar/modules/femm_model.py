@@ -3,13 +3,16 @@ import femm
 class Femm_bc():
     def __init__(self, AirSpaceRadius_1, AirSpaceRadius_2, BC_Name, BC_Group, material:str):
         """
-        defines the boundary conditions of the FEMM model
+        This method defines and creates the boundary conditions for the FEMM model
         _____________INPUT_________
         AirSpaceRadius_1: radius of the selected space1_(float)
         AirSpaceRadius_2: radius of the selected space2_(float)
-        :param BC_Name:
-        :param BC_Group:
-        :param material:
+        BC_Name: name of the boundary region_(string)
+        BC_Group: group number of the region_(integer)
+        material: material of the boundary region, vacuum, air e.t.c_(string)___should be chosen from the material library in FEMM
+        ____________OUTPUT_________
+        creates boundary conditions with the above properties for simulation
+        NO return values
         """
         self.AirSpaceRadius_1 = AirSpaceRadius_1
         self.AirSpaceRadius_2 = AirSpaceRadius_2
@@ -44,53 +47,90 @@ class Femm_bc():
 
 class Femm_coil():
         def __init__(self, x1, y1, x2, y2, circ_name, circ_current, circ_type, material, edit_mode, group, label1, label2, blockname, turns_pr_layer):
-                self.x1 = x1
-                self.y1 = y1
-                self.x2 = x2
-                self.y2 = y2
-                self.circ_name = circ_name
-                self.circ_current = circ_current
-                self.circ_type = circ_type
-                self.material = material
-                self.edit_mode = edit_mode
-                self.group = group
-                self.label1 = label1
-                self.label2 = label2
-                self.blockname = blockname
-                self.turns_pr_layer = turns_pr_layer
-                femm.mi_drawrectangle(self.x1, self.y1, self.x2, self.y2)
-                femm.mi_addcircprop(self.circ_name, self.circ_current, self.circ_type)
-                if self.material == "30 AWG":
-                    femm.mi_getmaterial(self.material)
-                if self.material == "31 AWG":
-                    femm.mi_addmaterial('31 AWG', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2261)
-                if self.material == "32 AWG":
-                    femm.mi_getmaterial(self.material)
-                if self.material == "34 AWG":
-                    femm.mi_getmaterial(self.material)
-                if self.material == "test1":
-                    femm.mi_addmaterial('test1', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.221)
-                if self.material == "test2":
-                    femm.mi_addmaterial('test2', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.230)
-                if self.material == "32 AWG_corrected_1":
-                    femm.mi_addmaterial('32 AWG_corrected_1', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2032)
-                if self.material == "32 AWG_corrected_2":
-                    femm.mi_addmaterial('32 AWG_corrected_2', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2032)
-                if self.material == "RS":
-                    femm.mi_addmaterial('rs', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2)
+            """
+            This method defines and creates a (circular) coil with defined current
+            ____________________INPUT_______________
+            x1:  x-coordinate of the edge of the rectangle [planar view of circular the coil is a rectangle]_(float)
+            y1: y-coordinate of the edge of the rectangle [planar view of circular the coil is a rectangle]_(float)
+            x2: x-coordinate of the diagonally opposite edge of (x1,y1) on the rectangle _ (float)
+            y2: y-coordinate of the diagonally opposite edge of (x1,y1) on the rectangle _ (float)
+            circ_name: name of the circuit_(string)
+            circ_type: type of connection['0' for parallel and '1' for series]_(0 or 1)
+            material: material of the coil/wire chosen from the FEMM library_(string)
+            edit_mode: entities in the model block that can be edited when the block is selected_(0-nodes, 1-block labels
+                        2-segments, 3-arcs, 4-all entity types)
+            group: group of the coil_(integer)
+            label1: x-coordinate of block label location
+            label2: y-coordinate of block label location
+            blockname: name of the block
+            turns_pr_layer: number of turns per layer_(float)
+            ___________________OUTPUT______________
+            creates a coil with the defined properties and current
+            NO return value
+            """
+            self.x1 = x1
+            self.y1 = y1
+            self.x2 = x2
+            self.y2 = y2
+            self.circ_name = circ_name
+            self.circ_current = circ_current
+            self.circ_type = circ_type
+            self.material = material
+            self.edit_mode = edit_mode
+            self.group = group
+            self.label1 = label1
+            self.label2 = label2
+            self.blockname = blockname
+            self.turns_pr_layer = turns_pr_layer
+            femm.mi_drawrectangle(self.x1, self.y1, self.x2, self.y2)
+            femm.mi_addcircprop(self.circ_name, self.circ_current, self.circ_type)
+            if self.material == "30 AWG":
+                femm.mi_getmaterial(self.material)
+            if self.material == "31 AWG":
+                femm.mi_addmaterial('31 AWG', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2261)
+            if self.material == "32 AWG":
+                femm.mi_getmaterial(self.material)
+            if self.material == "34 AWG":
+                femm.mi_getmaterial(self.material)
+            if self.material == "test1":
+                femm.mi_addmaterial('test1', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.221)
+            if self.material == "test2":
+                femm.mi_addmaterial('test2', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.230)
+            if self.material == "32 AWG_corrected_1":
+                femm.mi_addmaterial('32 AWG_corrected_1', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2032)
+            if self.material == "32 AWG_corrected_2":
+                femm.mi_addmaterial('32 AWG_corrected_2', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2032)
+            if self.material == "RS":
+                femm.mi_addmaterial('RS', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2)
 
-                femm.mi_clearselected()
-                femm.mi_selectrectangle(self.x1, self.y1, self.x2,
-                                        self.y2, self.edit_mode)
-                femm.mi_setgroup(self.group)
-                femm.mi_clearselected()
-                femm.mi_addblocklabel(self.x1+self.label1, self.y2+(self.label2/2))
-                femm.mi_selectlabel(self.x1+self.label1, self.y2+(self.label2/2))
-                femm.mi_setblockprop(self.blockname, 1, 0, self.circ_name, 0, self.group, self.turns_pr_layer)
-                femm.mi_clearselected()
+            femm.mi_clearselected()
+            femm.mi_selectrectangle(self.x1, self.y1, self.x2,
+                                    self.y2, self.edit_mode)
+            femm.mi_setgroup(self.group)
+            femm.mi_clearselected()
+            femm.mi_addblocklabel(self.x1+self.label1, self.y2+(self.label2/2))
+            femm.mi_selectlabel(self.x1+self.label1, self.y2+(self.label2/2))
+            femm.mi_setblockprop(self.blockname, 1, 0, self.circ_name, 0, self.group, self.turns_pr_layer)
+            femm.mi_clearselected()
 
 class Femm_magnet():
         def __init__(self, x1, y1, x2, y2, material, edit_mode, group, label1, label2):
+            """
+            This method defines and creates a magnet
+            ____________________INPUT_______________
+            x1: x-coordinate of the edge of the rectangle [planar view of cylindrical magnet is a rectangle]_(float)
+            y1: y-coordinate of the edge of the rectangle [planar view of cylindrical magnet is a rectangle]_(float)
+            x2: x-coordinate of the diagonally opposite edge of (x1,y1) on the rectangle _ (float)
+            y2: y-coordinate of the diagonally opposite edge of (x1,y1) on the rectangle _ (float)
+            material: material of the magnet chosen from the FEMM library_(string)
+            edit_mode:
+            group: group of the magnet_(integer)
+            label1:
+            label2:
+            ___________________OUTPUT______________
+            modells a magnet with the defined properties
+            NO return value
+            """
             self.x1 = x1
             self.y1 = y1
             self.x2 = x2
@@ -135,6 +175,22 @@ class Femm_move:
 
 class Femm_block():
     def __init__(self, x1, y1, x2, y2, material, edit_mode, group, label1, label2):
+        """
+        This method defines and creates a metal block
+        ____________________INPUT_______________
+        x1: x-coordinate of the edge of the rectangle [planar view of cylindrical block is a rectangle]_(float)
+        y1: y-coordinate of the edge of the rectangle [planar view of cylindrical block is a rectangle]_(float)
+        x2: x-coordinate of the diagonally opposite edge of (x1,y1) on the rectangle _ (float)
+        y2: y-coordinate of the diagonally opposite edge of (x1,y1) on the rectangle _ (float)
+        material: material of the block chosen from the FEMM library_(string)
+        edit_mode:
+        group: group of the block_(integer)
+        label1:
+        label2:
+        ___________________OUTPUT______________
+        models a block with the defined properties
+        NO return value
+        """
         self.x1 = x1
         self.y1 = y1
         self.x2 = x2

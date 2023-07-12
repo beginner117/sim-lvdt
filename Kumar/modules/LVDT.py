@@ -95,6 +95,35 @@ class Analysis:
 
             move_group = femm_model.Femm_move(groups=[1, 2], x_dist=0, y_dist=pre_simulation.parameters()[1])
 
+        Out_Impedance = abs(uppout_prop['UppOut_voltage'] / uppout_prop['UppOut_current'])
+        Out_Inductance = abs(uppout_prop['UppOut_flux'] / uppout_prop['UppOut_current'])
+        Low_Impedance = abs(lowout_prop['LowOut_voltage'] / lowout_prop['LowOut_current'])
+        Low_Inductance = abs(lowout_prop['LowOut_flux'] / lowout_prop['LowOut_current'])
+        if sensor.para()[0] != 0:
+            Inn_Inductance = abs(inn_prop['Inncoil_flux'] / inn_prop['Inncoil_current'])
+            Inn_Impedance = abs(inn_prop['Inncoil_voltage'] / inn_prop['Inncoil_current'])
+            print('Inn Inductance, Inn impedance : ', Inn_Inductance, Inn_Impedance)
+            print('Inn voltage :', abs(inn_prop['Inncoil_voltage']))
+        if sensor.para()[2] != 0:
+            print('Out Inductance, Upp impedance : ', Out_Inductance, Out_Impedance)
+            print('Low Inductance, Low impedance : ', Low_Inductance, Low_Impedance)
+
+        OutCoil_Signals = (abs(uppout_prop['UppOut_voltage']) - abs(lowout_prop['LowOut_voltage']))
+        Norm_OutCoil_Signals = OutCoil_Signals / abs(inn_prop['Inncoil_current'])
+        gainfactor = 65
+        Norm_OutCoil_Signals_v = OutCoil_Signals / abs(inn_prop['Inncoil_voltage'])
+        print('voltages :', Norm_OutCoil_Signals_v)
+        if self.sim_range[0] != 0:
+            b1, b2 = np.polyfit(inn_prop['Inncoil_position'], Norm_OutCoil_Signals_v * gainfactor, 1)
+            print("Fitted slope & const of voltage normalised signals:", abs(b1), abs(b2))
+            c1, c2 = np.polyfit(inn_prop['Inncoil_position'], Norm_OutCoil_Signals, 1)
+            print("Fitted slope & const of current normalised signals:", abs(c1), abs(c2))
+            # plt.plot(inn_prop['Inncoil_position'], Norm_OutCoil_Signals, 'o-', label="simulated response")
+            # plt.xlabel('Inner Coil Position [mm]')
+            # plt.ylabel('Normalised Response [V/A]')
+            # plt.legend()
+            # plt.show()
+
         if self.save:
             np.savez_compressed(self.filename, Design = input_par2, Input_parameters = input_par1, Input_config = other_par, Innercoil_config = position.inncoil(),
                                 UpperOutcoil_config = position.upp_outcoil(), LowerOutercoil_config = position.low_outcoil(), IC_positions = inn_prop['Inncoil_position'],
