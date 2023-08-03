@@ -2,7 +2,7 @@ import numpy as np
 
 class Position():
     """
-    Positioning of the coils considering the geometric parameters, for instance, radius, height of the coils
+    Modelling of the coils considering all the geometric parameters, for instance, radius, height etc.
     """
     def __init__(self, inn_ht, inn_rad, inn_layers, inn_dist, out_ht, out_rad, out_layers,  out_dist,
                  ver_shi, inn_wiredia, inn_wireins, out_wiredia, out_wireins, mag_len, mag_dia):
@@ -23,6 +23,12 @@ class Position():
         self.mag_dia = mag_dia
 
     def inncoil(self):
+        """
+        returns the modelled inner coil co-ordinates and wound layers
+        _________output__________
+        [InnCoil_OutRadius, InnCoil_Lowend, InnCoil_Uppend, InnCoil_NrWind_p_Layer, InnCoil_NrWindings,
+                InnCoil_Circuit_name]
+        """
         InnCoil_OutRadius = self.inn_rad + ((self.inn_wiredia + self.inn_wireins * 2) * self.inn_layers)
         InnCoil_Lowend = (self.inn_dist - self.inn_ht) / 2
         InnCoil_Uppend = InnCoil_Lowend + self.inn_ht
@@ -33,6 +39,12 @@ class Position():
                 InnCoil_Circuit]
         
     def upp_outcoil(self):
+        """
+            returns the modelled upper outer coil co-ordinates and wound layers
+            _________output__________
+            [UppOutCoil_OutRadius, UppOutCoil_LowEnd, UppOutCoil_UppEnd, UppOutCoil_NrWind_p_Layer,
+                UppOutCoil_NrWindings, UppOutCoil_Circuit]
+        """
         UppOutCoil_OutRadius = self.out_rad + (
                     (self.out_wiredia + self.out_wireins * 2) * self.out_layers)
         UppOutCoil_LowEnd = (self.out_dist - self.out_ht) / 2
@@ -44,6 +56,12 @@ class Position():
                 UppOutCoil_NrWindings, UppOutCoil_Circuit]
         
     def low_outcoil(self):
+        """
+            returns the modelled lower outer coil co-ordinates and wound layers
+            _________output__________
+            [LowOutCoil_OutRadius, LowOutCoil_UppEnd, LowOutCoil_LowEnd, LowOutCoil_NrWind_p_Layer,
+                LowOutCoil_NrWindings, LowOutCoil_Circuit]
+        """
         LowOutCoil_OutRadius = self.out_rad + (
                     (self.out_wiredia + self.out_wireins * 2) * self.out_layers)
         LowOutCoil_UppEnd = -1 * (self.out_dist - self.out_ht) / 2
@@ -56,6 +74,11 @@ class Position():
                 LowOutCoil_NrWindings, LowOutCoil_Circuit]
 
     def magnet(self):
+        """
+            returns the modelled magnet co-ordinates
+            _________output__________
+            [Magnet_UppEnd, Magnet_LowEnd, Magnet_Radius]
+        """
         Magnet_UppEnd = self.mag_len / 2 + self.ver_shi
         Magnet_LowEnd = -self.mag_len / 2 + self.ver_shi
         Magnet_Radius = self.mag_dia / 2

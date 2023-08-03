@@ -64,6 +64,7 @@ class Analysis:
         inn_prop = res.inncoil()
         uppout_prop = res.uppout()
         lowout_prop = res.lowout()
+        mag_prop = res.magnet()
 
         move_group = femm_model.Femm_move(groups = [1,2], x_dist=0, y_dist=pre_simulation.parameters()[2])
 
@@ -103,7 +104,7 @@ class Analysis:
 
             uppout_prop['UppOut_force'][i] = UppOut_Force19
             lowout_prop['LowOut_force'][i] = LowOut_Force19
-            inn_prop['Inncoil_force'][i] = Magn_Force19
+            mag_prop['Magnet_forces'][i] = Magn_Force19
 
             move_group = femm_model.Femm_move(groups=[1, 2], x_dist=0, y_dist=pre_simulation.parameters()[1])
 
@@ -120,7 +121,7 @@ class Analysis:
         if self.save:
             np.savez_compressed(self.filename, Design = input_par2, Input_parameters = input_par1, Input_config = other_par,
                                 Innercoil_config=position.inncoil(), UpperOutcoil_config=position.upp_outcoil(), LowerOutercoil_config=position.low_outcoil(),
-                                UOC_forces = uppout_prop['UppOut_force'], LOC_forces = lowout_prop['LowOut_force'], Mag_forces = inn_prop['Inncoil_force'],
+                                UOC_forces = uppout_prop['UppOut_force'], LOC_forces = lowout_prop['LowOut_force'], Mag_forces = mag_prop['Magnet_forces'],
                                 IC_currents = inn_prop['Inncoil_current'], UOC_currents=uppout_prop['UppOut_current'], LOC_currents = lowout_prop['LowOut_current'],
                                 UOC_voltages = uppout_prop['UppOut_voltage'], LOC_voltages = lowout_prop['LowOut_voltage'], IC_voltages = inn_prop['Inncoil_voltage'],
                                 IC_positions = inn_prop['Inncoil_position'], IC_flux=inn_prop['Inncoil_flux'], UOC_flux=uppout_prop['UppOut_flux'], LOC_flux=lowout_prop['LowOut_flux'],
