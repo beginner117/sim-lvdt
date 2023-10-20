@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 class Coil_magfield:
 
-    def __init__(self, radius, position, coil_height,current, turns_pr_layer, layers, insulated_wire_thickness,angle ):
+    def __init__(self, radius, position, coil_height, current, turns_pr_layer, layers, insulated_wire_thickness,angle=0, freq = 0 ):
         self.radius = radius
         self.position = position
         self.turns_pr_layer = turns_pr_layer
@@ -18,7 +18,23 @@ class Coil_magfield:
         self.coil = coil_height
         self.current = current
         self.angle = angle
+        self.freq = freq
         #self.res = res
+
+    def mag_fields(self):
+        gri_x = []; mag_fie_x = [];mag_fie_y = [];gri_y = []
+        def_force = [];imp_force = [];rot_x = [];rot_y = [];math_model_force = []
+        for item in range(0, self.layers):
+            for j in range(0, self.turns_pr_layer):
+                grid_pt = [self.radius + self.wire, (self.position + (self.coil / 2)) - (j * self.wire)]
+                # print(grid_pt[0])
+                # print(type(grid_pt[0]))
+                b_field = femm.mo_getb(grid_pt[0], grid_pt[1])
+                gri_x.append(grid_pt[0])
+                gri_y.append(grid_pt[1])
+                mag_fie_x.append(b_field[0])
+                mag_fie_y.append(b_field[1])
+
     def forces(self, mag_len, mag_dia, current):
         gri_x = [];mag_fie_x = [];mag_fie_y = [];gri_y = []
         def_force = [];imp_force = [];rot_x = [];rot_y = [];math_model_force = []

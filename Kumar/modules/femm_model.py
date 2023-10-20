@@ -142,7 +142,12 @@ class Femm_magnet():
             self.label2 = label2
 
             femm.mi_drawrectangle(self.x1, self.y1, self.x2, self.y2)
-            femm.mi_getmaterial(self.material)
+            if self.material == "low":
+                femm.mi_addmaterial('low', 1.05, 1.05, 860000, 0, 0.667, 0, 0, 1, 0, 0, 0, 1, 0)
+            if self.material == "high":
+                femm.mi_addmaterial('high', 1.05, 1.05, 955000, 0, 0.667, 0, 0, 1, 0, 0, 0, 1, 0)
+            if self.material == "N40":
+                 femm.mi_getmaterial(self.material)
             femm.mi_clearselected()
             femm.mi_selectrectangle(self.x1, self.y1, self.x2, self.y2, self.edit_mode)
             femm.mi_setgroup(self.group)
@@ -211,3 +216,15 @@ class Femm_block():
         femm.mi_selectlabel(self.x1 + (self.label1/2), self.y2 + (self.label2 / 2))
         femm.mi_setblockprop(self.material, 0, 0.1, "", 0, self.group, 0)
         femm.mi_clearselected()
+
+class Load_coil:
+    def __init__(self, coil_name):
+        self.name = coil_name
+        femm.mi_zoom(-2, -50, 50, 50)
+        femm.mi_refreshview()
+        femm.mi_saveas('LVDT position_ETpf_LIP.fem')  # We have to give the geometry a name before we can analyze it.
+        femm.mi_analyze()  # Now,analyze the problem and load the solution when the analysis is finished
+        femm.mi_loadsolution()
+    def simulate(self):
+        Coil_I, Coil_V, Coil_FluxLink = femm.mo_getcircuitproperties(self.name)
+        return [Coil_I, Coil_V, Coil_FluxLink]

@@ -19,9 +19,9 @@ class Analysis:
         femm.newdocument(0)  # We need to create a new Magnetostatics document to work on.
         value = feed.data
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file=self.filename)
-        sensor = design.Sensortype(InnCoilCurrent=0, Simfreq=0, OutCoilCurrent=self.parameter1)
+        sensor = design.Sensortype(InnCoilCurrent=0, Simfreq=0, OutCoilCurrent=1)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
-        wire = design.Wiretype("32 AWG", "32 AWG")
+        wire = design.Wiretype("32 AWG", "32 AWG", magnet_material='N40')
         input_par1 = {'TotalSteps_StepSize_Offset': self.sim_range, 'outercoil Diameter_Insulation_Wiretype': wire.prop_out(), 'innercoil Diameter_Insulation_Wiretype': wire.prop_inn(),
                       'Innercoil_current': sensor.para()[0], 'Frequency': sensor.para()[1], 'Outercoil_current': sensor.para()[2], 'Magnet_material':wire.mag_mat()}
         if self.default=='yes':
@@ -29,8 +29,8 @@ class Analysis:
                                   value[self.design_type]['out_layers'], value[self.design_type]['out_dist'], value[self.design_type]['mag_len'], value[self.design_type]['mag_dia'], value[self.design_type]['ver_shi'])
             input_par2 = 'type'+self.design_type
         else:
-            input_par2 = {'IC_height': 24, 'IC_radius': 11, 'IC_layers': 6, 'IC_distance': 0, 'OC_height': 13.5, 'OC_radius': 35, 'OC_layers': 5,
-                         'OC_distance': 54.5, 'mag_len': 40, 'mag_dia': 10, 'ver_shi': 0}
+            input_par2 = {'IC_height': 18, 'IC_radius': 11, 'IC_layers': 6, 'IC_distance': 0, 'OC_height': 2.1, 'OC_radius': 10, 'OC_layers': 1,
+                         'OC_distance': 2, 'mag_len': 40, 'mag_dia': 10, 'ver_shi': 0}
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
         other_par = {'inner coil current_frequency_wire': [sensor.para()[0], sensor.para()[1], wire.inncoil_material],

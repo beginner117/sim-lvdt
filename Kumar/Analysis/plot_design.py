@@ -17,14 +17,13 @@ ind_mean = []
 imp_err = []
 imp_mean = []
 
-output_files = ["C:/Users/kumar/PycharmProjects/lvdtsimulations/Kumar/modules/tr1.npz", "C:/Users/kumar/PycharmProjects/lvdtsimulations/Kumar/modules/tr2.npz"]
-legends = ['1', '2']
-# output_files = ["C:/Users/kumar/PycharmProjects/lvdtsimulations/Kumar/Analysis/typeA_vc/typeA_{}mA_10offset.npz".format(i) for i in ['2p5', 5, '7p5', 10]]
-# legends = ['{}mA'.format(i) for i in ['2.5', 5, '7.5', 10]]
+output_files = ["C:/Users/kumar/PycharmProjects/lvdtsimulations/Kumar/Analysis/I_1layer_magnets/I_{}_ana.npz".format(i) for i in
+                ['860k', '955k', 'N40']]
+legends = ['860k', '955k', '970k']
 for i in range(0,len(output_files)):
     b = np.load(output_files[i], allow_pickle=True)
 
-    print(b['Input_config'])
+    #print(b['Input_config'])
     files.append(b)
 n = len(output_files)
 
@@ -78,18 +77,19 @@ class Lvdt():
             m_fem, co_fem = np.polyfit(inn_pos, norm_sig*65, 1)
             m_fem_c, co_fem_c = np.polyfit(inn_pos, norm_sig_c, 1)
             sim_fit = (abs(m_fem) * np.array(inn_pos))+ abs(co_fem)
+            sim_fit_c = (abs(m_fem_c) * np.array(inn_pos))+ abs(co_fem_c)
             relerr_fem = ((abs(sim_fit - (norm_sig*69))) / abs(norm_sig)) * (100/69)
             fiterr_fem = (sim_fit - (norm_sig))
             if par == 'signal':
-                plt.plot(inn_pos, sim_fit, 'o-', label=legends[i], color = "blue")
+                plt.plot(inn_pos, sim_fit_c, 'o-', label=legends[i], color = "blue")
             if par == 'error' :
                 plt.plot(inn_pos, relerr_fem, 'o-', label=legends[i])
             if par == 'slope':
                 print("femm signal slope, constant :", abs(m_fem), co_fem)
                 print("femm signal with current slope, constant :", abs(m_fem_c), co_fem_c)
-                slopes.append(m_fem)
+                slopes.append(m_fem_c)
         if par == 'signal' :
-            plt.ylabel('LVDT response  [V/v]')
+            plt.ylabel('LVDT response  [V/A]')
             plt.xlabel('Inner Coil Position [mm]')
         if par == 'error':
             #plt.ylim(0, 1)
@@ -97,13 +97,15 @@ class Lvdt():
             plt.xlabel('Inner Coil Position [mm]')
         if par == 'slope':
             plt.plot(legends, slopes, "o--")
-            plt.ylabel('Slope[V/mmv]')
-            plt.xlabel('types')
+            plt.ylabel('Slope[V/mmA]')
+            plt.xlabel('no. of inner coils')
         #plt.ylim(0,0.1)
         #plt.legend()
         if self.sav == 1:
             plt.savefig("normfiterr.png")
             shutil.move("normfiterr.png", self.path1)
+        #plt.grid()
+        plt.title('Sensitivity, type:A \n (32 AWG, full fit)')
         plt.show()
     def resitance(self, par:str):
         for i in range(0,n):
@@ -163,64 +165,83 @@ class VC:
                 path1 = os.path.join(parent_dir, self.directory)
                 self.path1 = path1
                 os.mkdir(self.path1)
-    def coil_force(self, par):
-        for i in range(0,n):
-            if par == 'upp_out':
-                plt.plot(np.array(files[i]["IC_positions"]), abs(np.array(files[i]["UOC_forces"])), 'o-', label=legends[i])
-            if par == 'low_out':
-                plt.plot(np.array(files[i]["IC_positions"]), abs(np.array(files[i]["LOC_forces"])), 'o-', label=legends[i])
-        plt.ylabel('{} Coil Force [N] '.format(par))
-        plt.xlabel('Inner Coil Position [mm]')
-        plt.legend()
-        if self.sav == 1:
-            plt.savefig("upp_out.png")
-            shutil.move("upp_out.png", self.path1)
-        plt.show()
-    def mag_for(self, para=None):
+    def force(self, para=None):
         for i in range(0,n):
             inn_pos = np.array(files[i]["UOC_positions"])
-            mag_force = abs(np.array(files[i]["Mag_forces"]))
-            #mag_force = abs(np.array(files[i]["UOC_forces"]))
+            mag_force = (np.array(files[i]["Mag_forces"]))
+            coil_force = (np.array(files[i]["UOC_forces"]))
             currents = np.array(files[i]["UOC_currents"])
-            if para == 'norm':
-                plt.plot(inn_pos, mag_force/currents, 'o-', label = legends[i])
-                plt.ylabel('Normalised Magnet Force [N/A]')
+            if para == 'coil_norm':
+                plt.plot(inn_pos, (coil_force)/currents, 'o-', label = legends[i])
+
+                plt.ylabel('Normalised Coil Force [N/A]')
+                plt.title('Outer Coil Forces \n [Type : I with type_A magnet, RS-wire, 1 layer]')
                 #plt.ylim(-0.75, 0.75)
-            else:
-                plt.plot(np.array(inn_pos), abs(np.array(files[i]["Mag_forces"])), 'o-', label=legends[i])
+            if para == 'mag_norm':
+                plt.plot(inn_pos, abs(mag_force)/currents, 'o-', label = legends[i])
+                print(abs(mag_force))
+                plt.ylabel('Normalised Magnet Force [N/A]')
+                plt.title(' Magnet Forces [semi-analytical] \n [Type : I with type_A magnet, RS-wire, 1 layer]')
+            if para == 'mag':
+                plt.plot(inn_pos, mag_force, 'o-', label = legends[i])
                 plt.ylabel('Magnet Force [N]')
-        plt.xlabel('Inner Coil Position [mm]')
-        plt.legend()
+                plt.title('Magnet Forces \n [Type : I with type_A magnet, 32 AWG-wire, 1 layer]')
+            if para == 'coil':
+                plt.plot(inn_pos, coil_force, 'o-', label = legends[i])
+                plt.ylabel('Coil Force [N]')
+                plt.title('Sum of Outer Coil Forces \n [Type : A, 32 AWG-wire]')
+            if para == 'diff':
+                plt.plot(inn_pos, abs(mag_force)-abs(coil_force)/1, 'o-', label = legends[i])
+                plt.ylabel('absolute force difference (magnet force-coil force) [N/A]')
+                #plt.ylim(-0.05, 0.2)
+                plt.title('Forces difference [Type : I with type A magnet, 1 layer] \n RS-wire')
+        plt.xlabel('Coil Position relative to magnet [mm]')
+        plt.legend(title = 'Magnet\nCoercivity [A/m]')
         if self.sav == 1:
             plt.savefig("Inn_vol.png")
             shutil.move("Inn_vol.png", self.path1)
-        plt.title('VC Forces [Type : A]')
         plt.grid()
         plt.show()
     def force_fit(self, para=None):
         forc = []
         for i in range(0, n):
-            #inn_pos = np.array(files[i]["IC_positions"])
-            inn_pos = np.array(files[i]["UOC_positions"])
-            mag_force = abs(np.array(files[i]["Mag_forces"]))
-            #mag_force = abs(np.array(files[i]["UOC_forces"]))
+            inn_pos = np.array(files[i]["IC_positions"])
+            #inn_pos = np.array(files[i]["UOC_positions"])
+            mag_force = (np.array(files[i]["Mag_forces"]))
+            coil_force1 = (np.array(files[i]["UOC_forces"]))
+            coil_force2 = (np.array(files[i]["LOC_forces"]))
+
+            coil_force = coil_force1+coil_force2
             currents = np.array(files[i]["UOC_currents"])
             p1 = 1; p2 = 101
-            a1, a2, a3 = np.polyfit(inn_pos[p1:p2], abs(mag_force[p1:p2])/1,2)
+            a1, a2, a3 = np.polyfit(inn_pos, abs(coil_force),2)
             fit_for = (a1*(inn_pos**2))+(a2*inn_pos)+a3
-            if para == 'norm':
+            b1, b2, b3 = np.polyfit(inn_pos, abs(mag_force), 2)
+            fit_for_mag = (b1 * (inn_pos ** 2)) + (b2 * inn_pos) + b3
+            if para == 'mag_norm':
+                plt.plot(inn_pos, fit_for_mag/currents, 'o-', label = legends[i])
+                plt.ylabel(' Fitted normalised magnet Force (absolute) [N/A]')
+                plt.title('Magnet Forces \n [Type : A, 32AWG, full fit]')
+            if para == 'coil_norm':
                 plt.plot(inn_pos, fit_for/currents, 'o-', label = legends[i])
-                plt.ylabel(' Fitted normalised Magnet Force [N/A]')
+                plt.ylabel(' Fitted normalised coil Force (absolute) [N/A]')
+                plt.title('Outer Coil Forces \n [Type : I with type A magnet, 1 layer, RS-wire, full fit]')
+                #plt.title('Outer Coil Forces \n [Type : A, full fit, wire - 32 AWG]')
+            if para == 'diff':
+                plt.plot(inn_pos, (mag_force+coil_force)/currents, 'o-', label = legends[i])
+                plt.ylabel('norm force difference (magnet force+coil force) [N/A]')
+                plt.title('Force difference \n [Type : A, full fit, wire - 32 AWG]')
             if para == 'error':
-                plt.plot(inn_pos[p1:p2], abs(fit_for[p1:p2]-mag_force[p1:p2])/currents[p1:p2], 'o-', label = legends[i])
+                plt.plot(inn_pos[p1:p2], abs(fit_for[p1:p2]-coil_force[p1:p2])/currents[p1:p2], 'o-', label = legends[i])
                 plt.ylabel('Fit Force error [N/A]')
+                plt.title('Fit error \n [Type : I with type A magnet, 1 layer, RS-wire, full fit]')
             if para == 'rel_error':
-                plt.plot(inn_pos[p1:p2], (abs(fit_for[p1:p2]-mag_force[p1:p2])/mag_force[p1:p2])*100, 'o-', label = legends[i])
-                plt.ylim(0, 200)
+                plt.plot(inn_pos[p1:p2], (abs(fit_for[p1:p2]-coil_force[p1:p2])/abs(coil_force[p1:p2]))*100, 'o-', label = legends[i])
+                plt.ylim(0, 1000)
                 plt.ylabel('relative fit Force error [%]')
-        plt.xlabel('Inner Coil Position [mm]')
-        plt.legend()
-        plt.title('VC Forces [Type : A]')
+                plt.title('Relative error \n [Type : I with type A magnet, 1 layer, RS-wire, full fit]')
+        plt.xlabel('Coil Position relative to magnet [mm]')
+        #plt.legend(title = 'Outer coil \nexcitations')
         if self.sav == 1:
             plt.savefig("Inn_vol.png")
             shutil.move("Inn_vol.png", self.path1)
@@ -248,14 +269,21 @@ class VC:
         plt.show()
     def stability(self):
         for i in range(0,n):
+            #coil_force1 = (np.array(files[i]["UOC_forces"]))
+            #coil_force2 = (np.array(files[i]["LOC_forces"]))
+            #coil_force2 = np.zeros(len(files[i]["UOC_positions"]))
+            #coil_force = coil_force1 + coil_force2
             inn_pos = np.array(files[i]["IC_positions"])
             renormalised_forces = (abs(np.array(files[i]["Mag_forces"]))/max(abs(np.array(files[i]["Mag_forces"]))))*100
+            #renormalised_forces = (abs(coil_force) / max(abs(coil_force))) * 100
             a1, a2, a3 = np.polyfit(inn_pos, renormalised_forces, 2)
             fit_renormalised_forces = (a1*(inn_pos**2))+(a2*(inn_pos))+a3
-            plt.plot(np.array(files[i]["IC_positions"]), fit_renormalised_forces, "o--", label = legends[i])
-        plt.ylabel('Fitted Normalised Forces [$\dfrac{Magnet force}{Maximum force}$*100] [%]')
+            plt.plot(inn_pos, fit_renormalised_forces, "o--", label = legends[i])
+        plt.ylabel('Force stability fit (Coil force/Maximum coil force)*100 [%]')
         plt.xlabel('Inner Coil Position [mm]')
-        plt.legend()
+        #plt.legend(title='Outer coil \nexcitations')
+        plt.grid()
+        plt.title('Stability \n [Type : A, full fit, wire - 32 AWG]')
         if self.sav == 1:
             plt.savefig("Inn_vol.png")
             shutil.move("Inn_vol.png", self.path1)

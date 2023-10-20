@@ -8,7 +8,7 @@ from scipy import integrate
 import numpy as np
 import matplotlib.pyplot as plt
 class Analysis:
-    def __init__(self, save, sim_range:list, default, filename: str, design_type=None, sim_type = None,  parameter1=None):
+    def __init__(self, save, sim_range:list, default, filename, design_type=None, sim_type = 'FEMM+ana',  parameter1=None):
         self.save = save
         self.sim_range = sim_range
         self.filename = filename
@@ -21,9 +21,9 @@ class Analysis:
         femm.newdocument(0)
         value = feed.data
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file=self.filename)
-        sensor = design.Sensortype(InnCoilCurrent=0, Simfreq=0, OutCoilCurrent=self.parameter1)
+        sensor = design.Sensortype(InnCoilCurrent=0, Simfreq=0, OutCoilCurrent=5)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
-        wire = design.Wiretype(outcoil_material='RS', inncoil_material='RS')
+        wire = design.Wiretype(outcoil_material='RS', inncoil_material='RS', magnet_material=self.parameter1)
         input_par1 = {'TotalSteps_StepSize_Offset': self.sim_range, 'uppercoil Diameter_Insulation_Wiretype': wire.prop_out(),
                       'Innercoil_current': sensor.para()[0], 'Magnet_material':wire.mag_mat(), 'Frequency': sensor.para()[1], 'Outercoil_current': sensor.para()[2]}
         if self.default == 'yes':
@@ -55,6 +55,13 @@ class Analysis:
                                          circ_name=position.upp_outcoil()[5], circ_current=sensor.para()[2], circ_type=1, material=wire.outcoil_material,
                                          edit_mode=4, group=3, label1=wire.prop_out()[1], label2=geo.outcoil()[0], blockname=wire.prop_out()[2],
                                          turns_pr_layer=position.upp_outcoil()[4])
+        # lowoutstr = femm_model.Femm_coil(x1=geo.outcoil()[1], y1=position.upp_outcoil()[2],
+        #                                  x2=position.upp_outcoil()[0], y2=position.upp_outcoil()[1],
+        #                                  circ_name=position.upp_outcoil()[5], circ_current=sensor.para()[2],
+        #                                  circ_type=1, material=wire.outcoil_material,
+        #                                  edit_mode=4, group=3, label1=wire.prop_out()[1], label2=geo.outcoil()[0],
+        #                                  blockname=wire.prop_out()[2],
+        #                                  turns_pr_layer=position.upp_outcoil()[4])
 
         magnetstr = femm_model.Femm_magnet(x1=0, y1=position.magnet()[0], x2=position.magnet()[2], y2=position.magnet()[1], material=wire.mag_mat(), edit_mode=4, group=2, label1=0.5, label2=geo.mag()[0])
         bc = femm_model.Femm_bc(AirSpaceRadius_1=100, AirSpaceRadius_2=300, BC_Name='Outside', BC_Group=10, material='Air')
@@ -88,7 +95,7 @@ class Analysis:
             mag_for['Magnet_forces'][i] = Magn_Force19
 
             turns_per_layer = int(position.upp_outcoil()[3])
-            analytical = fields.Coil_magfield(radius=geo.outcoil()[1], position=uppout_prop['UppOut_position'],
+            analytical = fields.Coil_magfield(radius=geo.outcoil()[1], position=uppout_prop['UppOut_position'][i],
                                               coil_height=geo.outcoil()[0], current=sensor.para()[2],
                                               turns_pr_layer=int(position.upp_outcoil()[3]), layers=geo.outcoil()[2],
                                               insulated_wire_thickness=(wire.prop_out()[0] + 2 * wire.prop_out()[1]),
@@ -97,7 +104,7 @@ class Analysis:
                 force_an = analytical.forces(geo.mag()[0], geo.mag()[1], sensor.para()[2])
                 for_def.append(force_an[0])
                 for_imp.append(force_an[1])
-                print('default force:', sum(force_an[0]), 'updated force:', sum(force_an[1]))
+                print('default force:', force_an[0], 'updated force:', force_an[1])
             if self.sim_type == 'math+ana':
                 force_an = analytical.forces(geo.mag()[0], geo.mag()[1], sensor.para()[2])
                 for_ana.append(force_an[2])
@@ -111,25 +118,27 @@ class Analysis:
         Upp_resistance = abs(uppout_prop['UppOut_voltage'] / uppout_prop['UppOut_current'])
         print('upp out resistance as per femm :', abs(Upp_resistance))
         plt.plot(np.real(uppout_prop['UppOut_position']), abs(np.real(mag_for['Magnet_forces']/uppout_prop['UppOut_current'])), 'o-')
+        # plt.plot(np.real(uppout_prop['UppOut_position']),
+        #          abs(np.real(for_def / uppout_prop['UppOut_current'])), 'o-')
         plt.xlabel('Coil (centre) Position relative to Magnet (centre) [mm]')
         plt.ylabel('Normalised Magnet Force [N/A]')
         plt.grid()
         plt.title('Simulated force [Type : I, {}A_DC excitation]'.format(self.parameter1))
         plt.show()
 
-        inn_pos = np.array(uppout_prop["UppOut_position"])
-        nor_mag_force = np.real(mag_for['Magnet_forces']/uppout_prop['UppOut_current'])
-        a1, a2, a3 = np.polyfit(inn_pos, nor_mag_force, 2)
-        fit_for = (a1 * (inn_pos ** 2)) + (a2 * inn_pos) + a3
-        plt.plot(inn_pos, fit_for, 'o-')
-        plt.xlabel('Coil (centre) Position relative to Magnet (centre) [mm]')
-        plt.ylabel('Fitted Normalised Magnet Force [N/A]')
-        plt.grid()
-        plt.title('Fitted force [Type : I, {}A_DC excitation]'.format(self.parameter1))
-        plt.show()
+        # inn_pos = np.array(uppout_prop["UppOut_position"])
+        # nor_mag_force = np.real(mag_for['Magnet_forces']/uppout_prop['UppOut_current'])
+        # a1, a2, a3 = np.polyfit(inn_pos, nor_mag_force, 2)
+        # fit_for = (a1 * (inn_pos ** 2)) + (a2 * inn_pos) + a3
+        # plt.plot(inn_pos, fit_for, 'o-')
+        # plt.xlabel('Coil (centre) Position relative to Magnet (centre) [mm]')
+        # plt.ylabel('Fitted Normalised Magnet Force [N/A]')
+        # plt.grid()
+        # plt.title('Fitted force [Type : I, {}A_DC excitation]'.format(self.parameter1))
+        # plt.show()
 
         if self.save:
-            if self.sim_type == 'femm+ana':
+            if self.sim_type == 'FEMM+ana':
                 np.savez_compressed(self.filename, Design=input_par2, Input_parameters=input_par1,
                                     UpperOutcoil_config=position.upp_outcoil(), Input_config=other_par,
                                     UOC_positions=uppout_prop['UppOut_position'], UOC_forces=uppout_prop['UppOut_force'],
@@ -140,9 +149,9 @@ class Analysis:
                                     UpperOutcoil_config=position.upp_outcoil(), Input_config=other_par,
                                     UOC_positions=uppout_prop['UppOut_position'], UOC_forces=uppout_prop['UppOut_force'], Mag_forces=np.array(for_ana),
                                     UOC_flux=uppout_prop['UppOut_flux'], UOC_voltages=uppout_prop['UppOut_voltage'], UOC_currents=uppout_prop['UppOut_current'])
-            else:
-                np.savez_compressed(self.filename, Design = input_par2, Input_parameters = input_par1, UpperOutcoil_config=position.upp_outcoil(),Input_config = other_par,
-                                    UOC_positions = uppout_prop['UppOut_position'], UOC_forces = uppout_prop['UppOut_force'], Mag_forces = mag_for['Magnet_forces'],
-                                    UOC_flux=uppout_prop['UppOut_flux'], UOC_voltages = uppout_prop['UppOut_voltage'], UOC_currents=uppout_prop['UppOut_current'])
+            # else:
+            #     np.savez_compressed(self.filename, Design = input_par2, Input_parameters = input_par1, UpperOutcoil_config=position.upp_outcoil(),Input_config = other_par,
+            #                         UOC_positions = uppout_prop['UppOut_position'], UOC_forces = uppout_prop['UppOut_force'], Mag_forces = mag_for['Magnet_forces'],
+            #                         UOC_flux=uppout_prop['UppOut_flux'], UOC_voltages = uppout_prop['UppOut_voltage'], UOC_currents=uppout_prop['UppOut_current'])
 
 

@@ -7,7 +7,8 @@ Below, you will find some short instructions on how to install the software.
     Install the FEMM software on your Windows machine: https://www.femm.info/wiki/HomePage Go to download page and follow instructions.
     Assuming you have a working python 3 environment, install pyFEMM: https://www.femm.info/wiki/pyFEMM. You can do this with pip via: pip install pyfemm. On the linked page you can also find the pyFEMM manual.
 
-Here is the list of modules 
+Here is the list of modules:
+
     feed.py - contains the dimensions of preliminary NIKHEF designs
     design.py - contains all the classes that returns the coil geometry
     coil.py - contains all the classes that returns coil properties  
