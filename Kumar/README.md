@@ -20,9 +20,9 @@ Here is the list of modules:
     YOKE.py - contains the script that simulates a complicated YOKE structure used in pathfinder
     LVDT_mutual_inductance.py - contains the script that calculates the mutual inductance between the coils of the LVDT
     LVDT_correction.py - contains the script that calculates the correction factor (needed due to open circuit simulation in FEMM) of LVDT response  
-    
+    single_coil.py - models a single coil
 
-Here is a working example for simulating a typical LVDT/VC with just two lines. One can simulate one or more sensors simultaneously
+Here is a explanation for simulating a typical LVDT/VC/VC_only with just two lines. One can simulate one or more sensors simultaneously
 (Import the script 'FEMM_simulation' and make sure pyFEMM in installed)
 
     sim_code = femm_simulation.Position_sensor(sensor_type=, save=, sim_range={'steps_size_offset':},
@@ -30,23 +30,23 @@ Here is a working example for simulating a typical LVDT/VC with just two lines. 
 
     sim_code.execute()
 
-    """
-        ______INPUT_______
-        sensor_type = list with names of sensors that should be simulated
-        save = 'True' to save all the simulated files or 'False' to not save the files
-        sim_range = list containg a list (nested list) of total steps, grid size and offset
-        filename(s) = name(s) of the simulated file(s) 
-        is default = 'yes' if the simulation is for a preliminary NIKHEF designs and 'no' if not
-        design or parameter = list with design type (if 'is default' is 'yes') or parameter (if 'is default is 'no')
-    """
+    ______INPUT_______
+    sensor_type = list with names of sensors that should be simulated
+    save = 'True' to save all the simulated files or 'False' to not save the files
+    sim_range = list containg a list (nested list) of total steps, grid size and offset
+    filename(s) = name(s) of the simulated file(s) 
+    is default = 'yes' if the simulation is for a preliminary NIKHEF designs and 'no' if not
+    (NOTE - if analysis is not for a default design, go to the '.py' file of the specific sensor (for instance, LVDT.py or VC.py), 
+     a line after, "if self.default == 'no':", modify the parameter that you want to change as 'self.parameter1')
+    design or parameter = list with design type (if 'is default' is 'yes') or parameter (if 'is default is 'no')
 
-Example (for two simultaneous simulations of LVDT and VC)
+Example (for three simultaneous simulations of LVDT, VC, VC_only)
 
     import femm_simulation
     import sys
     sys.path.append('path to the directory containing all the modules above')
 
-    sim_code = femm_simulation.Position_sensor(sensor_type=[LVDT, VC], save=False, sim_range={'steps_size_offset':[[20, 1, -10], [10, 1, -5]]},
-                                    data = {'filename(s)':['trail1', 'trial2'], 'is default':['yes', 'no'], 'design or parameter':['A', 3]})
+    sim_code = femm_simulation.Position_sensor(sensor_type=[LVDT, VC, VC_only], save=False, sim_range={'steps_size_offset':[[20, 1, -10], [10, 1, -5], [20, 1, -10]]},
+                                    data = {'filename(s)':['trail1', 'trial2', 'trail3'], 'is default':['yes', 'no', 'yes'], 'design or parameter':['A', 3, 'I']})
     sim_code.execute() 
     
