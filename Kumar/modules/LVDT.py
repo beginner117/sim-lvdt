@@ -20,7 +20,7 @@ class Analysis:
         value = feed.data
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file =self.filename)
         sensor = design.Sensortype(InnCoilCurrent=0.02, Simfreq=10000, OutCoilCurrent=0)
-        femm.mi_probdef(10000, 'millimeters', 'axi', 1.0e-10)
+        femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype(outcoil_material='32 AWG', inncoil_material='32 AWG', magnet_material="N40")
         input_par1 = {'TotalSteps_StepSize_Offset' : self.sim_range, 'outercoil Diameter_Insulation_Wiretype':wire.prop_out(), 'innercoil Diameter_Insulation_Wiretype': wire.prop_inn(),
                      'Innercoil_current':sensor.para()[0], 'Frequency':sensor.para()[1], 'Outercoil_current':sensor.para()[2], 'Magnet_material':wire.mag_mat()}
@@ -119,6 +119,12 @@ class Analysis:
             print("Fitted slope & const of voltage normalised signals (with gain factor 65) :", abs(b1), abs(b2))
             c1, c2 = np.polyfit(inn_prop['Inncoil_position'], Norm_OutCoil_Signals, 1)
             print("Fitted slope & const of current normalised signals (without gain factor) :", abs(c1), abs(c2))
+
+            plt.plot(inn_prop['Inncoil_position'], Norm_OutCoil_Signals, 'o-', label="simulated response")
+            # plt.xlabel('Inner Coil Position [mm]')
+            # plt.ylabel('Normalised Response [V/A]')
+            # plt.legend()
+            # plt.show()
 
         if self.save:
             np.savez_compressed(self.filename, Design = input_par2, Input_parameters = input_par1, Input_config = other_par, Innercoil_config = position.inncoil(),

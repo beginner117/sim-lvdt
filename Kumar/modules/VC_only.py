@@ -22,7 +22,7 @@ class Analysis:
         value = feed.data
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file=self.filename)
         sensor = design.Sensortype(InnCoilCurrent=0, Simfreq=0, OutCoilCurrent=1)
-        femm.mi_probdef(10000, 'millimeters', 'axi', 1.0e-10)
+        femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype(outcoil_material='RS', inncoil_material='RS', magnet_material='N40')
         input_par1 = {'TotalSteps_StepSize_Offset': self.sim_range, 'uppercoil Diameter_Insulation_Wiretype': wire.prop_out(),
                       'Innercoil_current': sensor.para()[0], 'Magnet_material':wire.mag_mat(), 'Frequency': sensor.para()[1], 'Outercoil_current': sensor.para()[2]}
@@ -107,6 +107,17 @@ class Analysis:
         Upp_resistance = abs(uppout_prop['UppOut_voltage'] / uppout_prop['UppOut_current'])
         print('upp out resistance as per femm :', abs(Upp_resistance))
         print('magnet force :', np.real(mag_for['Magnet_forces']))
+        # inn_pos = np.array(uppout_prop["UppOut_position"])
+        # nor_mag_force = np.real(mag_for['Magnet_forces']/uppout_prop['UppOut_current'])
+        # a1, a2, a3 = np.polyfit(inn_pos, nor_mag_force, 2)
+        # fit_for = (a1 * (inn_pos ** 2)) + (a2 * inn_pos) + a3
+        plt.plot(np.real(uppout_prop['UppOut_position']),
+                 abs(np.real(mag_for['Magnet_forces'] / uppout_prop['UppOut_current'])), 'o-')
+        plt.xlabel('Coil (centre) Position relative to Magnet (centre) [mm]')
+        plt.ylabel('Normalised Magnet Force [N/A]')
+        plt.grid()
+        plt.title('Simulated force [Type : I, {}layers_DC excitation]'.format(self.parameter1))
+        plt.show()
 
         if self.save:
             if self.sim_type == 'FEMM+ana':

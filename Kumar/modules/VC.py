@@ -20,7 +20,7 @@ class Analysis:
         value = feed.data
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file=self.filename)
         sensor = design.Sensortype(InnCoilCurrent=0, Simfreq=0, OutCoilCurrent=1)
-        femm.mi_probdef(10000, 'millimeters', 'axi', 1.0e-10)
+        femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype("32 AWG", "32 AWG", magnet_material='N40')
         input_par1 = {'TotalSteps_StepSize_Offset': self.sim_range, 'outercoil Diameter_Insulation_Wiretype': wire.prop_out(), 'innercoil Diameter_Insulation_Wiretype': wire.prop_inn(),
                       'Innercoil_current': sensor.para()[0], 'Frequency': sensor.para()[1], 'Outercoil_current': sensor.para()[2], 'Magnet_material':wire.mag_mat()}
@@ -114,6 +114,10 @@ class Analysis:
         Upp_resistance = abs(uppout_prop['UppOut_voltage'] / uppout_prop['UppOut_current'])
         print("magnet force :", inn_prop['Inncoil_force'])
         print('upper coil ind, imp :', Upp_Inductance[1], Upp_resistance[1])
+        plt.plot(inn_prop['Inncoil_position'], abs(inn_prop['Inncoil_force']), 'o-')
+        # plt.xlabel('Inner Coil Position [mm]')
+        # plt.ylabel('Magnet Force [N]')
+        # plt.show()
 
         if self.save:
             np.savez_compressed(self.filename, Design = input_par2, Input_parameters = input_par1, Input_config = other_par,
