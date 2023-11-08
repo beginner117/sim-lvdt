@@ -96,17 +96,6 @@ class Analysis:
             inn_prop['Inncoil_current'][i] = InnCoil_I
             inn_prop['Inncoil_flux'][i] = InnCoil_FluxLink
 
-            turns_per_layer = int(position.upp_outcoil()[3])
-            analytical = fields.Coil_magfield(radius=geo.outcoil()[1], position=uppout_prop['UppOut_position'][i],
-                                              coil_height=geo.outcoil()[0], current=sensor.para()[2],
-                                              turns_pr_layer=int(position.upp_outcoil()[3]), layers=geo.outcoil()[2],
-                                              insulated_wire_thickness=(wire.prop_out()[0] + 2 * wire.prop_out()[1]),
-                                              r_offset=0, upper_uppend=position.upp_outcoil()[2]+i+pre_simulation.parameters()[2],
-                                              lower_uppend=position.low_outcoil()[2]+i+pre_simulation.parameters()[2], angle=0)
-            if self.sim_type == 'FEMM+ana':
-                force_an = analytical.mag_fields()
-                print('upp:', force_an[0], 'low:', force_an[1])
-
             move_group = femm_model.Femm_move(groups=[1, 2], x_dist=0, y_dist=pre_simulation.parameters()[1])
 
         if sensor.para()[0] != 0:
