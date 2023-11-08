@@ -76,7 +76,7 @@ class Wiretype:
         if self.outcoil_material == "RS":
             return [0.2, 0.033/2, "RS", 0.5441/1000]
         if self.outcoil_material == "test1":
-            return [0.190+0.01, 0.016, "test1", 0.6029/1000]
+            return [0.190+0.01-0.01, 0.016, "test1", 0.6029/1000]
         if self.outcoil_material == "test2":
             return [0.200+0.007-0.007, 0.016, "test2", 0.5441/1000]
         if self.outcoil_material == "32 AWG_corrected_1":
@@ -85,6 +85,8 @@ class Wiretype:
         if self.outcoil_material == "32 AWG_corrected_2":
             #return [0.2032+0.0202, 0.0178, "32 AWG_corrected_2", 162/304800]
             return [0.2032, 0.0178+(0.0202/2), "32 AWG_corrected_2", 162 / 304800, 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))]
+        #else:
+            #print('If the new wire material is not defined properly, execution stops here.\nDefine the diameter, insulation, type and resistance in "prop_out" & "prop_inn" method of class "Wiretype"')
 
     def prop_inn(self):
         """
@@ -103,7 +105,7 @@ class Wiretype:
         if self.inncoil_material == "test1":
             return [0.190+0.01-0.01, 0.016, "test1", 0.6029/1000]
         if self.inncoil_material == "test2":
-            return [0.200+0.007, 0.016, "test2", 0.5441/1000]
+            return [0.200+0.007-0.01, 0.016, "test2", 0.5441/1000]
         if self.inncoil_material == "RS":
             return [0.2, 0.033/2, "RS", 0.5441/1000]
         if self.inncoil_material == "32 AWG_corrected_1":
@@ -112,6 +114,8 @@ class Wiretype:
         if self.inncoil_material == "32 AWG_corrected_2":
             #return [0.2032+0.0202, 0.0178, "32 AWG_corrected_2", 162/304800]
             return [0.2032, 0.0178 + (0.0202 / 2), "32 AWG_corrected_2", 162 / 304800, 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))]
+        else:
+            print('If the new wire material is not defined properly, execution stops here.\nDefine the diameter, insulation, type and resistance in "prop_inn" method of class "Wiretype" followed by adding the material in the "Femm_coil" class as per the femm documentation')
 
     def mag_mat(self):
         """

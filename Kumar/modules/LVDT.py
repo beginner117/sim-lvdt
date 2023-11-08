@@ -3,15 +3,16 @@ import design
 import femm_model
 import coil
 import feed
+import fields
 import numpy as np
 import matplotlib.pyplot as plt
 class Analysis:
-    def __init__(self, save, sim_range:list, default, filename=None, design_type=None,  parameter1=None, parameter2 = None):
+    def __init__(self, save, sim_range:list, default, filename=None, design_type=None,  parameter1=None, simulation_type = None):
         self.save = save
         self.sim_range = sim_range
         self.filename = filename
         self.parameter1 = parameter1
-        self.parameter2 = parameter2
+        self.sim_type = simulation_type
         self.design_type = design_type
         self.default = default
     def simulate(self):
@@ -41,6 +42,7 @@ class Analysis:
                              out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1], outwind_pr_layer=position.upp_outcoil()[3])
         print('coil config - [Coil_OutRadius, Coil_LowEnd, Coil_UppEnd, Coil_NrWind_p_Layer, Coil_NrWindings, Circuit_name]')
         print('inner coil config :', position.inncoil(), '\nupper outer coil config :', position.upp_outcoil(), '\nlower out coil config :', position.low_outcoil())
+        print('inner coil material - ', wire.inncoil_material, ', outer coil material - ', wire.outcoil_material)
         print('inner, upper outer, total coil lengths : ',  length.inncoil(), length.upp_outcoil(), length.inncoil()+(2*length.upp_outcoil()))
         if wire.prop_out()[3] and wire.prop_inn()[3]:
             inn_dc = length.inncoil()*wire.prop_inn()[3]
@@ -93,6 +95,17 @@ class Analysis:
             inn_prop['Inncoil_voltage'][i] = InnCoil_V
             inn_prop['Inncoil_current'][i] = InnCoil_I
             inn_prop['Inncoil_flux'][i] = InnCoil_FluxLink
+
+            turns_per_layer = int(position.upp_outcoil()[3])
+            analytical = fields.Coil_magfield(radius=geo.outcoil()[1], position=uppout_prop['UppOut_position'][i],
+                                              coil_height=geo.outcoil()[0], current=sensor.para()[2],
+                                              turns_pr_layer=int(position.upp_outcoil()[3]), layers=geo.outcoil()[2],
+                                              insulated_wire_thickness=(wire.prop_out()[0] + 2 * wire.prop_out()[1]),
+                                              r_offset=0, upper_uppend=position.upp_outcoil()[2]+i+pre_simulation.parameters()[2],
+                                              lower_uppend=position.low_outcoil()[2]+i+pre_simulation.parameters()[2], angle=0)
+            if self.sim_type == 'FEMM+ana':
+                force_an = analytical.mag_fields()
+                print('upp:', force_an[0], 'low:', force_an[1])
 
             move_group = femm_model.Femm_move(groups=[1, 2], x_dist=0, y_dist=pre_simulation.parameters()[1])
 

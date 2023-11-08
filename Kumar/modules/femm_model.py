@@ -84,24 +84,23 @@ class Femm_coil():
             self.turns_pr_layer = turns_pr_layer
             femm.mi_drawrectangle(self.x1, self.y1, self.x2, self.y2)
             femm.mi_addcircprop(self.circ_name, self.circ_current, self.circ_type)
-            if self.material == "30 AWG":
+            try:
                 femm.mi_getmaterial(self.material)
-            if self.material == "31 AWG":
-                femm.mi_addmaterial('31 AWG', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2261)
-            if self.material == "32 AWG":
-                femm.mi_getmaterial(self.material)
-            if self.material == "34 AWG":
-                femm.mi_getmaterial(self.material)
-            if self.material == "test1":
-                femm.mi_addmaterial('test1', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.221)
-            if self.material == "test2":
-                femm.mi_addmaterial('test2', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.230)
-            if self.material == "32 AWG_corrected_1":
-                femm.mi_addmaterial('32 AWG_corrected_1', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2032)
-            if self.material == "32 AWG_corrected_2":
-                femm.mi_addmaterial('32 AWG_corrected_2', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2032)
-            if self.material == "RS":
-                femm.mi_addmaterial('RS', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2)
+            except:
+                if self.material == "31 AWG":
+                    femm.mi_addmaterial('31 AWG', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2261)
+                if self.material == "test1":
+                    femm.mi_addmaterial('test1', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.221)
+                if self.material == "test2":
+                    femm.mi_addmaterial('test2', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.230)
+                if self.material == "32 AWG_corrected_1":
+                    femm.mi_addmaterial('32 AWG_corrected_1', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2032)
+                if self.material == "32 AWG_corrected_2":
+                    femm.mi_addmaterial('32 AWG_corrected_2', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2032)
+                if self.material == "RS":
+                    femm.mi_addmaterial('RS', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2)
+
+
 
             femm.mi_clearselected()
             femm.mi_selectrectangle(self.x1, self.y1, self.x2,
@@ -142,12 +141,14 @@ class Femm_magnet():
             self.label2 = label2
 
             femm.mi_drawrectangle(self.x1, self.y1, self.x2, self.y2)
-            if self.material == "low":
-                femm.mi_addmaterial('low', 1.05, 1.05, 860000, 0, 0.667, 0, 0, 1, 0, 0, 0, 1, 0)
-            if self.material == "high":
-                femm.mi_addmaterial('high', 1.05, 1.05, 955000, 0, 0.667, 0, 0, 1, 0, 0, 0, 1, 0)
-            if self.material == "N40":
-                 femm.mi_getmaterial(self.material)
+            try:
+                femm.mi_getmaterial(self.material)
+            except:
+                if self.material == "low":
+                    femm.mi_addmaterial('low', 1.05, 1.05, 860000, 0, 0.667, 0, 0, 1, 0, 0, 0, 1, 0)
+                if self.material == "high":
+                    femm.mi_addmaterial('high', 1.05, 1.05, 955000, 0, 0.667, 0, 0, 1, 0, 0, 0, 1, 0)
+
             femm.mi_clearselected()
             femm.mi_selectrectangle(self.x1, self.y1, self.x2, self.y2, self.edit_mode)
             femm.mi_setgroup(self.group)

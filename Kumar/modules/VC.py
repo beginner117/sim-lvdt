@@ -41,6 +41,7 @@ class Analysis:
                              out_rad=geo.outcoil()[1], out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1], outwind_pr_layer=position.upp_outcoil()[3])
         print('coil config - [Coil_OutRadius, Coil_LowEnd, Coil_UppEnd, Coil_NrWind_p_Layer, Coil_NrWindings, Circuit_name]')
         print('inner coil config :', position.inncoil(), '\nupper outer coil config :', position.upp_outcoil(),'\nlower out coil config :', position.low_outcoil())
+        print('inner coil material - ', wire.inncoil_material, ', outer coil material - ', wire.outcoil_material, ', magnet material - ', wire.mag_mat())
         print('inner, upper outer, total coil lengths : ', length.inncoil(), length.upp_outcoil(),length.inncoil() + (2 * length.upp_outcoil()))
         if wire.prop_out()[3] and wire.prop_inn()[3]:
             inn_dc = length.inncoil() * wire.prop_inn()[3]
