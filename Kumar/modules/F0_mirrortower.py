@@ -6,7 +6,7 @@ import scipy.optimize as opt
 import matplotlib.pyplot as plt
 import os
 import shutil
-
+import femm
 class Analysis():
     def __init__(self, parameter1, filename: str):
         self.parameter1 = parameter1
@@ -30,12 +30,6 @@ class Analysis():
         geo = design.Geometry1(innUP_ht=15, innLOW_ht=22.5, inn_rad=13.55, inn_layers=6, inn_dist=45, out_ht=12, out_rad=20.5,
                                out_layers=5, out_dist=13, mag_ht=6.35, mag_rad=4.47, ver_shi=0)
         data_file = self.filename
-        multiple_fit = 0
-        if save == 1:
-            directory = data_file
-            parent_dir = "C:\\Users\\kumar\\OneDrive\\Desktop\\pi\\bench"
-            path = os.path.join(parent_dir, directory)
-            os.mkdir(path)
 
         class Position():
             def __init__(self):
@@ -585,14 +579,6 @@ class Analysis():
         print(modelled.Magnet_Forces_c)
         print(modelled.Magnet_Forces)
         # print(modelled.block_forces)
-        if NSteps > 2:
-            modelled.MetaData[0] = NSteps
-            modelled.MetaData[1] = StepSize
-            modelled.MetaData[2] = sensor.para()[2]
-            np.savetxt(outputfile, (
-            modelled.InnCoil_Positions, modelled.UppOutCoil_Forces, modelled.LowOutCoil_Forces, modelled.Magnet_Forces,
-            modelled.MetaData))
-
 
         class Results():
             def __init__(self):
