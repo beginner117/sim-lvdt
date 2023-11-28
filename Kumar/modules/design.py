@@ -105,7 +105,7 @@ class Wiretype:
         if self.inncoil_material == "test1":
             return [0.190+0.01-0.01, 0.016, "test1", 0.6029/1000]
         if self.inncoil_material == "test2":
-            return [0.200+0.007-0.01, 0.016, "test2", 0.5441/1000]
+            return [0.200+0.007-0.07, 0.016, "test2", 0.5441/1000]
         if self.inncoil_material == "RS":
             return [0.2, 0.033/2, "RS", 0.5441/1000]
         if self.inncoil_material == "32 AWG_corrected_1":
@@ -129,6 +129,8 @@ class Wiretype:
         mate = "Pure iron, annealed"
         return mate
 
+
+# [6.506541925527484, 6.603406609868138], [6.638693174144348, 6.470690941629774]
 class Geometry:
     def __init__(self, inn_ht, inn_rad, inn_layers, inn_dist, out_ht, out_rad, out_layers, out_dist, mag_len, mag_dia, ver_shi):
         """

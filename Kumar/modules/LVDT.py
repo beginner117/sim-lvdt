@@ -6,6 +6,8 @@ import feed
 import fields
 import numpy as np
 import matplotlib.pyplot as plt
+import threading
+import multiprocessing
 class Analysis:
     def __init__(self, save, sim_range:list, default, filename=None, design_type=None,  parameter1=None, simulation_type = None):
         self.save = save
@@ -22,7 +24,7 @@ class Analysis:
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file =self.filename)
         sensor = design.Sensortype(InnCoilCurrent=0.02, Simfreq=10000, OutCoilCurrent=0)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
-        wire = design.Wiretype(outcoil_material='32 AWG', inncoil_material='32 AWG', magnet_material="N40")
+        wire = design.Wiretype(outcoil_material='32 AWG_corrected_2', inncoil_material='32 AWG_corrected_1', magnet_material="N40")
         input_par1 = {'TotalSteps_StepSize_Offset' : self.sim_range, 'outercoil Diameter_Insulation_Wiretype':wire.prop_out(), 'innercoil Diameter_Insulation_Wiretype': wire.prop_inn(),
                      'Innercoil_current':sensor.para()[0], 'Frequency':sensor.para()[1], 'Outercoil_current':sensor.para()[2], 'Magnet_material':wire.mag_mat()}
         if self.default=='yes':
@@ -30,12 +32,12 @@ class Analysis:
                                   value[self.design_type]['out_layers'], value[self.design_type]['out_dist'], value[self.design_type]['mag_len'], value[self.design_type]['mag_dia'], value[self.design_type]['ver_shi'])
             input_par2 = 'design type : '+self.design_type
         if self.default == 'no':
-            input_par2 = {'IC_height':24, 'IC_radius':11, 'IC_layers':self.parameter1, 'IC_distance':0, 'OC_height':13.5, 'OC_radius':35, 'OC_layers':5, 'OC_distance':54.5, 'mag_len':40, 'mag_dia':10, 'ver_shi':0}
+            input_par2 = {'IC_height':23, 'IC_radius':21, 'IC_layers':self.parameter1, 'IC_distance':0, 'OC_height':13.5, 'OC_radius':15, 'OC_layers':1, 'OC_distance':54.5, 'mag_len':40, 'mag_dia':10, 'ver_shi':0}
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
 
-        other_par = {'inner coil current_frequency_wire': [sensor.para()[0], sensor.para()[1], wire.inncoil_material],
-                     'outer coil_current_frequency_wire': [sensor.para()[2], sensor.para()[1], wire.outcoil_material]}
+        other_par = {'inner coil current(Amp)_frequency(Hz)_wire-dia,ins(mm)_label': [sensor.para()[0], sensor.para()[1],wire.prop_inn()[0],wire.prop_inn()[1], wire.inncoil_material],
+                     'outer coil_current(Amp)_frequency(Hz)_wire-dia,ins(mm)_label': [sensor.para()[2], sensor.para()[1],wire.prop_out()[0],wire.prop_out()[1], wire.outcoil_material]}
         position = coil.Position(inn_ht=geo.inncoil()[0], inn_rad=geo.inncoil()[1], inn_layers=geo.inncoil()[2], inn_dist=geo.inncoil()[3], out_ht=geo.outcoil()[0], out_rad=geo.outcoil()[1], out_layers=geo.outcoil()[2], out_dist=geo.outcoil()[3],
                                  ver_shi=geo.mag()[2], inn_wiredia=wire.prop_inn()[0], inn_wireins=wire.prop_inn()[1], out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1], mag_len=geo.mag()[0], mag_dia=geo.mag()[1])
         length = coil.Length(inn_layers=geo.inncoil()[2], inn_rad=geo.inncoil()[1], inn_wiredia=wire.prop_inn()[0], inn_wireins=wire.prop_inn()[1], innwind_pr_layer=position.inncoil()[3], out_layers=geo.outcoil()[2], out_rad=geo.outcoil()[1],
@@ -56,7 +58,7 @@ class Analysis:
         uppoutstr = femm_model.Femm_coil(x1=geo.outcoil()[1], y1=position.upp_outcoil()[2], x2=position.upp_outcoil()[0], y2=position.upp_outcoil()[1], circ_name=position.upp_outcoil()[5],
                                          circ_current=sensor.para()[2], circ_type=1, material=wire.outcoil_material, edit_mode=4, group=3, label1=wire.prop_out()[1],
                                          label2=geo.outcoil()[0], blockname=wire.prop_out()[2], turns_pr_layer=position.upp_outcoil()[4])
-        lowoutstr = femm_model.Femm_coil(x1=geo.outcoil()[1], y1=position.low_outcoil()[1], x2=position.low_outcoil()[0], y2=position.low_outcoil()[2], circ_name=position.low_outcoil()[5],
+        lowoutstr = femm_model.Femm_coil(x1=geo.outcoil()[1], y1=position.low_outcoil()[2], x2=position.low_outcoil()[0], y2=position.low_outcoil()[1], circ_name=position.low_outcoil()[5],
                                          circ_current=-sensor.para()[2], circ_type=1, material=wire.outcoil_material, edit_mode=4, group=4, label1=wire.prop_out()[0],
                                          label2=geo.outcoil()[0], blockname=wire.prop_out()[2], turns_pr_layer=position.low_outcoil()[4])
 
@@ -71,6 +73,7 @@ class Analysis:
 
         move_group = femm_model.Femm_move(groups = [1,2], x_dist=0, y_dist=pre_simulation.parameters()[2])
 
+        threads = []
         for i in range(0, pre_simulation.parameters()[0] + 1):
             print('coil position (from centre) : ', pre_simulation.parameters()[2] + pre_simulation.parameters()[1] * i)
             inn_prop['Inncoil_position'][i] = pre_simulation.parameters()[2] + (pre_simulation.parameters()[1] * i)
@@ -96,8 +99,24 @@ class Analysis:
             inn_prop['Inncoil_current'][i] = InnCoil_I
             inn_prop['Inncoil_flux'][i] = InnCoil_FluxLink
 
+            turns_per_layer = int(position.upp_outcoil()[3])
+            if self.sim_type == 'FEMM+ana':
+                analytical = fields.Coil_magfield(radius=geo.outcoil()[1], coil_height=geo.outcoil()[0],
+                                                  current=sensor.para()[2], turns_pr_layer=int(position.upp_outcoil()[3]),layers=geo.outcoil()[2],
+                                                  insulated_wire_thickness=(wire.prop_out()[0] + 2 * wire.prop_out()[1]), position=uppout_prop['UppOut_position'][i],
+                                                  r_offset=0, upper_uppend=position.upp_outcoil()[2], lower_uppend=position.low_outcoil()[2], angle=0, freq=10000)
+                force_an = analytical.mag_fields()
+                print('upp:', force_an[0], 'low:', force_an[1])
+                # force_an = threading.Thread(target = analytical.mag_fields)
+                # force_an.start()
+                # threads.append(force_an)
+                # print('upp low:', force_an)
+
+
             move_group = femm_model.Femm_move(groups=[1, 2], x_dist=0, y_dist=pre_simulation.parameters()[1])
 
+        # for thread in threads:
+        #     thread.join()
         if sensor.para()[0] != 0:
             Inn_Inductance = abs(inn_prop['Inncoil_flux'] / inn_prop['Inncoil_current'])
             Inn_Impedance = abs(inn_prop['Inncoil_voltage'] / inn_prop['Inncoil_current'])
