@@ -22,12 +22,18 @@ class Analysis1:
             input_par2 = {'IC_height':18, 'IC_radius':21, 'IC_layers':self.parameter1, 'IC_distance':0, 'OC_height':13.5, 'OC_radius':31.5, 'OC_layers':5, 'OC_distance':14.5, 'mag_len':0, 'mag_dia':0, 'ver_shi':0}
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
-        wire = design.Wiretype(outcoil_material='32 AWG', inncoil_material='32 AWG')  # can be changed
-        position = coil.Position(inn_ht=geo.inncoil()[0], inn_rad=geo.inncoil()[1], inn_layers=geo.inncoil()[2], inn_dist=geo.inncoil()[3], out_ht=geo.outcoil()[0], out_rad=geo.outcoil()[1],
-                                 out_layers=geo.outcoil()[2], out_dist=geo.outcoil()[3],ver_shi=geo.mag()[2], inn_wiredia=wire.prop_inn()[0], inn_wireins=wire.prop_inn()[1],
-                                 out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1], mag_len=geo.mag()[0],mag_dia=geo.mag()[1])
-        length = coil.Length(inn_layers=geo.inncoil()[2], inn_rad=geo.inncoil()[1], inn_wiredia=wire.prop_inn()[0],inn_wireins=wire.prop_inn()[1], innwind_pr_layer=position.inncoil()[3],
-                             out_layers=geo.outcoil()[2], out_rad=geo.outcoil()[1],out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1],outwind_pr_layer=position.upp_outcoil()[3])
+        wire = design.Wiretype(outcoil_material='electrisola_2b', inncoil_material='electrisola_1a', magnet_material="N40")  # can be changed
+        position = coil.Position(inn_ht=geo.inncoil()[0], inn_rad=geo.inncoil()[1], inn_layers=geo.inncoil()[2],
+                                 inn_dist=geo.inncoil()[3], out_ht=geo.outcoil()[0], out_rad=geo.outcoil()[1],
+                                 out_layers=geo.outcoil()[2], out_dist=geo.outcoil()[3],
+                                 ver_shi=geo.mag()[2], inn_wiredia=wire.prop_inn()[0], inn_wireins=wire.prop_inn()[1],
+                                 out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1], mag_len=geo.mag()[0],
+                                 mag_dia=geo.mag()[1])
+        length = coil.Length(inn_layers=geo.inncoil()[2], inn_rad=geo.inncoil()[1], inn_wiredia=wire.prop_inn()[0],
+                             inn_wireins=wire.prop_inn()[1], innwind_pr_layer=position.inncoil()[3],
+                             out_layers=geo.outcoil()[2], out_rad=geo.outcoil()[1],
+                             out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1],
+                             outwind_pr_layer=position.upp_outcoil()[3])
 
         other_par = {'current(amps)_AC frequency_inner wire_outer wire': [0.02, 10000, wire.inncoil_material, wire.outcoil_material]}
         trials = [[0.02, 0, 0, 10000], [0, 0.02, 0, 10000], [0, 0, 0.02, 10000], [0.02, 0.02, 0, 10000], [0, 0.02, 0.02, 10000], [0.02, 0, 0.02, 10000], [1,1,1, 0]]
@@ -46,7 +52,7 @@ class Analysis1:
             uppoutstr = femm_model.Femm_coil(x1=geo.outcoil()[1], y1=position.upp_outcoil()[2], x2=position.upp_outcoil()[0], y2=position.upp_outcoil()[1], circ_name=position.upp_outcoil()[5],
                                              circ_current=trials[i][1], circ_type=1, material=wire.outcoil_material, edit_mode=4, group=3, label1=wire.prop_out()[1],
                                              label2=geo.outcoil()[0], blockname=wire.prop_out()[2], turns_pr_layer=position.upp_outcoil()[4])
-            lowoutstr = femm_model.Femm_coil(x1=geo.outcoil()[1], y1=position.low_outcoil()[1], x2=position.low_outcoil()[0], y2=position.low_outcoil()[2], circ_name=position.low_outcoil()[5],
+            lowoutstr = femm_model.Femm_coil(x1=geo.outcoil()[1], y1=position.low_outcoil()[2], x2=position.low_outcoil()[0], y2=position.low_outcoil()[1], circ_name=position.low_outcoil()[5],
                                              circ_current=-trials[i][2], circ_type=1, material=wire.outcoil_material, edit_mode=4, group=4, label1=wire.prop_out()[0],
                                              label2=geo.outcoil()[0], blockname=wire.prop_out()[2], turns_pr_layer=position.low_outcoil()[4])
             if geo.mag()[0]>1:
