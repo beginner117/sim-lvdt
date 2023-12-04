@@ -22,7 +22,8 @@ Here is the list of modules:
     LVDT_correction.py - contains the script that calculates the correction factor (needed due to open circuit simulation in FEMM) of LVDT response  
     single_coil.py - models a single coil
 
-Here is a explanation for simulating a typical LVDT/VC/VC_only with just two lines. One can simulate one or more sensors simultaneously
+Here is a explanation for simulating a typical LVDT/VC with just two lines. One can simulate one or more sensors simultaneously
+
 (Import the script 'FEMM_simulation' and make sure pyFEMM in installed)
 
     sim_code = femm_simulation.Position_sensor(sensor_type=, save=, sim_range={'steps_size_offset':},
@@ -49,4 +50,21 @@ Example (for three simultaneous simulations of LVDT, VC, VC_only)
     sim_code = femm_simulation.Position_sensor(sensor_type=[LVDT, VC, VC_only], save=False, sim_range={'steps_size_offset':[[20, 1, -10], [10, 1, -5], [20, 1, -10]]},
                                     data = {'filename(s)':['trail1', 'trial2', 'trail3'], 'is default':['yes', 'no', 'yes'], 'design or parameter':['A', 3, 'I']})
     sim_code.execute() 
+    
+Here are the default assumptions
+
+    wire material - 32 AWG
+    magnet type - N40
+    Inner coil excitation (for LVDT) - 10Khz, 20mA sinusoidal wave
+    Outer coil excitation (for VC, VC_only) - 1A DC sinusoidal wave
+    Units - millimeters
+    precision - 1.0e-10
+            Boundary conditions 
+    material - Air
+    Region 1 - sphere with radius 100mm
+    Region 2 - sphere with radius 300mm
+NOTE - To modify any of the above parameters, alter the code in the respective modules. 
+For chainging the coil excitations and the boundary conditions of LVDT/VC/VC_only, modify the instance 'sensor' and 'bc', and to change the units and precisions, modify the command 'mi_probdef' in the corresponding LVDT/VC.py script 
+For changing the wire, magnet material modify the instance 'wire' in the corresponding LVDT/VC.py script and add this material to the 'prop_inn', 'prop_out' & 'mag_mat' methods of 'Wiretype' class in the design.py module. 
+(Make sure the modified material is available in the FEMM material library. If not, the new material must be defined with all the properties in the classes 'FEMM_coil' and 'FEMM_magnet' of the 'femm_model.py' module.)
     

@@ -108,8 +108,8 @@ class Analysis:
                 amp_r.append(np.abs(V_out_loads[idx]))
 
         ratio_amp = amp_r[0] / amp_r[1]
-        print(ratio_amp)
+        print('correction factor', ratio_amp)
         rat_amp.append(ratio_amp)
 
-    #print('ratio :', rat_amp)
+        print('correction ratio :', rat_amp)
 

@@ -70,7 +70,7 @@ class Position():
                     self.out_wiredia + self.out_wireins * 2)
         LowOutCoil_NrWindings = LowOutCoil_NrWind_p_Layer * self.out_layers
         LowOutCoil_Circuit = "LowOutCoil_Circuit"
-        return [LowOutCoil_OutRadius, LowOutCoil_UppEnd, LowOutCoil_LowEnd, LowOutCoil_NrWind_p_Layer,
+        return [LowOutCoil_OutRadius, LowOutCoil_LowEnd, LowOutCoil_UppEnd, LowOutCoil_NrWind_p_Layer,
                 LowOutCoil_NrWindings, LowOutCoil_Circuit]
 
     def magnet(self):

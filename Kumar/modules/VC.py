@@ -41,6 +41,7 @@ class Analysis:
                              out_rad=geo.outcoil()[1], out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1], outwind_pr_layer=position.upp_outcoil()[3])
         print('coil config - [Coil_OutRadius, Coil_LowEnd, Coil_UppEnd, Coil_NrWind_p_Layer, Coil_NrWindings, Circuit_name]')
         print('inner coil config :', position.inncoil(), '\nupper outer coil config :', position.upp_outcoil(),'\nlower out coil config :', position.low_outcoil())
+        print('inner coil material - ', wire.inncoil_material, ', outer coil material - ', wire.outcoil_material, ', magnet material - ', wire.mag_mat())
         print('inner, upper outer, total coil lengths : ', length.inncoil(), length.upp_outcoil(),length.inncoil() + (2 * length.upp_outcoil()))
         if wire.prop_out()[3] and wire.prop_inn()[3]:
             inn_dc = length.inncoil() * wire.prop_inn()[3]
@@ -55,7 +56,7 @@ class Analysis:
                                          circ_name=position.upp_outcoil()[5], circ_current=sensor.para()[2], circ_type=1, material=wire.outcoil_material,
                                          edit_mode=4, group=3, label1=wire.prop_out()[1],
                                          label2=geo.outcoil()[0], blockname=wire.prop_out()[2], turns_pr_layer=position.upp_outcoil()[4])
-        lowoutstr = femm_model.Femm_coil(x1=geo.outcoil()[1], y1=position.low_outcoil()[1], x2=position.low_outcoil()[0], y2=position.low_outcoil()[2],
+        lowoutstr = femm_model.Femm_coil(x1=geo.outcoil()[1], y1=position.low_outcoil()[2], x2=position.low_outcoil()[0], y2=position.low_outcoil()[1],
                                          circ_name=position.low_outcoil()[5], circ_current=-sensor.para()[2], circ_type=1, material=wire.outcoil_material,
                                          edit_mode=4, group=4, label1=wire.prop_out()[0],
                                          label2=geo.outcoil()[0], blockname=wire.prop_out()[2], turns_pr_layer=position.low_outcoil()[4])

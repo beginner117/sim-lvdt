@@ -22,7 +22,7 @@ class Analysis:
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file=self.filename)
         sensor = design.Sensortype(InnCoilCurrent=0, Simfreq=0, OutCoilCurrent=1)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
-        wire = design.Wiretype("32 AWG", "32 AWG")
+        wire = design.Wiretype("32 AWG", "32 AWG",  magnet_material='N40')
         input_par1 = {'TotalSteps_StepSize_Offset': self.sim_range, 'uppercoil Diameter_Insulation_Wiretype': wire.prop_out(),
                       'innercoil Diameter_Insulation_Wiretype': wire.prop_inn(), 'Innercoil_current': sensor.para()[0], 'Frequency': sensor.para()[1],
                       'Outercoil_current': sensor.para()[2], 'Magnet_material':wire.mag_mat()}
@@ -48,20 +48,32 @@ class Analysis:
             out_dc = length.upp_outcoil() * wire.prop_out()[3]
             lowout_dc = length.low_outcoil() * wire.prop_out()[3]
 
-        inncoil_str = femm_model.Femm_coil(x1=geo.inncoil()[1], y1=position.inncoil()[2], x2=position.inncoil()[0], y2=position.inncoil()[1],
-                                           circ_name=position.inncoil()[5], circ_current=sensor.para()[0], circ_type=1, material=wire.inncoil_material,
-                                           edit_mode=4, group=1, label1=wire.prop_inn()[1], label2=geo.inncoil()[0], blockname=wire.prop_inn()[2],
+        inncoil_str = femm_model.Femm_coil(x1=geo.inncoil()[1], y1=position.inncoil()[2], x2=position.inncoil()[0],
+                                           y2=position.inncoil()[1],
+                                           circ_name=position.inncoil()[5], circ_current=sensor.para()[0], circ_type=1,
+                                           material=wire.inncoil_material,
+                                           edit_mode=4, group=1, label1=wire.prop_inn()[1], label2=geo.inncoil()[0],
+                                           blockname=wire.prop_inn()[2],
                                            turns_pr_layer=position.inncoil()[4])
-        uppoutstr = femm_model.Femm_coil(x1=geo.outcoil()[1], y1=position.upp_outcoil()[2], x2=position.upp_outcoil()[0], y2=position.upp_outcoil()[1],
-                                         circ_name=position.upp_outcoil()[5], circ_current=sensor.para()[2], circ_type=1, material=wire.outcoil_material,
-                                         edit_mode=4, group=3, label1=wire.prop_out()[1], label2=geo.outcoil()[0], blockname=wire.prop_out()[2], turns_pr_layer=position.upp_outcoil()[4])
-        lowoutstr = femm_model.Femm_coil(x1=geo.outcoil()[1], y1=position.low_outcoil()[1], x2=position.low_outcoil()[0], y2=position.low_outcoil()[2],
-                                         circ_name=position.low_outcoil()[5], circ_current=-sensor.para()[2], circ_type=1, material=wire.outcoil_material,
+        uppoutstr = femm_model.Femm_coil(x1=geo.outcoil()[1], y1=position.upp_outcoil()[2],
+                                         x2=position.upp_outcoil()[0], y2=position.upp_outcoil()[1],
+                                         circ_name=position.upp_outcoil()[5], circ_current=sensor.para()[2],
+                                         circ_type=1, material=wire.outcoil_material,
+                                         edit_mode=4, group=3, label1=wire.prop_out()[1],
+                                         label2=geo.outcoil()[0], blockname=wire.prop_out()[2],
+                                         turns_pr_layer=position.upp_outcoil()[4])
+        lowoutstr = femm_model.Femm_coil(x1=geo.outcoil()[1], y1=position.low_outcoil()[2],
+                                         x2=position.low_outcoil()[0], y2=position.low_outcoil()[1],
+                                         circ_name=position.low_outcoil()[5], circ_current=-sensor.para()[2],
+                                         circ_type=1, material=wire.outcoil_material,
                                          edit_mode=4, group=4, label1=wire.prop_out()[0],
-                                         label2=geo.outcoil()[0], blockname=wire.prop_out()[2], turns_pr_layer=position.low_outcoil()[4])
-        magnetstr = femm_model.Femm_magnet(x1=0, y1=position.magnet()[0], x2=position.magnet()[2], y2=position.magnet()[1], material=wire.mag_mat(), edit_mode=4,
-                                           group=2, label1=0.5, label2=geo.mag()[0])
-        bc = femm_model.Femm_bc(AirSpaceRadius_1=100, AirSpaceRadius_2=300, BC_Name='Outside', BC_Group=10, material='Air')
+                                         label2=geo.outcoil()[0], blockname=wire.prop_out()[2],
+                                         turns_pr_layer=position.low_outcoil()[4])
+        magnetstr = femm_model.Femm_magnet(x1=0, y1=position.magnet()[0], x2=position.magnet()[2],
+                                           y2=position.magnet()[1], material=wire.mag_mat(), edit_mode=4, group=2,
+                                           label1=0.5, label2=geo.mag()[0])
+        bc = femm_model.Femm_bc(AirSpaceRadius_1=100, AirSpaceRadius_2=300, BC_Name='Outside', BC_Group=10,
+                                material='Air')
 
         res = coil.Coil_prop(pre_simulation.parameters()[0])
         inn_prop = res.inncoil()
@@ -114,6 +126,7 @@ class Analysis:
             gri_x = [] ; mag_fie_x = [] ; mag_fie_y = [] ; gri_y = []
             def_force = [] ; imp_force = [] ; def_force_ver = [] ; imp_force_ver = []
             rot_x = [] ; rot_y = [] ; rot_x_lower = [] ; rot_y_lower= []
+            line_int = []; line_int2 = []
             turns_per_layer = int(position.upp_outcoil()[3])
 
             for item in range(0, geo.outcoil()[2]):
@@ -148,11 +161,23 @@ class Analysis:
                     rot_y.append(c[1])
                     rot_x_lower.append(c_lower[0])
                     rot_y_lower.append(c_lower[1])
+                    line_int_for = []; line_int_for2 = []
+                    for k in range(0, 1801):
+                        angle_f = 0.1*k
+                        sector_force = 2*c[0]*angle_f*2*np.pi*grid_pt[0]/360
+                        line_int_for.append(sector_force)
+                        sector_force_low = 2*c_lower[0]*angle_f*2*np.pi*grid_pt_lower[0]/360
+                        line_int_for2.append(sector_force_low)
+
+                    line_int.append(sum(line_int_for))
+                    line_int2.append(sum(line_int_for2))
+
+
                     f = (6.28 * grid_pt[0] * c[0]*sensor.para()[2]) / (10 ** 3)
                     f_lower = (6.28 * grid_pt_lower[0] * c_lower[0]*sensor.para()[2]) / (10 ** 3)
                     imp_force.append(f-f_lower)
 
-            print('default force:', sum(def_force), 'updated force:', sum(imp_force))
+            print('default force:', sum(def_force), 'updated force:', sum(imp_force), 'int_for:', sum(line_int-line_int2))
 
             for_def.append(sum(def_force))
             for_imp.append(sum(imp_force))

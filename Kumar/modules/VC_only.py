@@ -8,7 +8,7 @@ from scipy import integrate
 import numpy as np
 import matplotlib.pyplot as plt
 class Analysis:
-    def __init__(self, save, sim_range:list, default, filename, design_type=None, sim_type = None,  parameter1=None):
+    def __init__(self, save, sim_range:list, default, filename, design_type=None, sim_type = 'FEMM+ana',  parameter1=None):
         self.save = save
         self.sim_range = sim_range
         self.filename = filename
@@ -23,7 +23,7 @@ class Analysis:
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file=self.filename)
         sensor = design.Sensortype(InnCoilCurrent=0, Simfreq=0, OutCoilCurrent=1)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
-        wire = design.Wiretype(outcoil_material='RS', inncoil_material='RS', magnet_material='N40')
+        wire = design.Wiretype(outcoil_material='RS', inncoil_material='RS', magnet_material=self.parameter1)
         input_par1 = {'TotalSteps_StepSize_Offset': self.sim_range, 'uppercoil Diameter_Insulation_Wiretype': wire.prop_out(),
                       'Innercoil_current': sensor.para()[0], 'Magnet_material':wire.mag_mat(), 'Frequency': sensor.para()[1], 'Outercoil_current': sensor.para()[2]}
         if self.default == 'yes':
@@ -32,7 +32,7 @@ class Analysis:
                                   value[self.design_type]['mag_len'], value[self.design_type]['mag_dia'], value[self.design_type]['ver_shi'])
             input_par2 = 'design type ' + self.design_type
         if self.default == 'no':
-            input_par2 = {'inn coil_height':18, 'inn coil_radius':0, 'inn coil_layers':6, 'inn coil_distance':0, 'out coil_height':5.2, 'out coil_radius':10, 'out coil_layers':self.parameter1, 'out coil_distance':0, 'mag_length':40, 'mag_diameter':10, 'ver_shi':0}
+            input_par2 = {'inn coil_height':18, 'inn coil_radius':0, 'inn coil_layers':6, 'inn coil_distance':0, 'out coil_height':5.2, 'out coil_radius':10, 'out coil_layers':1, 'out coil_distance':0, 'mag_length':40, 'mag_diameter':10, 'ver_shi':0}
             geo = design.Geometry(input_par2['inn coil_height'], input_par2['inn coil_radius'], input_par2['inn coil_layers'], input_par2['inn coil_distance'],
                                   input_par2['out coil_height'], input_par2['out coil_radius'], input_par2['out coil_layers'], input_par2['out coil_distance'],
                                   input_par2['mag_length'], input_par2['mag_diameter'], input_par2['ver_shi'])
@@ -48,7 +48,9 @@ class Analysis:
                              out_layers=geo.outcoil()[2], out_rad=geo.outcoil()[1],
                              out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1],
                              outwind_pr_layer=position.upp_outcoil()[3])
-        print('[OutCoil_OutRadius, OutCoil_LowEnd, OutCoil_UppEnd, OutCoil_NrWind_p_Layer, OutCoil_NrWindings, Circuit_name] : ', position.upp_outcoil())
+        print('coil config - [Coil_OutRadius, Coil_LowEnd, Coil_UppEnd, Coil_NrWind_p_Layer, Coil_NrWindings, Circuit_name]')
+        print('outer coil config :', position.upp_outcoil())
+        print(', outer coil material - ', wire.outcoil_material, ', magnet material - ', wire.mag_mat())
         out_dc = length.upp_outcoil() * wire.prop_out()[3]
         print('outer dc resistance as per catalog :', out_dc)
         uppoutstr = femm_model.Femm_coil(x1=geo.outcoil()[1], y1=position.upp_outcoil()[2], x2=position.upp_outcoil()[0], y2=position.upp_outcoil()[1],
@@ -85,22 +87,6 @@ class Analysis:
             uppout_prop['UppOut_flux'][i] = UppOutCoil_FluxLink
             uppout_prop['UppOut_force'][i] = UppOut_Force19
             mag_for['Magnet_forces'][i] = Magn_Force19
-
-            turns_per_layer = int(position.upp_outcoil()[3])
-            analytical = fields.Coil_magfield(radius=geo.outcoil()[1], position=uppout_prop['UppOut_position'][i],
-                                              coil_height=geo.outcoil()[0], current=sensor.para()[2],
-                                              turns_pr_layer=int(position.upp_outcoil()[3]), layers=geo.outcoil()[2],
-                                              insulated_wire_thickness=(wire.prop_out()[0] + 2 * wire.prop_out()[1]), angle=0)
-            if self.sim_type == 'FEMM+ana':
-                force_an = analytical.forces(geo.mag()[0], geo.mag()[1], sensor.para()[2])
-                for_def.append(force_an[0])
-                for_imp.append(force_an[1])
-                print('default force:', force_an[0], 'updated force:', force_an[1])
-            if self.sim_type == 'math+ana':
-                force_an = analytical.forces(geo.mag()[0], geo.mag()[1], sensor.para()[2])
-                for_ana.append(force_an[2])
-                print('analytical force:', sum(force_an[2]))
-
             move_group = femm_model.Femm_move(groups=[3], x_dist=0, y_dist=pre_simulation.parameters()[1])
 
         Upp_Inductance = abs(uppout_prop['UppOut_flux'] / uppout_prop['UppOut_current'])
