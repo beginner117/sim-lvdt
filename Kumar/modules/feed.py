@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 
+# NIKHEF designs
+
 A = {'inn_ht': 24, 'inn_rad': 11, 'inn_layers': 6, 'inn_dist': 0, 'out_ht': 13.5, 'out_rad': 35, 'out_layers': 5,
          'out_dist': 54.5, 'mag_len': 40, 'mag_dia': 10, 'ver_shi': 0}
 B = {'inn_ht': 10, 'inn_rad': 4.5, 'inn_layers': 6, 'inn_dist': 0, 'out_ht': 10, 'out_rad': 25, 'out_layers': 7,

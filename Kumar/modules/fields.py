@@ -52,6 +52,13 @@ class Coil_magfield:
                 f_upp = lambda r,theta : r*np.real(femm.mo_getb(r, (self.upper_uppend) - (j * self.wire)))[1]
                 f_low = lambda r,theta : r*np.real(femm.mo_getb(r, (self.lower_uppend) - (j * self.wire)))[1]
                 print(type(f_upp))
+                flux_induced_upp = 2*integrate.dblquad((f_upp), 0, np.pi, lambda theta: 0,
+                                  lambda theta: self.r_offset*np.cos(theta) + np.sqrt(self.radius**2 + (self.r_offset*np.sin(theta))**2))
+                flux_induced_low = 2 * integrate.dblquad((f_low), 0, np.pi, lambda theta: 0,
+                                  lambda theta: self.r_offset * np.cos(theta) + np.sqrt(self.radius ** 2 + (self.r_offset * np.sin(theta)) ** 2))
+                emf_layer_u.append(flux_induced_upp[0])
+                emf_layer_l.append(flux_induced_low[0])
+
                 # t1 = threading.Thread(target=integrate.dblquad, args = [f_upp, 0, np.pi, lambda theta: 0,
                 #                   lambda theta: self.r_offset*np.cos(theta) + np.sqrt(self.radius**2 + (self.r_offset*np.sin(theta))**2)])
                 # t1.start()
@@ -60,12 +67,6 @@ class Coil_magfield:
                 #                   lambda theta: self.r_offset * np.cos(theta) + np.sqrt(self.radius ** 2 + (self.r_offset * np.sin(theta)) ** 2)])
                 # t2.start()
                 # threads2.append(t2)
-                flux_induced_upp = 2*integrate.dblquad((f_upp), 0, np.pi, lambda theta: 0,
-                                  lambda theta: self.r_offset*np.cos(theta) + np.sqrt(self.radius**2 + (self.r_offset*np.sin(theta))**2))
-                flux_induced_low = 2 * integrate.dblquad((f_low), 0, np.pi, lambda theta: 0,
-                                  lambda theta: self.r_offset * np.cos(theta) + np.sqrt(self.radius ** 2 + (self.r_offset * np.sin(theta)) ** 2))
-                emf_layer_u.append(flux_induced_upp[0])
-                emf_layer_l.append(flux_induced_low[0])
 
                 gri_x.append(grid_pt[0])
                 gri_y.append(grid_pt[1])

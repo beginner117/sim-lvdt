@@ -75,10 +75,14 @@ class Wiretype:
             return [0.1602, 0.01652, "34 AWG", 261.3/304800]
         if self.outcoil_material == "RS":
             return [0.2, 0.033/2, "RS", 0.5441/1000]
-        if self.outcoil_material == "test1":
-            return [0.190+0.01-0.01, 0.016, "test1", 0.6029/1000]
-        if self.outcoil_material == "test2":
-            return [0.200+0.007-0.007, 0.016, "test2", 0.5441/1000]
+        if self.outcoil_material == "electrisola_1b":    #typeF-outer
+            return [0.190, 0.021, "electrisola_1b", 0.6029/1000]
+        if self.outcoil_material == "electrisola_2b":    #typeJ-outer
+            return [0.200, 0.017, "electrisola_2b", 0.5441/1000]
+        if self.outcoil_material == "electrisola_2c":    #typeF-outer
+            return [0.200, 0.0295, "electrisola_2c", 0.5441/1000]
+        if self.outcoil_material == "electrisola_2a":   #typeF-inner
+            return [0.200, 0.0195, "electrisola_2a", 0.5441/1000]
         if self.outcoil_material == "32 AWG_corrected_1":
             #return [0.2032+0.0062, 0.0178, "32 AWG_corrected_1", 162/304800]
             return [0.2032, 0.0178+(0.0062/2), "32 AWG_corrected_1", 162 / 304800, 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))]
@@ -102,10 +106,12 @@ class Wiretype:
             return [0.2032, 0.0178, "32 AWG", 162/304800, 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))]
         if self.inncoil_material == "34 AWG":
             return [0.1602, 0.01652, "34 AWG", 261.3/304800]
-        if self.inncoil_material == "test1":
-            return [0.190+0.01-0.01, 0.016, "test1", 0.6029/1000]
-        if self.inncoil_material == "test2":
-            return [0.200+0.007-0.07, 0.016, "test2", 0.5441/1000]
+        if self.inncoil_material == "electrisola_1b":    #typeF-outer
+            return [0.190, 0.021, "electrisola_1b", 0.6029/1000]
+        if self.inncoil_material == "electrisola_1a":   #typeJ-inner
+            return [0.190, 0.0155, "electrisola_1a", 0.6029/1000]
+        if self.inncoil_material == "electrisola_2a":   #typeF-inner
+            return [0.200, 0.0195, "electrisola_2a", 0.5441/1000]
         if self.inncoil_material == "RS":
             return [0.2, 0.033/2, "RS", 0.5441/1000]
         if self.inncoil_material == "32 AWG_corrected_1":

@@ -8,12 +8,11 @@ warnings.filterwarnings('ignore')
 #plots = [uppout_vol, lowout_vol, inncoil_vol, norm_sig, norm_fit, fit, norm_fit_sig]
 
 
-graph = plot_design.VC(0)
+graph = plot_design.Lvdt(0)
+
+#graph.lin_imp()
+graph.norm_fit('slope')
 
 
-graph.force('mag_norm')
-
-# b = np.load("C:/Users/kumar/PycharmProjects/lvdtsimulations/Kumar/modules/I_860k_ana.npz")
-# print(b.files)
 
 

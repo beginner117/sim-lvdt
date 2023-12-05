@@ -89,10 +89,16 @@ class Femm_coil():
             except:
                 if self.material == "31 AWG":
                     femm.mi_addmaterial('31 AWG', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2261)
-                if self.material == "test1":
-                    femm.mi_addmaterial('test1', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.221)
-                if self.material == "test2":
-                    femm.mi_addmaterial('test2', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.230)
+                if self.material == "electrisola_1a":
+                    femm.mi_addmaterial('electrisola_1a', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.190)
+                if self.material == "electrisola_2a":
+                    femm.mi_addmaterial('electrisola_2a', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.200)
+                if self.material == "electrisola_1b":
+                    femm.mi_addmaterial('electrisola_1b', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.190)
+                if self.material == "electrisola_2b":
+                    femm.mi_addmaterial('electrisola_2b', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.200)
+                if self.material == "electrisola_2c":
+                    femm.mi_addmaterial('electrisola_2c', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.200)
                 if self.material == "32 AWG_corrected_1":
                     femm.mi_addmaterial('32 AWG_corrected_1', 1, 1, 0, 0, 58, 0, 0, 1, 3, 0, 0, 1, 0.2032)
                 if self.material == "32 AWG_corrected_2":

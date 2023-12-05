@@ -22,7 +22,7 @@ class Analysis1:
             input_par2 = {'IC_height':18, 'IC_radius':21, 'IC_layers':self.parameter1, 'IC_distance':0, 'OC_height':13.5, 'OC_radius':31.5, 'OC_layers':5, 'OC_distance':14.5, 'mag_len':0, 'mag_dia':0, 'ver_shi':0}
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
-        wire = design.Wiretype(outcoil_material='electrisola_2b', inncoil_material='electrisola_1a', magnet_material="N40")  # can be changed
+        wire = design.Wiretype(outcoil_material='electrisola_1b', inncoil_material='electrisola_2a', magnet_material="N40")  # can be changed
         position = coil.Position(inn_ht=geo.inncoil()[0], inn_rad=geo.inncoil()[1], inn_layers=geo.inncoil()[2],
                                  inn_dist=geo.inncoil()[3], out_ht=geo.outcoil()[0], out_rad=geo.outcoil()[1],
                                  out_layers=geo.outcoil()[2], out_dist=geo.outcoil()[3],
@@ -36,6 +36,7 @@ class Analysis1:
                              outwind_pr_layer=position.upp_outcoil()[3])
 
         other_par = {'current(amps)_AC frequency_inner wire_outer wire': [0.02, 10000, wire.inncoil_material, wire.outcoil_material]}
+        #inner_outer_lower_current
         trials = [[0.02, 0, 0, 10000], [0, 0.02, 0, 10000], [0, 0, 0.02, 10000], [0.02, 0.02, 0, 10000], [0, 0.02, 0.02, 10000], [0.02, 0, 0.02, 10000], [1,1,1, 0]]
         self_ind = []
         mut_ind = []
@@ -129,9 +130,10 @@ class Analysis1:
             k = m/(2*np.sqrt(self_ind[i]*self_ind[(i+1)%3]))
             mut.append(m)
             k_f.append(k)
-        print('total mutual inductances (2 coils) :', mut)
-        print('self inductances :', self_ind)
-        print('impedances :', imp)
+        print('total mutual inductances btw 2 coils (IU, UL, LI) in Henries :', mut)
+        print('self inductances (H):', self_ind)
+        print('impedances (I, U, L) in ohms :', imp)
+        print('dc resistance of coils (I, U, L) :', dc_r)
         print('k_factors :', k_f)
 
         if self.save:

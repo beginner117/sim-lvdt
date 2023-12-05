@@ -24,7 +24,7 @@ class Analysis:
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file =self.filename)
         sensor = design.Sensortype(InnCoilCurrent=0.02, Simfreq=10000, OutCoilCurrent=0)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
-        wire = design.Wiretype(outcoil_material='32 AWG_corrected_2', inncoil_material='32 AWG_corrected_1', magnet_material="N40")
+        wire = design.Wiretype(outcoil_material='electrisola_1b', inncoil_material='electrisola_2a', magnet_material="N40")
         input_par1 = {'TotalSteps_StepSize_Offset' : self.sim_range, 'outercoil Diameter_Insulation_Wiretype':wire.prop_out(), 'innercoil Diameter_Insulation_Wiretype': wire.prop_inn(),
                      'Innercoil_current':sensor.para()[0], 'Frequency':sensor.para()[1], 'Outercoil_current':sensor.para()[2], 'Magnet_material':wire.mag_mat()}
         if self.default=='yes':
@@ -32,7 +32,7 @@ class Analysis:
                                   value[self.design_type]['out_layers'], value[self.design_type]['out_dist'], value[self.design_type]['mag_len'], value[self.design_type]['mag_dia'], value[self.design_type]['ver_shi'])
             input_par2 = 'design type : '+self.design_type
         if self.default == 'no':
-            input_par2 = {'IC_height':23, 'IC_radius':21, 'IC_layers':self.parameter1, 'IC_distance':0, 'OC_height':13.5, 'OC_radius':15, 'OC_layers':1, 'OC_distance':54.5, 'mag_len':40, 'mag_dia':10, 'ver_shi':0}
+            input_par2 = {'IC_height':24, 'IC_radius':11, 'IC_layers':6, 'IC_distance':0, 'OC_height':13.5, 'OC_radius':35, 'OC_layers':7, 'OC_distance':54.5, 'mag_len':40, 'mag_dia':10, 'ver_shi':0}
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
 
@@ -107,6 +107,14 @@ class Analysis:
                                                   r_offset=0, upper_uppend=position.upp_outcoil()[2], lower_uppend=position.low_outcoil()[2], angle=0, freq=10000)
                 force_an = analytical.mag_fields()
                 print('upp:', force_an[0], 'low:', force_an[1])
+                gri_x = [];mag_fie_x = [];mag_fie_y = [];gri_y = []
+                emf_tot_upp = [];emf_tot_low = []
+                for item in range(0, 4500):
+                    emf_layer_u = [];emf_layer_l = [];int_vec_u = [];int_vec_l = []
+                    for j in range(0, 5000):
+                        grid_pt = [i*0.01,j*0.01]
+                        b_field = femm.mo_getb(grid_pt[0], grid_pt[1])
+
                 # force_an = threading.Thread(target = analytical.mag_fields)
                 # force_an.start()
                 # threads.append(force_an)
@@ -132,12 +140,12 @@ class Analysis:
 
         OutCoil_Signals = (abs(uppout_prop['UppOut_voltage']) - abs(lowout_prop['LowOut_voltage']))
         Norm_OutCoil_Signals = OutCoil_Signals / abs(inn_prop['Inncoil_current'])
-        gainfactor = 65
+        gainfactor = 70.02
         Norm_OutCoil_Signals_v = OutCoil_Signals / abs(inn_prop['Inncoil_voltage'])
         print('voltages :', Norm_OutCoil_Signals_v)
         if self.sim_range[0] != 0:
             b1, b2 = np.polyfit(inn_prop['Inncoil_position'], Norm_OutCoil_Signals_v * gainfactor, 1)
-            print("Fitted slope & const of voltage normalised signals (with gain factor 65) :", abs(b1), abs(b2))
+            print("Fitted slope & const of voltage normalised signals (with gain factor 70.02) :", abs(b1), abs(b2))
             c1, c2 = np.polyfit(inn_prop['Inncoil_position'], Norm_OutCoil_Signals, 1)
             print("Fitted slope & const of current normalised signals (without gain factor) :", abs(c1), abs(c2))
 
