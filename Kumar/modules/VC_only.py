@@ -20,23 +20,25 @@ class Analysis:
         femm.openfemm()
         femm.newdocument(0)
         value = feed.data
+        in_pa = feed.Input()
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file=self.filename)
         sensor = design.Sensortype(InnCoilCurrent=0, Simfreq=0, OutCoilCurrent=1)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype(outcoil_material='RS', inncoil_material='RS', magnet_material=self.parameter1)
-        input_par1 = {'TotalSteps_StepSize_Offset': self.sim_range, 'uppercoil Diameter_Insulation_Wiretype': wire.prop_out(),
-                      'Innercoil_current': sensor.para()[0], 'Magnet_material':wire.mag_mat(), 'Frequency': sensor.para()[1], 'Outercoil_current': sensor.para()[2]}
+        input_par1 = {'TotalSteps_StepSize(mm)_Offset(mm)': self.sim_range, 'uppercoil Diameter(mm)_Insulation(mm)_Wiretype': wire.prop_out(),
+                       'Magnet_material':wire.mag_mat(), 'Frequency(Hz)': sensor.para()[1], 'Outercoil_current(A)': sensor.para()[2]}
         if self.default == 'yes':
             geo = design.Geometry(value[self.design_type]["inn_ht"], value[self.design_type]['inn_rad'], value[self.design_type]['inn_layers'], value[self.design_type]['inn_dist'],
                                   value[self.design_type]['out_ht'], value[self.design_type]['out_rad'], value[self.design_type]['out_layers'], value[self.design_type]['out_dist'],
                                   value[self.design_type]['mag_len'], value[self.design_type]['mag_dia'], value[self.design_type]['ver_shi'])
-            input_par2 = 'design type ' + self.design_type
+            input_par2 = in_pa.return_data(self.design_type)
+            input_par3 = 'design type ' + self.design_type
         if self.default == 'no':
             input_par2 = {'inn coil_height':18, 'inn coil_radius':0, 'inn coil_layers':6, 'inn coil_distance':0, 'out coil_height':5.2, 'out coil_radius':10, 'out coil_layers':1, 'out coil_distance':0, 'mag_length':40, 'mag_diameter':10, 'ver_shi':0}
             geo = design.Geometry(input_par2['inn coil_height'], input_par2['inn coil_radius'], input_par2['inn coil_layers'], input_par2['inn coil_distance'],
                                   input_par2['out coil_height'], input_par2['out coil_radius'], input_par2['out coil_layers'], input_par2['out coil_distance'],
                                   input_par2['mag_length'], input_par2['mag_diameter'], input_par2['ver_shi'])
-        other_par = {'outer coil_current_frequency_wire': [sensor.para()[2], sensor.para()[1], wire.outcoil_material]}
+            input_par3 = 'not a priliminary NIKHEF design'
         position = coil.Position(inn_ht=geo.inncoil()[0], inn_rad=geo.inncoil()[1], inn_layers=geo.inncoil()[2],
                                  inn_dist=geo.inncoil()[3], out_ht=geo.outcoil()[0], out_rad=geo.outcoil()[1],
                                  out_layers=geo.outcoil()[2], out_dist=geo.outcoil()[3],
@@ -107,18 +109,18 @@ class Analysis:
 
         if self.save:
             if self.sim_type == 'FEMM+ana':
-                np.savez_compressed(self.filename, Design=input_par2, Input_parameters=input_par1,
-                                    UpperOutcoil_config=position.upp_outcoil(), Input_config=other_par,
+                np.savez_compressed(self.filename, Design_type=input_par3, Design = input_par2, Input_parameters=input_par1,
+                                    UpperOutcoil_config=position.upp_outcoil(),
                                     UOC_positions=uppout_prop['UppOut_position'], UOC_forces=uppout_prop['UppOut_force'],
                                     Mag_forces=np.array(for_def), Mag_forces_imp=np.array(for_imp),
                                     UOC_flux=uppout_prop['UppOut_flux'], UOC_voltages=uppout_prop['UppOut_voltage'], UOC_currents=uppout_prop['UppOut_current'])
             if self.sim_type == 'math+ana':
-                np.savez_compressed(self.filename, Design=input_par2, Input_parameters=input_par1,
-                                    UpperOutcoil_config=position.upp_outcoil(), Input_config=other_par,
+                np.savez_compressed(self.filename, Design_type=input_par3, Design = input_par2, Input_parameters=input_par1,
+                                    UpperOutcoil_config=position.upp_outcoil(),
                                     UOC_positions=uppout_prop['UppOut_position'], UOC_forces=uppout_prop['UppOut_force'], Mag_forces=np.array(for_ana),
                                     UOC_flux=uppout_prop['UppOut_flux'], UOC_voltages=uppout_prop['UppOut_voltage'], UOC_currents=uppout_prop['UppOut_current'])
             if self.sim_type == None:
-                np.savez_compressed(self.filename, Design = input_par2, Input_parameters = input_par1, UpperOutcoil_config=position.upp_outcoil(),Input_config = other_par,
+                np.savez_compressed(self.filename, Design_type=input_par3, Design = input_par2, Input_parameters = input_par1, UpperOutcoil_config=position.upp_outcoil(),Input_config = other_par,
                                     UOC_positions = uppout_prop['UppOut_position'], UOC_forces = uppout_prop['UppOut_force'], Mag_forces = mag_for['Magnet_forces'],
                                     UOC_flux=uppout_prop['UppOut_flux'], UOC_voltages = uppout_prop['UppOut_voltage'], UOC_currents=uppout_prop['UppOut_current'])
 

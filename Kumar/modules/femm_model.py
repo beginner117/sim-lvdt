@@ -1,7 +1,7 @@
 import femm
 
 class Femm_bc():
-    def __init__(self, AirSpaceRadius_1, AirSpaceRadius_2, BC_Name, BC_Group, material:str):
+    def __init__(self, AirSpaceRadius_1, AirSpaceRadius_2, BC_Name, BC_Group, material:str, parameter=None):
         """
         This method defines and creates the boundary conditions for the FEMM model
         _____________INPUT_________
@@ -19,6 +19,7 @@ class Femm_bc():
         self.BC_Name = BC_Name
         self.BC_Group = BC_Group
         self.material = material
+        self.parameter = parameter
 
         # Airspace1
         femm.mi_drawline(0, self.AirSpaceRadius_1, 0, -self.AirSpaceRadius_1)
@@ -27,6 +28,7 @@ class Femm_bc():
         femm.mi_clearselected()
         femm.mi_addblocklabel(self.AirSpaceRadius_1 / 4, self.AirSpaceRadius_1 / 2)
         femm.mi_selectlabel(self.AirSpaceRadius_1 / 4, self.AirSpaceRadius_1 / 2)
+        #femm.mi_setblockprop("Air", 0, self.parameter, '', 0, 0, 0)
         femm.mi_setblockprop("Air", 0, 0.5, '', 0, 0, 0)
         femm.mi_clearselected()
         # Airspace2
@@ -46,7 +48,8 @@ class Femm_bc():
         femm.mi_clearselected()
 
 class Femm_coil():
-        def __init__(self, x1, y1, x2, y2, circ_name, circ_current, circ_type, material, edit_mode, group, label1, label2, blockname, turns_pr_layer):
+        def __init__(self, x1, y1, x2, y2, circ_name, circ_current, circ_type, material, edit_mode, group, label1, label2, blockname, turns_pr_layer
+                     , parameter=None,simulation_type=None):
             """
             This method defines and creates a (circular) coil with defined current
             ____________________INPUT_______________
@@ -82,6 +85,8 @@ class Femm_coil():
             self.label2 = label2
             self.blockname = blockname
             self.turns_pr_layer = turns_pr_layer
+            self.parameter = parameter
+            self.simulation_type = simulation_type
             femm.mi_drawrectangle(self.x1, self.y1, self.x2, self.y2)
             femm.mi_addcircprop(self.circ_name, self.circ_current, self.circ_type)
             try:
@@ -115,7 +120,10 @@ class Femm_coil():
             femm.mi_clearselected()
             femm.mi_addblocklabel(self.x1+self.label1, self.y2+(self.label2/2))
             femm.mi_selectlabel(self.x1+self.label1, self.y2+(self.label2/2))
-            femm.mi_setblockprop(self.blockname, 1, 0, self.circ_name, 0, self.group, self.turns_pr_layer)
+            if self.simulation_type=='semi_analytical':
+                femm.mi_setblockprop(self.blockname, 0, 0.005, self.circ_name, 0, self.group, self.turns_pr_layer)
+            else:
+                femm.mi_setblockprop(self.blockname, 1, 0, self.circ_name, 0, self.group, self.turns_pr_layer)
             femm.mi_clearselected()
 
 class Femm_magnet():

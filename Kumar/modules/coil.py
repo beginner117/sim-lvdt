@@ -111,9 +111,10 @@ class Length:
         for i in range(0, int(self.inn_layers)):
             # circ = 2*np.pi*InnCoil_InRadius+i*(InnCoil_WireDiam+InnCoil_WireInsul)
             circ = 2 * np.pi * (self.inn_rad + i * (self.inn_wiredia + self.inn_wireins * 2))
-
             InnCoil_TotalWire += circ * self.innwind_pr_layer
-        return InnCoil_TotalWire
+        extra_layer = 2 * np.pi * (self.inn_rad + (i+1) * (self.inn_wiredia + self.inn_wireins * 2))
+        extra_circ = extra_layer*(self.inn_layers-int(self.inn_wiredia))
+        return InnCoil_TotalWire+extra_circ
 
     def upp_outcoil(self):
         """
@@ -122,10 +123,12 @@ class Length:
             Upper outer coil wire length
         """
         UppOutCoil_TotalWire = 0
-        for i in range(0, self.out_layers):
+        for i in range(0, int(self.out_layers)):
             circ = 2 * np.pi * (self.out_rad + i * (self.out_wiredia + self.out_wireins * 2))
             UppOutCoil_TotalWire += circ * self.outwind_pr_layer
-        return UppOutCoil_TotalWire
+        extra_layer = 2 * np.pi * (self.out_rad + (i + 1) * (self.out_wiredia + self.out_wireins * 2))
+        extra_circ = extra_layer * (self.out_layers - int(self.out_wiredia))
+        return UppOutCoil_TotalWire+extra_circ
 
     def low_outcoil(self):
         """
@@ -134,13 +137,15 @@ class Length:
             lower outer coil wire length
         """
         LowOutCoil_TotalWire = 0
-        for i in range(0, self.out_layers):
+        for i in range(0, int(self.out_layers)):
             # circ = 2*np.pi*LowOutCoil_InRadius+i*(LowOutCoil_WireDiam+LowOutCoil_WireInsul)
             circ = 2 * np.pi * (self.out_rad + i * (self.out_wiredia + self.out_wireins * 2))
             LowOutCoil_TotalWire += circ * self.outwind_pr_layer
-        print("Total length of lower out coil wire (mm):", LowOutCoil_TotalWire)
+        extra_layer = 2 * np.pi * (self.out_rad + (i + 1) * (self.out_wiredia + self.out_wireins * 2))
+        extra_circ = extra_layer * (self.out_layers - int(self.out_wiredia))
+        print("Total length of lower out coil wire (mm):", LowOutCoil_TotalWire, ' and extra :', extra_circ)
         print("\n")
-        return LowOutCoil_TotalWire
+        return LowOutCoil_TotalWire+extra_circ
 
 class Coil_prop:
     """

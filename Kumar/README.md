@@ -12,8 +12,8 @@ Here is the list of modules:
     feed.py - contains the dimensions of preliminary NIKHEF designs
     design.py - contains all the classes that returns the coil geometry
     coil.py - contains all the classes that returns coil properties  
-    femm_model.py - contains the script that models the coil in FEMM
-    fields.py - contains the script that calculates the magnetic fields of the coils
+    femm_model.py - contains the classes that models the coils, magnets in FEMM
+    fields.py - contains the classes that calculates the magnetic fields, voltages, forces by numerical methods (using the field information from FEMM)
     LVDT.py - contains the script that simulates a typical LVDT used in pathfinder
     VC.py - contains the script that simulates a typical VC used in pathfinder
     VC_only.py - contains the script that simulates a typical VC-only used in pathfinder
@@ -40,16 +40,6 @@ Here is a explanation for simulating a typical LVDT/VC with just two lines. One 
     (NOTE - if analysis is not for a default design, go to the '.py' file of the specific sensor (for instance, LVDT.py or VC.py), 
      a line after, "if self.default == 'no':", modify the parameter that you want to change as 'self.parameter1')
     design or parameter = list with design type (if 'is default' is 'yes') or parameter (if 'is default is 'no')
-
-Example (for three simultaneous simulations of LVDT, VC, VC_only)
-
-    import femm_simulation
-    import sys
-    sys.path.append('path to the directory containing all the modules above')
-
-    sim_code = femm_simulation.Position_sensor(sensor_type=[LVDT, VC, VC_only], save=False, sim_range={'steps_size_offset':[[20, 1, -10], [10, 1, -5], [20, 1, -10]]},
-                                    data = {'filename(s)':['trail1', 'trial2', 'trail3'], 'is default':['yes', 'no', 'yes'], 'design or parameter':['A', 3, 'I']})
-    sim_code.execute() 
     
 Here are the default assumptions
 
@@ -68,3 +58,5 @@ For chainging the coil excitations and the boundary conditions of LVDT/VC/VC_onl
 For changing the wire, magnet material modify the instance 'wire' in the corresponding LVDT/VC.py script and add this material to the 'prop_inn', 'prop_out' & 'mag_mat' methods of 'Wiretype' class in the design.py module. 
 (Make sure the modified material is available in the FEMM material library. If not, the new material must be defined with all the properties in the classes 'FEMM_coil' and 'FEMM_magnet' of the 'femm_model.py' module.)
     
+
+For a better understanding, a model code to simulate LVDTs is given in 'example.md' file. Please go through that.   

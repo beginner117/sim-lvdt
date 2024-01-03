@@ -5,7 +5,9 @@ import coil
 import feed
 import numpy as np
 from scipy import integrate
+from multiprocessing import Process
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 import threading
 
 class Coil_magfield:
@@ -24,64 +26,6 @@ class Coil_magfield:
         self.angle = angle
         self.freq = freq
         #self.res = res
-
-    def mag_fields(self):
-        gri_x = []; mag_fie_x = [];mag_fie_y = [];gri_y = []
-        #def_force = [];imp_force = [];rot_x = [];rot_y = []
-        emf_tot_upp = []; emf_tot_low = []
-        for item in range(0, self.layers):
-            emf_layer_u = []; emf_layer_l = []; int_vec_u = []; int_vec_l = []
-            threads1 = []; threads2 = []
-            for j in range(0, self.turns_pr_layer):
-                grid_pt = [self.radius + (self.wire*(item+1)), (self.position + (self.coil / 2)) - (j * self.wire)]
-                grid_upp = [np.real(self.radius + (self.wire * (item + 1))), np.real((self.upper_uppend) - (j * self.wire))]
-                grid_low = [np.real(self.radius + (self.wire * (item + 1))), np.real((self.lower_uppend) - (j * self.wire))]
-                # print(grid_pt[0])
-                # print(type(grid_pt[0]))
-                b_field = femm.mo_getb(grid_pt[0], grid_pt[1])
-                b_field_upp = femm.mo_getb(grid_upp[0], grid_upp[1])
-                b_field_low = femm.mo_getb(grid_low[0], grid_low[1])
-
-                #dtheta = 0.1
-                inter = 180/0.1
-                res = coil.Coil_prop(int(inter))
-                uppout_prop = res.uppout()
-                lowout_prop = res.lowout()
-                #thet = []; b_vec_u = []; b_vec_l=[]; r_v = []
-
-                f_upp = lambda r,theta : r*np.real(femm.mo_getb(r, (self.upper_uppend) - (j * self.wire)))[1]
-                f_low = lambda r,theta : r*np.real(femm.mo_getb(r, (self.lower_uppend) - (j * self.wire)))[1]
-                print(type(f_upp))
-                flux_induced_upp = 2*integrate.dblquad((f_upp), 0, np.pi, lambda theta: 0,
-                                  lambda theta: self.r_offset*np.cos(theta) + np.sqrt(self.radius**2 + (self.r_offset*np.sin(theta))**2))
-                flux_induced_low = 2 * integrate.dblquad((f_low), 0, np.pi, lambda theta: 0,
-                                  lambda theta: self.r_offset * np.cos(theta) + np.sqrt(self.radius ** 2 + (self.r_offset * np.sin(theta)) ** 2))
-                emf_layer_u.append(flux_induced_upp[0])
-                emf_layer_l.append(flux_induced_low[0])
-
-                # t1 = threading.Thread(target=integrate.dblquad, args = [f_upp, 0, np.pi, lambda theta: 0,
-                #                   lambda theta: self.r_offset*np.cos(theta) + np.sqrt(self.radius**2 + (self.r_offset*np.sin(theta))**2)])
-                # t1.start()
-                # threads1.append(t1)
-                # t2 = threading.Thread(target=integrate.dblquad, args = [f_low, 0, np.pi, lambda theta: 0,
-                #                   lambda theta: self.r_offset * np.cos(theta) + np.sqrt(self.radius ** 2 + (self.r_offset * np.sin(theta)) ** 2)])
-                # t2.start()
-                # threads2.append(t2)
-
-                gri_x.append(grid_pt[0])
-                gri_y.append(grid_pt[1])
-                mag_fie_x.append(b_field[0])
-                mag_fie_y.append(b_field[1])
-
-            print('up:', emf_layer_u, '\nlow :', emf_layer_l)
-            emf_tot_upp.append(sum(emf_layer_u))
-            emf_tot_low.append(sum(emf_layer_l))
-
-            # print('up:', threads1, '\nlow :', threads2)
-            # emf_tot_upp.append(sum(threads1))
-            # emf_tot_low.append(sum(threads2))
-        print([sum(emf_tot_upp), sum(emf_tot_low)])
-        return [sum(emf_tot_upp), sum(emf_tot_low)]
 
     def forces(self, mag_len, mag_dia, current):
         gri_x = [];mag_fie_x = [];mag_fie_y = [];gri_y = []
@@ -128,41 +72,229 @@ class Coil_magfield:
         #print('default force :', sum(def_force), 'updated force:', sum(imp_force))
         return [sum(def_force), sum(imp_force)]
 
+class B_field:
+    def __init__(self, r_max,z_max, r_grid, z_grid, filename=None,design_type=None,design_parameters=None, input_parameters=None):
+        self.r_max = r_max; self.z_max = z_max
+        self.dr = r_grid; self.dz = z_grid
+        self.design = design_type; self.coil_config = design_parameters
+        self.input_parameters = input_parameters
+        self.filename = filename
+    def calculate(self):
+        r_vec = np.arange(0, self.r_max+self.dr, self.dr, dtype = np.double)
+        z_vec = np.arange(0, self.z_max+self.dz, self.dz, dtype = np.double)
+        print(len(z_vec), z_vec[1])
+        b_vec = np.zeros((len(z_vec), len(r_vec), 2), dtype = np.double).astype(complex)
+        for i in range(len(z_vec)):
+            for j in range(len(r_vec)):
+                b_vec[i, j, :] = femm.mo_getb(r_vec[j], z_vec[i])
 
-# turns_per_layer = int(position.upp_outcoil()[3])
-# analytical = fields.Coil_magfield(radius=geo.outcoil()[1], position=uppout_prop['UppOut_position'][i],
-#                                   coil_height=geo.outcoil()[0], current=sensor.para()[2],
-#                                   turns_pr_layer=int(position.upp_outcoil()[3]), layers=geo.outcoil()[2],
-#                                   insulated_wire_thickness=(wire.prop_out()[0] + 2 * wire.prop_out()[1]), angle=0)
-# if self.sim_type == 'FEMM+ana':
-#     force_an = analytical.forces(geo.mag()[0], geo.mag()[1], sensor.para()[2])
-#     for_def.append(force_an[0])
-#     for_imp.append(force_an[1])
-#     print('default force:', force_an[0], 'updated force:', force_an[1])
-# if self.sim_type == 'math+ana':
-#     force_an = analytical.forces(geo.mag()[0], geo.mag()[1], sensor.para()[2])
-#     for_ana.append(force_an[2])
-#     print('analytical force:', sum(force_an[2]))
+        b_vec_z = np.real(b_vec[:, :, 1])  #b_mat_z
+        b_vec_r = np.real(b_vec[:, :, 0])   #b_mat_r
+
+        if self.filename:
+            np.savez_compressed(self.filename, radial_vectors = r_vec, z_vectors = z_vec, radial_step = self.dr, z_step = self.dz,
+                                mag_field_z = b_vec_z, mag_field_r = b_vec_r,
+                                Design_type = self.design, Input_parameters = self.input_parameters, Innercoil_config = self.coil_config)
+        return [b_vec]
+
+class Flux:
+    def __init__(self, datafile, x_offset,  flux_file=None, save = None, type=None, coil_wiretype=None, wire_thickness=None):
+        self.datafile = datafile
+        self.x_offset = x_offset
+        self.d_theta = 0.01
+        self.save = save
+        self.type = type
+        self.coil_wire = coil_wiretype
+        self.flux_file = flux_file
+        self.wire_thickness = wire_thickness
+        self.flux = None
+        #self.value = feed.data
+        #self.wire = design.Wiretype(outcoil_material=self.coil_wire, inncoil_material=self.coil_wire)
+    def asym_flux_polar(self, R, b_z_r_vec):
+        #computes the magnetic flux inside a circle with radius R, angular stepsize dtheta, offset a, in the x-direction from centre of the innercoil by integrating B_z(r) field
+        b = np.load(self.datafile)
+
+        dr = b['radial_vectors'][1]   #stepsize of the radial vector
+        if R>b['radial_vectors'][-1]:
+            print('not possible')
+            quit()
+        n_theta = round(np.floor(np.pi/self.d_theta))  #no.of points in the theta coordinate
+        int_vec = np.zeros(n_theta+1)  #initialize integral vector
+        for i in range(0, n_theta+1):  #looping over all the angles (i*d_theta) less than pi
+            #creating a B vector fiels and r vector field for a given angle theta
+            b_vec_i = b_z_r_vec[b['radial_vectors']<((self.x_offset*np.cos(i*self.d_theta))+np.sqrt(R**2-(self.x_offset*np.sin(i*self.d_theta))**2))]
+            r_vec_i = b['radial_vectors'][b['radial_vectors']<((self.x_offset*np.cos(i*self.d_theta))+np.sqrt(R**2-(self.x_offset*np.sin(i*self.d_theta))**2))]
+            #integrating the Bfield in r-coordinate with differential rdr in polar
+            int_vec[i] = np.trapz(r_vec_i*b_vec_i, dx=dr)
+        self.flux = 2*np.trapz(int_vec, dx=self.d_theta)   #multiplying with 2 as the integral is only computed for positive y-axis
+        return self.flux
+    def outcoil(self, rad):
+        #computes the flux phi(z) in Tm^2 by integrating the circle inside the outer coils at every z grid point with the outer coil offset a
+        b = np.load(self.datafile)
+        z_vec_len = len(b['z_vectors'])
+        phi_vec = np.zeros(len(b['z_vectors']))
+        force_vec = np.zeros(len(b['z_vectors']))
+        #rad = self.value[self.type]['out_rad']
+        for i in range(z_vec_len): #loop over all heights in z grid
+            phi_vec[i] = self.asym_flux_polar(rad, b['mag_field_z'][i,:])
+            #force_vec[i] = (2*np.pi*1*b['mag_field_r'][i,:])/1000
+        #creating the full phi_tot & z_tot vectors for the domain [-z_max,z_max] by mirroring the vectors in the domain [0, z_max]
+        z_tot = np.concatenate((-np.flipud(b['z_vectors'][1:]), b['z_vectors'][1:]))
+        phi_tot = np.concatenate((np.flipud(phi_vec[1:]), phi_vec[1:]))*(10**-6)  #converting from mm^2 to m^2
+        print('flux is in T.m^2')
+        # if self.save:
+        #     np.savez_compressed(self.flux_file, z_vec = z_tot, phi_vec = phi_tot)
+        return [z_tot, phi_tot]
+
+    def asym_flux_car(self, R):
+        b = np.load(self.datafile)
+        dr = b['radial_vectors'][1]
+    def outcoil_alllayers(self,  wire_thickness1, out_layers, out_radius, parallel_processing = None):
+        #Total flux by looping over all outer coil layers and adding the flux of each layer
+        # if self.coil_wire:
+        #     wire_thickness1 = self.wire.prop_out()[0] + (2 * self.wire.prop_out()[2])
+        # if self.wire_thickness:
+        #     wire_thickness1 = self.wire_thickness
+        phi_vec_list = []
+        b = np.load(self.datafile)
+        for i in range(0, out_layers):
+
+            rad_i = out_radius+(wire_thickness1*i)
+
+            res_layer = self.outcoil(rad_i)
+            phi_vec_list.append(res_layer[1])
+            print('layer : '+str(i+1) + 'completed')
+        z_vec_save = res_layer[0]
+        if parallel_processing :
+            processes = [Process(target=self.outcoil, args=(self.value[self.type]['out_rad']+(wire_thickness1*m))) for m in range(self.value[self.type]['out_layers'])]
+            for process in processes:
+                process.start()
+            for process in processes:
+                process.join()
+            # for i in range(self.value[self.type]['out_layers']):
+            #     z_vec, phi_vec =
+        if self.save:
+            np.savez_compressed(self.flux_file, z_vec = z_vec_save, phi_vec = sum(phi_vec_list),
+                                Design_type = b['Design_type'], Input_parameters = b['Input_parameters'], Innercoil_config = b['Innercoil_config'])
+        return [z_vec_save, sum(phi_vec_list)]
 
 
 
-# for k in range(0, int(inter)+1):
-                #     thet.append(k*dtheta)
-                #     r_vec = np.real(self.r_offset*np.cos(thet[k]) + np.sqrt(self.radius**2 + (self.r_offset*np.sin(thet[k]))**2) + self.wire*(item+1))
-                #     uppout_prop['UppOut_flux'][k] = femm.mo_getb(grid_upp[0], grid_upp[1])[1]
-                #     lowout_prop['LowOut_flux'][k] = femm.mo_getb(grid_low[0], grid_low[1])[1]
-                #     r_v.append(r_vec)
-                #     #print('test',r_vec, np.real(uppout_prop['UppOut_flux'][k]))
-                # int_vec_u.append(np.trapz(r_v*np.real(uppout_prop['UppOut_flux']), dx = 0.1))
-                # int_vec_l.append(np.trapz(r_v*np.real(lowout_prop['LowOut_flux']), dx = 0.1))
-                # a1 =  2*np.trapz(int_vec_u, dx = dtheta)
-                # a2 = 2 * np.trapz(int_vec_l, dx=dtheta)
-                # emf_layer_u.append(a1); emf_layer_l.append(a2)
+class Voltages:
+    #induced voltages for different z positions of the inner coil. Lower bdry of lower coil is -z_max, upper bdry of upper coil is z_max
+    def __init__(self, loadfile):
+        self.loadfile = loadfile
+        #self.savefile = savefile
+    def calculate(self, sim_range, outcoil_dist, outcoil_ht, out_wire_thickness, filename = None):
+        b = np.load(self.loadfile)
+        z_vec = b['z_vec'] ; phi_vec = b['phi_vec']
+        print('len z_vec :', len(z_vec), z_vec[-1])
+        z_max = sim_range + (outcoil_ht + outcoil_dist) / 2
+        if z_max>z_vec[-1]:
+            print("z_max should be smaller than the z domain of the flux vector")
+            quit()
+        z_lower = z_vec[0]  #lower bdry of the flux vector
+        dz = z_vec[1] - z_vec[0] #stepsize of z vector
+
+        z_n_min = round((-z_max-z_lower)/dz) #min n for bottom of lower coil
+        z_n_max = round((z_max-z_lower -(outcoil_dist+outcoil_ht))/dz)  #max n for bottom of lower out coil
 
 
-                #r_max = self.r_offset*np.cos(theta) + np.sqrt(self.radius**2 + (self.r_offset*np.sin(theta))**2)
+        print(z_n_min, z_n_max)
+        v_induced_low = np.zeros(round(z_n_max-z_n_min)+1)
+        v_induced_upp = v_induced_low   #initializing induced voltages for lower and upper coils
 
-                # f1 = lambda y, x: y
-                # print(type(f1))
-                # f2 = integrate.dblquad(f1, 0, 1, lambda x: x, lambda x: 2 - x)
-                # print('f2 :', f2)
+        #looping over all positions of outer coil & copute induced voltage in each coil by integrating phi(z) over the coil_ht.
+        #introducing prefactor omega = 2*pi*f = 2*pi*10000
+        for i in range(0, round(z_n_max-z_n_min)+1):
+            v_induced_low[i] = np.sum(phi_vec[(z_n_min + round(out_wire_thickness / (2 * dz)) + i):
+                                              (z_n_min + round((outcoil_ht - out_wire_thickness / 2) / dz) + i + 1):round(
+                out_wire_thickness / dz)]) * 2 * np.pi * 10000
+            v_induced_upp[i] = np.sum(phi_vec[(z_n_min + round((outcoil_dist + out_wire_thickness / 2) / dz) + i):(z_n_min
+                                                                                                     + round(
+                        (outcoil_dist + outcoil_ht - out_wire_thickness / 2) / dz) + i + 1):round(out_wire_thickness / dz)]) * 2 * np.pi * 10000
+        # chainging the new z positions for centre of inner coil into dz step of 0.1
+        z_vec_new = z_vec[z_n_min:z_n_max + 1] + (outcoil_dist + outcoil_ht) / 2
+        print('no of windings computed')
+        if filename:
+            np.savez_compressed(filename, z_vec = z_vec_new, v_low = v_induced_low, v_upp = v_induced_upp,
+                                v_upp_corrected = np.flipud(v_induced_upp))
+        return [z_vec_new, v_induced_low, v_induced_upp, np.flipud(v_induced_upp)]
+
+class Plots:
+    def __init__(self, filename):
+        self.filename = filename
+        self.b = np.load(self.filename, allow_pickle=True)
+    def bfield_plot(self, parameter, shift_z = 0, n_quiver_r=None, n_quiver_z=None):
+        r_vec = self.b['radial_vectors'];z_vec= self.b['z_vectors']
+        mag_field_z  = self.b['mag_field_z'];mag_field_r= self.b['mag_field_r']
+        z_tot = np.concatenate((-np.flipud(z_vec[1:]), z_vec))
+        b_z_tot = np.concatenate((np.flipud(mag_field_z[1:, :]), mag_field_z), axis=0)
+        b_r_tot = np.concatenate((-np.flipud(mag_field_r[1:, :]), mag_field_r), axis=0)
+        r_v, z_v = np.meshgrid(r_vec, z_tot)
+        b_tot = np.sqrt(b_r_tot**2 + b_z_tot**2)
+        dz = z_tot[1] - z_tot[0]; dr = r_vec[1] - r_vec[0]
+
+        if parameter == 'contour_norm':
+            fig1, ax1 = plt.subplots(layout = 'constrained')
+            cs = ax1.contourf(r_v, z_v, b_tot/np.amax(b_tot), cmap = 'jet')
+            cbar = fig1.colorbar(cs)
+            cbar.ax.set_ylabel(r'$B/B_{max}$')
+            contourplot = False
+        if parameter == 'contourplot':
+            'Scaling of colorbar is not correct yet'
+            fig1, ax1 = plt.subplots(layout='constrained')
+            CS = ax1.contourf(r_v, z_v, b_tot, cmap='jet')
+            cbar = fig1.colorbar(CS)
+            cbar.ax.set_ylabel('|B| [T]')
+        if parameter == 'quiverplot':
+            rows = np.arange(0, len(z_tot), n_quiver_z)
+            cols = np.arange(0, len(r_vec), n_quiver_r)
+            # normalize all vectors for a clearer plot
+            b_mat_r_norm = b_r_tot / b_tot
+            b_mat_z_norm = b_z_tot / b_tot
+            plt.quiver(r_v[rows, :][:, cols], z_v[rows, :][:, cols], b_mat_r_norm[rows, :][:, cols],
+                       b_mat_z_norm[rows, :][:, cols], cmap='plasma')
+        if parameter == 'coil':
+            design_data = self.b['Design']
+            input_parameters = self.b['Input_parameters']
+            out_dist = design_data.item()['out_dist']
+            out_ht = design_data.item()['out_ht']
+            wire_width, wire_ins = input_parameters.item()['outercoil Diameter_Insulation_Wiretype'][0:2]
+            wire_tot = wire_width + 2 * wire_ins
+            # plot the emitting coil as a rectangle
+            plt.gca().add_patch(
+                (Rectangle((design_data.item()['inn_rad'], (design_data.item()['inn_dist'] - design_data.item()['inn_ht']) / 2), wire_tot * design_data.item()['inn_layers']
+                           , design_data.item()['inn_ht'], edgecolor='blue', facecolor='none', lw=2)))
+            # plot the receiving coils as rectangles
+            plt.gca().add_patch((Rectangle((design_data.item()['out_rad'], 0.5 * (design_data.item()['out_dist'] - design_data.item()["out_ht"]) + shift_z),
+                                           wire_tot * design_data.item()['out_layers'], design_data.item()["out_ht"], edgecolor='red',
+                                           facecolor='none', lw=2)))
+            plt.gca().add_patch((Rectangle((design_data.item()['out_rad'], -0.5 * (design_data.item()['out_dist'] + design_data.item()['out_ht']) + shift_z),
+                                           wire_tot * design_data.item()['out_layers'], design_data.item()['out_ht'], edgecolor='red',
+                                           facecolor='none', lw=2)))
+
+        if parameter== 'gradient_log':
+            grad_r, grad_z = np.gradient(np.sqrt(np.real(b_r_tot)**2 + np.real(b_z_tot)**2), dr, dz)
+            grad_tot = np.sqrt(grad_r**2 + grad_z**2)
+            out_dist = 1
+            out_ht = 1
+            wire_dia = 1
+
+
+            fig1, ax1 = plt.subplots(layout = 'constrained')
+            cs = ax1.contourf()
+            cbar = fig1.colorbar(cs)
+            cbar.ax.set_ylabel(r'$log(|\nabla B/\nabla B_{max}|)$')
+        if parameter == 'gradient':
+            fig1, ax2 = plt.subplots(layout='constrained')
+            CS = ax2.contourf()
+            cbar = fig1.colorbar(CS)
+            cbar.ax.set_ylabel(r'$|\nabla B/\nabla B_{max}|$')
+        if parameter == 'gradient_quiver':
+            rows = np.arange(0, len(z_tot), n_quiver_z)
+            cols = np.arange(0, len(r_vec), n_quiver_r)
+
+
+
+

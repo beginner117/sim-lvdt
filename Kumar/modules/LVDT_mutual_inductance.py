@@ -5,7 +5,7 @@ import coil
 import feed
 import numpy as np
 class Analysis1:
-    def __init__(self, save, default, offset, design_type=None, filename1=None,  parameter1=None):
+    def __init__(self, save, default, offset, design_type=None, filename1=None, parameter1=None):
         self.offset = offset
         self.save = save
         self.filename1 = filename1
@@ -19,10 +19,11 @@ class Analysis1:
                                   value[self.design_type]['out_layers'], value[self.design_type]['out_dist'], value[self.design_type]['mag_len'], value[self.design_type]['mag_dia'], value[self.design_type]['ver_shi'])
             input_par2 = 'design type : '+self.design_type
         else:
-            input_par2 = {'IC_height':18, 'IC_radius':21, 'IC_layers':self.parameter1, 'IC_distance':0, 'OC_height':13.5, 'OC_radius':31.5, 'OC_layers':5, 'OC_distance':14.5, 'mag_len':0, 'mag_dia':0, 'ver_shi':0}
+            input_par2 = {'IC_height':24, 'IC_radius':11, 'IC_layers':self.parameter1[2], 'IC_distance':0, 'OC_height':13.5, 'OC_radius':35, 'OC_layers':self.parameter1[3], 'OC_distance':54.5, 'mag_len':40, 'mag_dia':10, 'ver_shi':0}
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
-        wire = design.Wiretype(outcoil_material='electrisola_1b', inncoil_material='electrisola_2a', magnet_material="N40")  # can be changed
+        wire = design.Wiretype(outcoil_material=self.parameter1[1], inncoil_material=self.parameter1[0], magnet_material="N40")  # can be changed
+        print('inner coil material - ', wire.inncoil_material, ', outer coil material - ', wire.outcoil_material)
         position = coil.Position(inn_ht=geo.inncoil()[0], inn_rad=geo.inncoil()[1], inn_layers=geo.inncoil()[2],
                                  inn_dist=geo.inncoil()[3], out_ht=geo.outcoil()[0], out_rad=geo.outcoil()[1],
                                  out_layers=geo.outcoil()[2], out_dist=geo.outcoil()[3],
