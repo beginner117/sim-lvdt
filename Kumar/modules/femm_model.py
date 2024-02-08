@@ -28,8 +28,8 @@ class Femm_bc():
         femm.mi_clearselected()
         femm.mi_addblocklabel(self.AirSpaceRadius_1 / 4, self.AirSpaceRadius_1 / 2)
         femm.mi_selectlabel(self.AirSpaceRadius_1 / 4, self.AirSpaceRadius_1 / 2)
-        #femm.mi_setblockprop("Air", 0, self.parameter, '', 0, 0, 0)
         femm.mi_setblockprop("Air", 0, 0.5, '', 0, 0, 0)
+        #femm.mi_setblockprop("Air", 1, 0, '', 0, 0, 0)
         femm.mi_clearselected()
         # Airspace2
         femm.mi_drawline(0, self.AirSpaceRadius_2, 0, -self.AirSpaceRadius_2)

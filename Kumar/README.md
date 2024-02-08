@@ -9,7 +9,7 @@ Below, you will find some short instructions on how to install the software.
 
 Here is the list of modules:
 
-    feed.py - contains the dimensions of preliminary NIKHEF designs
+    feed.py - contains the dimensions of preliminary NIKHEF designs and wire types used
     design.py - contains all the classes that returns the coil geometry
     coil.py - contains all the classes that returns coil properties  
     femm_model.py - contains the classes that models the coils, magnets in FEMM
@@ -20,6 +20,8 @@ Here is the list of modules:
     YOKE.py - contains the script that simulates a complicated YOKE structure used in pathfinder
     LVDT_mutual_inductance.py - contains the script that calculates the mutual inductance between the coils of the LVDT
     LVDT_correction.py - contains the script that calculates the correction factor (needed due to open circuit simulation in FEMM) of LVDT response  
+    femm_simulation.py - contains all the methods that call and execute LVDT and VC simulations using FEMM
+    analytical_simulation - contains all the methods that call and execute LVDT and VC simulations analytically
     single_coil.py - models a single coil
 
 Here is a explanation for simulating a typical LVDT/VC with just two lines. One can simulate one or more sensors simultaneously
@@ -40,7 +42,8 @@ Here is a explanation for simulating a typical LVDT/VC with just two lines. One 
     (NOTE - if analysis is not for a default design, go to the '.py' file of the specific sensor (for instance, LVDT.py or VC.py), 
      a line after, "if self.default == 'no':", modify the parameter that you want to change as 'self.parameter1')
     design or parameter = list with design type (if 'is default' is 'yes') or parameter (if 'is default is 'no')
-    
+    *simulation_type = list with strings 'semi_analytical' for analytical calculation. (This is an optional parameter) 
+
 Here are the default assumptions
 
     wire material - 32 AWG
@@ -51,8 +54,10 @@ Here are the default assumptions
     precision - 1.0e-10
             Boundary conditions 
     material - Air
-    Region 1 - sphere with radius 100mm
-    Region 2 - sphere with radius 300mm
+    Region 1, mesh - sphere with radius 100mm, 
+    Region 2, mesh - sphere with radius 300mm, auto mesh
+    #For analytical calculations:
+
 NOTE - To modify any of the above parameters, alter the code in the respective modules. 
 For chainging the coil excitations and the boundary conditions of LVDT/VC/VC_only, modify the instance 'sensor' and 'bc', and to change the units and precisions, modify the command 'mi_probdef' in the corresponding LVDT/VC.py script 
 For changing the wire, magnet material modify the instance 'wire' in the corresponding LVDT/VC.py script and add this material to the 'prop_inn', 'prop_out' & 'mag_mat' methods of 'Wiretype' class in the design.py module. 

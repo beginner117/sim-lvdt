@@ -108,12 +108,12 @@ class Length:
             Inner coil wire length
         """
         InnCoil_TotalWire = 0
+        inn_wire_thickness = self.inn_wiredia + (self.inn_wireins * 2)
         for i in range(0, int(self.inn_layers)):
-            # circ = 2*np.pi*InnCoil_InRadius+i*(InnCoil_WireDiam+InnCoil_WireInsul)
-            circ = 2 * np.pi * (self.inn_rad + i * (self.inn_wiredia + self.inn_wireins * 2))
+            circ = 2 * np.pi * (self.inn_rad + (i * inn_wire_thickness))
             InnCoil_TotalWire += circ * self.innwind_pr_layer
         extra_layer = 2 * np.pi * (self.inn_rad + (i+1) * (self.inn_wiredia + self.inn_wireins * 2))
-        extra_circ = extra_layer*(self.inn_layers-int(self.inn_wiredia))
+        extra_circ = extra_layer*(self.inn_layers-int(self.inn_layers))
         return InnCoil_TotalWire+extra_circ
 
     def upp_outcoil(self):
@@ -123,11 +123,12 @@ class Length:
             Upper outer coil wire length
         """
         UppOutCoil_TotalWire = 0
+        out_wire_thickness = self.out_wiredia + (self.out_wireins * 2)
         for i in range(0, int(self.out_layers)):
-            circ = 2 * np.pi * (self.out_rad + i * (self.out_wiredia + self.out_wireins * 2))
+            circ = 2 * np.pi * (self.out_rad + (i * out_wire_thickness))
             UppOutCoil_TotalWire += circ * self.outwind_pr_layer
         extra_layer = 2 * np.pi * (self.out_rad + (i + 1) * (self.out_wiredia + self.out_wireins * 2))
-        extra_circ = extra_layer * (self.out_layers - int(self.out_wiredia))
+        extra_circ = extra_layer * (self.out_layers - int(self.out_layers))
         return UppOutCoil_TotalWire+extra_circ
 
     def low_outcoil(self):
@@ -137,12 +138,13 @@ class Length:
             lower outer coil wire length
         """
         LowOutCoil_TotalWire = 0
+        out_wire_thickness = self.out_wiredia + (self.out_wireins * 2)
         for i in range(0, int(self.out_layers)):
             # circ = 2*np.pi*LowOutCoil_InRadius+i*(LowOutCoil_WireDiam+LowOutCoil_WireInsul)
-            circ = 2 * np.pi * (self.out_rad + i * (self.out_wiredia + self.out_wireins * 2))
+            circ = 2 * np.pi * (self.out_rad + (i * out_wire_thickness))
             LowOutCoil_TotalWire += circ * self.outwind_pr_layer
         extra_layer = 2 * np.pi * (self.out_rad + (i + 1) * (self.out_wiredia + self.out_wireins * 2))
-        extra_circ = extra_layer * (self.out_layers - int(self.out_wiredia))
+        extra_circ = extra_layer * (self.out_layers - int(self.out_layers))
         print("Total length of lower out coil wire (mm):", LowOutCoil_TotalWire, ' and extra :', extra_circ)
         print("\n")
         return LowOutCoil_TotalWire+extra_circ

@@ -1,6 +1,7 @@
 import femm
 import femm_model
 import feed
+import sys
 import numpy as np
 from scipy import integrate
 from multiprocessing import Process
@@ -30,12 +31,13 @@ class LVDT:
         else:
             outer_rad = f1['out_rad']
 
-        flux_data.outcoil_alllayers(wire_thickness, outcoil_layers, outer_rad)
+        flux_data.outcoil_flux(wire_thickness, outcoil_layers, outer_rad)
 
-    def response(self, inncoil_range, outer_coil_dist=None, outer_coil_width=None, wire_dia = None):
+    def response(self, inncoil_range, outer_coil_dist=None, outer_coil_width=None, wire_dia = None, inner_current=None):
         f = np.load(self.file, allow_pickle=True)
         f1 = f['Innercoil_config'].item()
         f2 = f['Input_parameters'].item()
+        inn_vol = abs(f['innercoil_voltage'].item())
         if wire_dia:
             wire_thickness = wire_dia
         else:
@@ -50,7 +52,24 @@ class LVDT:
             outer_width = outer_coil_width
         else:
             outer_width = f1['out_ht']
+        if inner_current:
+            inn_exe = inner_current
+        else:
+            inn_exe = f2['Innercoil_current(A)']
         vol = fields.Voltages(self.file)
         res = vol.calculate(inncoil_range, outcoil_dist, outer_width, wire_thickness)
+
+        plt.plot(res[0], inn_exe*(res[3]-res[1]), 'o--')
+        plt.xlabel('Inner coil distance [mm]')
+        plt.ylabel('Response [V/A]')
+        plt.title('Outer coil response')
+        plt.grid()
+        plt.show()
+
+        m, co = np.polyfit(res[0],(res[3]-res[1])/inn_exe, 1)
+        print('slope of the response[V/mmA] : ',m )
+
+        m_v, co_v = np.polyfit(res[0],((res[3]-res[1])/inn_vol)*70.02, 1)
+        print('voltage normalised slope of the response [V/mmV] : ', m_v)
 
 
