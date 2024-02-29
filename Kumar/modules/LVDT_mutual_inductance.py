@@ -19,10 +19,10 @@ class Analysis1:
                                   value[self.design_type]['out_layers'], value[self.design_type]['out_dist'], value[self.design_type]['mag_len'], value[self.design_type]['mag_dia'], value[self.design_type]['ver_shi'])
             input_par2 = 'design type : '+self.design_type
         else:
-            input_par2 = {'IC_height':10, 'IC_radius':4.5, 'IC_layers':6, 'IC_distance':0, 'OC_height':10, 'OC_radius':25, 'OC_layers':7, 'OC_distance':36, 'mag_len':8, 'mag_dia':5, 'ver_shi':0}
+            input_par2 = {'IC_height':self.parameter1, 'IC_radius':9, 'IC_layers':6, 'IC_distance':0, 'OC_height':10, 'OC_radius':20, 'OC_layers':5, 'OC_distance':39.8, 'mag_len':29.8, 'mag_dia':8, 'ver_shi':0}
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
-        wire = design.Wiretype(outcoil_material=self.parameter1[1], inncoil_material=self.parameter1[0], magnet_material="N40")  # can be changed
+        wire = design.Wiretype(outcoil_material='32 AWG', inncoil_material='32 AWG', magnet_material="N40")  # can be changed
         print('inner coil material - ', wire.inncoil_material, ', outer coil material - ', wire.outcoil_material)
         position = coil.Position(inn_ht=geo.inncoil()[0], inn_rad=geo.inncoil()[1], inn_layers=geo.inncoil()[2],
                                  inn_dist=geo.inncoil()[3], out_ht=geo.outcoil()[0], out_rad=geo.outcoil()[1],
@@ -153,6 +153,6 @@ class Analysis1:
         if self.save:
             np.savez_compressed(self.filename1, Design = input_par2, Input_config = other_par, offset = self.offset, self_inductances_Inner_upper_lower = self_ind, mutual_ind_IU_UL_LI=mut, k_factors=k_f)
 
-        return [mut, self_ind, k_f, dc_r]
+        return [mut, self_ind, k_f, dc_r, input_par2, other_par, self.offset]
 
 

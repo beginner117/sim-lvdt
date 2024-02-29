@@ -17,37 +17,20 @@ ind_mean = []
 imp_err = []
 imp_mean = []
 
-a1 = ['inn30_out30','inn30_out31','inn30_out32','inn30_out34',
-    'inn31_out30','inn31_out31','inn31_out32','inn31_out34']
-a2 = ['inn32_out30','inn32_out31','inn32_out32','inn32_out34',
-    'inn34_out30','inn34_out31','inn34_out32','inn34_out34']
-output_files=["C:/Users/kumar/PycharmProjects/lvdtsimulations/Kumar/Analysis/typeB/mix_wire/{}.npz".format(i)
-              for i in a2]
-
-legends =  ['1.25\n(32_30)','1.112\n(32_31)','1\n(32_32)','0.788\n(32_34)',
-    '1.585\n(34_30)','1.414\n(34_31)','1.268\n(34_32)','1\n(34_34)'] #b2
-# legends =  ['1\n(30_30)','0.890\n(30_31)','0.8\n(30_32)','0.63\n(30_34)',
-#     '1.12\n(31_30)','1\n(31_31)','0.898\n(31_32)','0.708\n(31_34)'] #b1
-ind = np.array([8.1, 8.7, 9.3, 9.6, 9.9, 10.6, 11.3])  #a1
-turns = []  #a1
-
-imp = np.array([510.2, 547.7, 587.3, 606.4, 627.9, 669.9, 713.4])  #type F
-#imp = np.array()
-dcr = [25.62*2]
-# correction =[1.1319839174340767, 1.1709069817548114, 1.2145003094076183, 1.3510842829538579,  #a1
-#              1.1320069232065757, 1.170942460760361, 1.2146522865034355, 1.3511269163325477]
-# correction = [1.1320088557766808, 1.1709021633862942, 1.214675238070608, 1.3511251602241567, #a2
-#               1.132048602290738, 1.170926928116232, 1.2147308881064387, 1.3510785383299613]
-
-# correction = [1.0940403750973609, 1.1222100346902188, 1.1525487564160242, 1.2457952269743158, #b1
-#               1.0940649207480795, 1.12216331949018, 1.1526811009761644, 1.2458134067030815]
-
-correction = [1.0940663144488774, 1.1221680912744298, 1.152529369624771, 1.2458226085640776, #b2
-              1.0940526002880402, 1.1221735251611102, 1.1525277456055116, 1.2457838462211068]
+a3 = ['2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18','19', '20', '21', '22', '23', '24']
+a4 = ['10_dist_39p8', '11_dist_38p8', '12_dist_37p8', '13_dist_36p8', '14_dist_35p8']
+output_files=["C:/Users/kumar/PycharmProjects/lvdtsimulations/Kumar/Analysis/A1/inn_ht/innwid_{}.npz".format(i)
+              for i in a3]
+#legends = ['10\n(dist-39.8mm)','11\n(dist-38.8mm)', '12\n(dist-37.8mm)', '13\n(gap-36.8mm)', '14\n(gap-35.8mm)']
+legends = ['2', '3', '4', '5', '6', '7', '8', '9','10', '11', '12', '13', '14', '15', '16', '17', '18','19', '20', '21', '22', '23', '24']
+#correction = [1.0560480547414626, 1.0560483632577393, 1.0560487508641079, 1.0560485263668506] #inn_rad
+#correction = [1.0560480547414626, 1.0653959874651027, 1.0752790128386174, 1.085410814490247, 1.0957967516620084]   #out_wid
+correction = [1.0559921603532942, 1.0559628701145847, 1.055996207239448, 1.0560230491636033, 1.0559637020789578, 1.0560242747617417, 1.0560422680636767, 1.0559634202158819
+    ,1.0559639944437003, 1.0559636030920432, 1.0560787683422992, 1.0560644592153683, 1.0560258238172573,
+    1.0560345116708498, 1.0560290277845286, 1.056068513925496, 1.056000978524798, 1.056034159707231,
+              1.0560480547414626, 1.0560344612744659, 1.0560835540785851, 1.0561127581406786, 1.0559861769507246]  #inn_wid
 for i in range(0,len(output_files)):
     b = np.load(output_files[i], allow_pickle=True)
-
-    #print(b['Input_config'])
     files.append(b)
 n = len(output_files)
 gain = 70.02
@@ -82,7 +65,6 @@ class Lvdt():
         for i in range(0,n):
             out_sig = abs(np.array(files[i]["UOC_voltages"])) - abs(np.array(files[i]["LOC_voltages"]))
             norm_sig = out_sig / abs(np.array(files[i]["IC_voltages"]))
-            #norm_sig = out_sig / abs(np.array(files[i]["IC_currents"]))
             plt.plot(np.array(files[i]["IC_positions"]), abs(norm_sig)*gain, 'o-', label=legends[i])
         plt.legend()
         plt.grid()
@@ -93,8 +75,6 @@ class Lvdt():
             shutil.move("norm_sig.png", self.path1)
         plt.show()
     def norm_fit(self, par:str):
-        out_dia = np.zeros(n)
-        inn_dia = np.zeros(n)
         for i in range(0,n):
             inn_pos = np.array(files[i]["IC_positions"])
             out_sig = abs(np.array(files[i]["UOC_voltages"])) - abs(np.array(files[i]["LOC_voltages"]))
@@ -107,9 +87,6 @@ class Lvdt():
             relerr_fem = (abs(sim_fit - norm_sig*gain*correction[i]) / abs(norm_sig*gain*correction[i])) * (100)
             relerr_fem_c = ((abs(sim_fit_c - (norm_sig_c))) / abs(norm_sig_c)) * (100)
             fiterr_fem = (sim_fit - norm_sig)
-            g1 = files[i]['Input_parameters'].item()
-            out_dia[i] = g1['outercoil Diameter_Insulation_Wiretype'][0]
-            inn_dia[i] = g1['innercoil Diameter_Insulation_Wiretype'][0]
             if par == 'signal':
                 plt.plot(inn_pos, sim_fit, 'o-', label=legends[i])
             if par == 'rel_error' :
@@ -123,21 +100,19 @@ class Lvdt():
         if par == 'signal' :
             plt.ylabel('LVDT response  [V/v]')
             plt.xlabel('Inner Coil Position [mm]')
-        if par == 'rel_error':
-            plt.ylim(0, 1.5)
+        elif par == 'rel_error':
+            plt.ylim(0, 2)
             plt.ylabel('Relative error [%]')  #[$\dfrac{abs(fit error)}{actual}$]
             plt.xlabel('Inner Coil Position [mm]')
-        if par == 'error':
+
+        elif par == 'error':
             plt.ylabel('Error (fit-actual)')
             plt.xlabel('Inner Coil Position [mm]')
-        if par == 'slope':
-            dia_ratio = np.round(out_dia/inn_dia, decimals = 4)
-            print(dia_ratio)
-            #plt.plot(legends, (-slopes[3]+np.array(slopes))*100/slopes[3], "o--")
-            plt.plot(legends, slopes, "o--", label = 'simulation')
-            #plt.plot(legends, (-ind[3] + ind) * 100 / ind[3], "o--")
+        elif par == 'slope':
+            #plt.plot(legends, (-slopes[0]+np.array(slopes))*100/slopes[0], "o--", label='simulation')
+            plt.plot(legends, slopes, "o--", label='simulation')
             plt.ylabel('normalised response slope [V/mmV]')
-            plt.xlabel('wire size ratio [$\dfrac{outer}{inner}$], inn coil wire_out coil wire')
+            plt.xlabel('inner coil width (mm)')
             plt.xticks(rotation=15)
         #plt.ylim(0,0.1)
         plt.legend()
@@ -145,30 +120,42 @@ class Lvdt():
             plt.savefig("normfiterr.png")
             shutil.move("normfiterr.png", self.path1)
         plt.grid()
-        #plt.legend(title='size ratio\n[$\dfrac{outer}{inner}$]', loc='center left', bbox_to_anchor=(1, 0.5))
-        plt.title('type:B, Sensitivity, gain:70.02\n(20mA excitation, sim range:5mm,0.25mm step, full fit)')
+        plt.title('top up IP, Linearity, gain:70.02\n(20mA excitation, sim range:±5mm,0.25mm step, full fit)')
         plt.tight_layout()
         plt.show()
     def resitance(self, par:str):
-        inductance = np.zeros(n)
-        impedance = np.zeros(n)
+        inductance = np.zeros(n); impedance = np.zeros(n)
+        out_dia = np.zeros(n); inn_dia = np.zeros(n)
+        out_dc = np.zeros(n); inn_dc = np.zeros(n)
         for i in range(0,n):
             indu = np.array(files[i]["IC_flux"])/np.array(files[i]["IC_currents"])
             inductance[i] = abs(sum(indu*1000)/len(indu))
             resi = np.array(files[i]["IC_voltages"])/np.array(files[i]["IC_currents"])
             impedance[i] = abs(sum(resi) / len(resi))
-        print(abs(impedance))
+            g1 = files[i]['Input_parameters'].item()
+            g2 = files[i]['Inn_Uppout_Lowout_DCR_as_per_catalog']
+            out_dc[i] = g2[1]; inn_dc[i] = g2[0]
+            out_dia[i] = g1['outercoil Diameter_Insulation_Wiretype'][0]
+            inn_dia[i] = g1['innercoil Diameter_Insulation_Wiretype'][0]
+        #print(abs(impedance))
         if par == "inductance" :
+            print(inductance)
             plt.plot(legends, inductance, "o-")
-            plt.ylabel("Flux/current [mH]")
-        else :
+            plt.ylabel("Inner coil inductance (Flux/current) [mH]")
+        elif par == "DC_resistance" :
+            plt.plot(legends, inn_dc, "o-")
+            #plt.ylabel("Outer coil DC resistance [Ω]")
+            plt.ylabel("Inner coil DC resistance [Ω]")
+        else:
             plt.plot(legends, impedance, "o-")
             plt.ylabel('Inner coil impedance [Ω]')
         if self.sav == 1:
             plt.savefig("inn_ind.png")
             shutil.move("inn_ind.png", self.path1)
-        plt.xlabel("Inn coil position")
+        plt.xlabel("Inner coil width (mm)")
         plt.grid()
+        plt.title('top up IP, Resistance, gain:70.02\n(20mA excitation, sim range:±5mm,0.25mm step, full fit)')
+        plt.tight_layout()
         plt.show()
     def lin_imp(self):
         for i in range(0,n):

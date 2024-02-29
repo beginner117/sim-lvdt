@@ -113,3 +113,7 @@ class Analysis:
 
         print('correction ratio :', rat_amp)
 
+        if self.save:
+            np.savez_compressed(self.filename, Design = b1[4], Input_config = b1[5], offset = b1[6], self_inductances_Inner_upper_lower = b1[1], mutual_ind_IU_UL_LI=b1[0],
+                                k_factors=b1[2], correction_factor = ratio_amp)
+

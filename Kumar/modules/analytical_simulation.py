@@ -48,10 +48,12 @@ class LVDT:
             outcoil_dist = outer_coil_dist
         else:
             outcoil_dist = f1['out_dist']
+
         if outer_coil_width:
             outer_width = outer_coil_width
         else:
             outer_width = f1['out_ht']
+
         if inner_current:
             inn_exe = inner_current
         else:
@@ -70,6 +72,6 @@ class LVDT:
         print('slope of the response[V/mmA] : ',m )
 
         m_v, co_v = np.polyfit(res[0],((res[3]-res[1])/inn_vol)*70.02, 1)
-        print('voltage normalised slope of the response [V/mmV] : ', m_v)
+        print('voltage normalised slope of the response [V/mmV] with gain 70.02 : ', m_v)
 
-
+        print(res[3], res[0])

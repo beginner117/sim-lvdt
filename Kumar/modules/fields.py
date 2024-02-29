@@ -83,10 +83,12 @@ class B_field:
     def calculate(self):
         r_vec = np.arange(0, self.r_max+self.dr, self.dr, dtype = np.double)
         z_vec = np.arange(0, self.z_max+self.dz, self.dz, dtype = np.double)
-        print(len(z_vec), z_vec[1])
+        print(len(z_vec), z_vec[1], r_vec[1])
         b_vec = np.zeros((len(z_vec), len(r_vec), 2), dtype = np.double).astype(complex)
         for i in range(len(z_vec)):
             for j in range(len(r_vec)):
+                if j < 5:
+                    print(r_vec[j], z_vec[i])
                 b_vec[i, j, :] = femm.mo_getb(r_vec[j], z_vec[i])
 
         b_vec_z = np.real(b_vec[:, :, 1])  #b_mat_z
@@ -257,8 +259,7 @@ class Voltages:
                                               (z_n_min + round((outcoil_ht - out_wire_thickness / 2) / dz) + i + 1):round(
                 out_wire_thickness / dz)]) * 2 * np.pi * 10000
             v_induced_upp[i] = np.sum(phi_vec[(z_n_min + round((outcoil_dist + out_wire_thickness / 2) / dz) + i):(z_n_min
-                                                                                                     + round(
-                        (outcoil_dist + outcoil_ht - out_wire_thickness / 2) / dz) + i + 1):round(out_wire_thickness / dz)]) * 2 * np.pi * 10000
+                + round((outcoil_dist + outcoil_ht - out_wire_thickness / 2) / dz) + i + 1):round(out_wire_thickness / dz)]) * 2 * np.pi * 10000
         # chainging the new z positions for centre of inner coil into dz step of 0.1
         z_vec_new = z_vec[z_n_min:z_n_max + 1] + (outcoil_dist + outcoil_ht) / 2
         print('no of windings computed')

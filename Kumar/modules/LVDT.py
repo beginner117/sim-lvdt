@@ -25,7 +25,7 @@ class Analysis:
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file =self.filename)
         sensor = design.Sensortype(InnCoilCurrent=0.02, Simfreq=10000, OutCoilCurrent=0)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
-        wire = design.Wiretype(outcoil_material=self.parameter1[1], inncoil_material=self.parameter1[0], magnet_material="N40")
+        wire = design.Wiretype(outcoil_material='31 AWG_AO', inncoil_material='32 AWG_AI', magnet_material="N40")
         input_par1 = {'TotalSteps_StepSize_Offset' : self.sim_range, 'outercoil Diameter_Insulation_Wiretype':wire.prop_out(), 'innercoil Diameter_Insulation_Wiretype': wire.prop_inn(),
                      'Innercoil_current(A)':sensor.para()[0], 'Frequency(Hz)':sensor.para()[1], 'Outercoil_current(A)':sensor.para()[2], 'Magnet_material':wire.mag_mat()}
         if self.default=='yes':
@@ -34,7 +34,7 @@ class Analysis:
             input_par3 = 'NIKHEF design type : '+self.design_type
             input_par2 = in_pa.return_data(self.design_type)
         if self.default == 'no':
-            input_par2 = {'IC_height':10, 'IC_radius':4.5, 'IC_layers':6, 'IC_distance':0, 'OC_height':10, 'OC_radius':25, 'OC_layers':7, 'OC_distance':36, 'mag_len':8, 'mag_dia':5, 'ver_shi':0}
+            input_par2 = {'IC_height':self.parameter1, 'IC_radius':9, 'IC_layers':6, 'IC_distance':0, 'OC_height':10, 'OC_radius':20, 'OC_layers':5, 'OC_distance':39.8, 'mag_len':29.8, 'mag_dia':8, 'ver_shi':0}
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
             input_par3 = 'not a priliminary NIKHEF design'
@@ -100,7 +100,7 @@ class Analysis:
 
             if self.sim_type == 'semi_analytical':
                 print('calculating magnetic fields for the given configuration with ')
-                mag_field = fields.B_field(40, 45, 0.01, 0.1, self.filename, input_par3, input_par2, input_par1, inn_prop['Inncoil_voltage'][0], inn_prop['Inncoil_flux'][0]
+                mag_field = fields.B_field(40, 45, 0.1, 0.01, self.filename, input_par3, input_par2, input_par1, inn_prop['Inncoil_voltage'][0], inn_prop['Inncoil_flux'][0]
                                            ,uppout_prop['UppOut_voltage'][0], uppout_prop['UppOut_flux'][0])
                 mag_field.calculate()
                 print('field calculation completed')
