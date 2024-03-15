@@ -23,7 +23,7 @@ class Analysis:
         value = feed.data
         in_pa = feed.Input()
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file =self.filename)
-        sensor = design.Sensortype(InnCoilCurrent=0.02, Simfreq=10000, OutCoilCurrent=0)
+        sensor = design.Sensortype(InnCoilCurrent=0.01, Simfreq=10000, OutCoilCurrent=0)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype(outcoil_material='31 AWG_AO', inncoil_material='32 AWG_AI', magnet_material="N40")
         input_par1 = {'TotalSteps_StepSize_Offset' : self.sim_range, 'outercoil Diameter_Insulation_Wiretype':wire.prop_out(), 'innercoil Diameter_Insulation_Wiretype': wire.prop_inn(),
@@ -34,7 +34,7 @@ class Analysis:
             input_par3 = 'NIKHEF design type : '+self.design_type
             input_par2 = in_pa.return_data(self.design_type)
         if self.default == 'no':
-            input_par2 = {'IC_height':self.parameter1, 'IC_radius':9, 'IC_layers':6, 'IC_distance':0, 'OC_height':10, 'OC_radius':20, 'OC_layers':5, 'OC_distance':39.8, 'mag_len':29.8, 'mag_dia':8, 'ver_shi':0}
+            input_par2 = {'IC_height':self.parameter1, 'IC_radius':11, 'IC_layers':6, 'IC_distance':0, 'OC_height':13.5, 'OC_radius':31.5, 'OC_layers':5, 'OC_distance':14.5, 'mag_len':40, 'mag_dia':10, 'ver_shi':0}
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
             input_par3 = 'not a priliminary NIKHEF design'
@@ -57,10 +57,10 @@ class Analysis:
                                            label2=geo.inncoil()[0], blockname=wire.prop_inn()[2], turns_pr_layer=position.inncoil()[4],simulation_type=self.sim_type)
         uppoutstr = femm_model.Femm_coil(x1=geo.outcoil()[1], y1=position.upp_outcoil()[2], x2=position.upp_outcoil()[0], y2=position.upp_outcoil()[1], circ_name=position.upp_outcoil()[5],
                                          circ_current=sensor.para()[2], circ_type=1, material=wire.outcoil_material, edit_mode=4, group=3, label1=wire.prop_out()[1],
-                                         label2=geo.outcoil()[0], blockname=wire.prop_out()[2], turns_pr_layer=position.upp_outcoil()[4], simulation_type=self.sim_type)
+                                         label2=geo.outcoil()[0], blockname=wire.prop_out()[2], turns_pr_layer=position.upp_outcoil()[4],   simulation_type=self.sim_type)
         lowoutstr = femm_model.Femm_coil(x1=geo.outcoil()[1], y1=position.low_outcoil()[2], x2=position.low_outcoil()[0], y2=position.low_outcoil()[1], circ_name=position.low_outcoil()[5],
                                          circ_current=-sensor.para()[2], circ_type=1, material=wire.outcoil_material, edit_mode=4, group=4, label1=wire.prop_out()[0],
-                                         label2=geo.outcoil()[0], blockname=wire.prop_out()[2], turns_pr_layer=position.low_outcoil()[4], simulation_type=self.sim_type)
+                                         label2=geo.outcoil()[0], blockname=wire.prop_out()[2], turns_pr_layer=position.low_outcoil()[4],  simulation_type=self.sim_type)
 
         if geo.mag()[0]>1:
             magnetstr = femm_model.Femm_magnet(x1=0, y1=position.magnet()[0], x2=position.magnet()[2], y2=position.magnet()[1], material=wire.mag_mat(), edit_mode=4, group=2, label1=0.5, label2=geo.mag()[0])

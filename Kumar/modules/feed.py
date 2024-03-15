@@ -30,9 +30,10 @@ J = {'inn_ht': 18, 'lowinn_ht': 23, 'inn_rad': 21, 'inn_layers': 6, 'inn_dist': 
 A1 = {'inn_ht': 20, 'inn_rad': 9, 'inn_layers': 6, 'inn_dist': 0, 'out_ht': 10, 'out_rad': 20, 'out_layers': 5,
          'out_dist': 39.8, 'mag_len': 29.8, 'mag_dia': 8, 'ver_shi': 0}
 
-data = {'A':A, 'B':B, 'C':C, 'D':D, 'E':E, 'F':F, 'G':G, 'H':H, 'I':I, 'J':J, 'A1':A1, 'A_1':A_1}
+# naming for the designs
+data = {'A':A, 'B':B, 'C':C, 'D':D, 'E':E, 'F':F, 'G':G, 'H':H, 'I':I, 'J':J, 'top_up':A1, 'A_1':A_1}
 
-#[wire_dia, insulation_thickness, name, resistance(Ω/mm), electrical_conductivity, resistivity(Ω*m), magnetic_perm(H/m)]
+#[wire_dia, insulation_thickness, name, resistance(Ω/mm), electrical_conductivity(MS/m)[S is Siemens=1/Ω], resistivity(Ω*m), magnetic_perm(H/m)]
 wire_types = {'30 AWG': [0.254, 0.0216,'30 AWG', 103.7/304800],
               '31 AWG': [0.2261, 0.0190,'31 AWG', 130.9/304800],
               '32 AWG': [0.2032, 0.0178,'32 AWG', 162/304800, 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))],
@@ -41,6 +42,7 @@ wire_types = {'30 AWG': [0.254, 0.0216,'30 AWG', 103.7/304800],
               '32 AWG_JI_FO': [0.2032, 0.0178+(0.0202/2),'32 AWG_JI_FO', 162 / 304800, 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))],
               '32 AWG_AI': [0.2032, 0.0178+(0.0102/2),'32 AWG_AI', 162 / 304800, 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))],
               '31 AWG_AO': [0.2261, 0.0190+(0.0159/2),'31 AWG_AO', 130.9/304800],
+              '31 AWG_AO1': [0.2261-0.017, 0.0190+((0.0159+0.017)/2),'31 AWG_AO1', 130.9/304800],
               'RS': [0.2, 0.033/2,'RS', 0.5441/1000],
               'electrisola_1a': [0.190, 0.0155,'electrisola_1a', 0.6029/1000],   #typeJ-inner
               'electrisola_1b': [0.190, 0.021,'electrisola_1b', 0.6029/1000],    #typeF-outer
@@ -60,3 +62,8 @@ class Input:
         return [A, B, C, D, E, F, G, H, I, J]
     def return_data(self, design_type: str):
         return data[design_type]
+
+# WIRE DIAMETER(mm) - bare wire diameter
+# INSULATION(mm)    - thickness of the insulation
+#name =
+# COERCIVITY(A/m) - ability of ferromagnetic material to withstand an external magnetic field without becoming demagnetized.
