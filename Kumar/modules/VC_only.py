@@ -8,7 +8,7 @@ from scipy import integrate
 import numpy as np
 import matplotlib.pyplot as plt
 class Analysis:
-    def __init__(self, save, sim_range:list, default, filename, design_type=None, sim_type = 'FEMM+ana',  parameter1=None):
+    def __init__(self, save, sim_range:list, default, filename, design_type=None,materials = None, sim_type = 'FEMM+ana',  parameter1=None):
         self.save = save
         self.sim_range = sim_range
         self.filename = filename
@@ -16,6 +16,7 @@ class Analysis:
         self.design_type = design_type
         self.default = default
         self.sim_type = sim_type
+        self.materials = materials
     def simulate(self):
         femm.openfemm()
         femm.newdocument(0)
@@ -24,7 +25,7 @@ class Analysis:
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file=self.filename)
         sensor = design.Sensortype(InnCoilCurrent=0, Simfreq=0, OutCoilCurrent=1)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
-        wire = design.Wiretype(outcoil_material='RS', inncoil_material='RS', magnet_material=self.parameter1)
+        wire = design.Wiretype(self.materials[1], self.materials[0], magnet_material=self.materials[2])
         input_par1 = {'TotalSteps_StepSize(mm)_Offset(mm)': self.sim_range, 'uppercoil Diameter(mm)_Insulation(mm)_Wiretype': wire.prop_out(),
                        'Magnet_material':wire.mag_mat(), 'Frequency(Hz)': sensor.para()[1], 'Outercoil_current(A)': sensor.para()[2]}
         if self.default == 'yes':

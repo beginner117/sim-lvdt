@@ -7,13 +7,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class Analysis:
-    def __init__(self,save, sim_range: list, default, filename: str, design_type=None, parameter1=None):
+    def __init__(self,save, sim_range: list, default, filename: str, design_type=None,materials=None, parameter1=None):
         self.save = save
         self.sim_range = sim_range
         self.filename = filename
         self.parameter1 = parameter1
         self.design_type = design_type
         self.default = default
+        self.materials = materials
     def simulate(self):
         print(self.parameter1)
         femm.openfemm()  # The package must be initialized with the openfemm command.
@@ -22,7 +23,7 @@ class Analysis:
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file=self.filename)
         sensor = design.Sensortype(InnCoilCurrent=0, Simfreq=0, OutCoilCurrent=1)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
-        wire = design.Wiretype("32 AWG", "32 AWG",  magnet_material='N40')
+        wire = design.Wiretype(self.materials[1], self.materials[0], magnet_material=self.materials[2])
         input_par1 = {'TotalSteps_StepSize_Offset': self.sim_range, 'uppercoil Diameter_Insulation_Wiretype': wire.prop_out(),
                       'innercoil Diameter_Insulation_Wiretype': wire.prop_inn(), 'Innercoil_current': sensor.para()[0], 'Frequency': sensor.para()[1],
                       'Outercoil_current': sensor.para()[2], 'Magnet_material':wire.mag_mat()}
@@ -42,12 +43,21 @@ class Analysis:
                                  ver_shi=geo.mag()[2], inn_wiredia=wire.prop_inn()[0], inn_wireins=wire.prop_inn()[1], out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1], mag_len=geo.mag()[0], mag_dia=geo.mag()[1])
         length = coil.Length(inn_layers=geo.inncoil()[2], inn_rad=geo.inncoil()[1], inn_wiredia=wire.prop_inn()[0], inn_wireins=wire.prop_inn()[1], innwind_pr_layer=position.inncoil()[3], out_layers=geo.outcoil()[2],
                              out_rad=geo.outcoil()[1], out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1], outwind_pr_layer=position.upp_outcoil()[3])
-        print(position.inncoil(), position.upp_outcoil())
+        print(
+            'coil config - [Coil_OutRadius, Coil_LowEnd, Coil_UppEnd, Coil_NrWind_p_Layer, Coil_NrWindings, Circuit_name]')
+        print('inner coil config :', position.inncoil(), '\nupper outer coil config :', position.upp_outcoil(),
+              '\nlower out coil config :', position.low_outcoil())
+        print('inner coil material - ', wire.inncoil_material, ', outer coil material - ', wire.outcoil_material,
+              ', magnet material - ', wire.magnet_material)
+        print('inner, upper outer, total coil lengths : ', length.inncoil(), length.upp_outcoil(),
+              length.inncoil() + (2 * length.upp_outcoil()))
+        coil_con = ['Coil_OutRadius', 'Coil_Lowend', 'Coil_Uppend', 'Coil_turns(per layer)', 'Coil_turns total',
+                    'coil_name']
         if wire.prop_out()[3] and wire.prop_inn()[3]:
             inn_dc = length.inncoil() * wire.prop_inn()[3]
             out_dc = length.upp_outcoil() * wire.prop_out()[3]
             lowout_dc = length.low_outcoil() * wire.prop_out()[3]
-
+            print('inner, upper outer coil Dc resistance as per datasheet (in ohms) :', inn_dc, out_dc)
         inncoil_str = femm_model.Femm_coil(x1=geo.inncoil()[1], y1=position.inncoil()[2], x2=position.inncoil()[0],
                                            y2=position.inncoil()[1],
                                            circ_name=position.inncoil()[5], circ_current=sensor.para()[0], circ_type=1,
@@ -79,13 +89,14 @@ class Analysis:
         inn_prop = res.inncoil()
         uppout_prop = res.uppout()
         lowout_prop = res.lowout()
+        mag_prop = res.magnet()
 
         move_group = femm_model.Femm_move(groups = [1,2], x_dist=0, y_dist=pre_simulation.parameters()[2])
         for_def = []
         for_imp = []
 
         for i in range(0, pre_simulation.parameters()[0] + 1):
-            print(pre_simulation.parameters()[2] + pre_simulation.parameters()[1] * i)
+            print('coil position (from centre) : ', pre_simulation.parameters()[2] + pre_simulation.parameters()[1] * i)
             inn_prop['Inncoil_position'][i] = pre_simulation.parameters()[2] + pre_simulation.parameters()[1] * i
             femm.mi_zoom(-2, -50, 50, 50)
             femm.mi_refreshview()
@@ -98,6 +109,9 @@ class Analysis:
             femm.mo_clearblock()
             femm.mo_groupselectblock(4)
             LowOut_Force19 = femm.mo_blockintegral(19)
+            femm.mo_clearblock()
+            femm.mo_groupselectblock(1)
+            Innercoil_Force19 = femm.mo_blockintegral(19)
             femm.mo_clearblock()
             femm.mo_groupselectblock(2)
             Magn_Force19 = femm.mo_blockintegral(19)
@@ -119,8 +133,9 @@ class Analysis:
             inn_prop['Inncoil_flux'][i] = InnCoil_FluxLink
 
             uppout_prop['UppOut_force'][i] = UppOut_Force19
-            #lowout_prop['LowOut_force'][i] = LowOut_Force19
-            inn_prop['Inncoil_force'][i] = Magn_Force19
+            lowout_prop['LowOut_force'][i] = LowOut_Force19
+            inn_prop['Inncoil_force'][i] = Innercoil_Force19
+            mag_prop['Magnet_forces'][i] = Magn_Force19
 
             mag_fie_x_lower = [] ; mag_fie_y_lower = [] ; gri_x_lower = [] ; gri_y_lower = []
             gri_x = [] ; mag_fie_x = [] ; mag_fie_y = [] ; gri_y = []
@@ -162,41 +177,52 @@ class Analysis:
                     rot_x_lower.append(c_lower[0])
                     rot_y_lower.append(c_lower[1])
                     line_int_for = []; line_int_for2 = []
-                    for k in range(0, 1801):
-                        angle_f = 0.1*k
-                        sector_force = 2*c[0]*angle_f*2*np.pi*grid_pt[0]/360
-                        line_int_for.append(sector_force)
-                        sector_force_low = 2*c_lower[0]*angle_f*2*np.pi*grid_pt_lower[0]/360
-                        line_int_for2.append(sector_force_low)
-
-                    line_int.append(sum(line_int_for))
-                    line_int2.append(sum(line_int_for2))
+                    # for k in range(0, 1801):
+                    #     angle_f = 0.1*k
+                    #     sector_force = 2*c[0]*angle_f*2*np.pi*grid_pt[0]/360
+                    #     line_int_for.append(sector_force)
+                    #     sector_force_low = 2*c_lower[0]*angle_f*2*np.pi*grid_pt_lower[0]/360
+                    #     line_int_for2.append(sector_force_low)
+                    #
+                    # line_int.append(sum(line_int_for))
+                    # line_int2.append(sum(line_int_for2))
 
 
                     f = (6.28 * grid_pt[0] * c[0]*sensor.para()[2]) / (10 ** 3)
                     f_lower = (6.28 * grid_pt_lower[0] * c_lower[0]*sensor.para()[2]) / (10 ** 3)
                     imp_force.append(f-f_lower)
-
-            print('default force:', sum(def_force), 'updated force:', sum(imp_force), 'int_for:', sum(line_int-line_int2))
+                    #print(imp_force, def_force)
+            #print('default force:', sum(np.array(def_force)), 'updated force:', sum(np.array(imp_force)), 'int_for:')
 
             for_def.append(sum(def_force))
             for_imp.append(sum(imp_force))
 
             move_group = femm_model.Femm_move(groups=[1, 2], x_dist=0, y_dist=pre_simulation.parameters()[1])
-        print('angle:',self.parameter1, 'default force1 :', for_def, 'updated force1:', for_imp)
+        print('semi-analytical', '\nsemi analytical force :', for_def, '\nfemm force:', mag_prop['Magnet_forces'])
 
-        plt.quiver(gri_x, gri_y, mag_fie_x, np.zeros(turns_per_layer*geo.outcoil()[2]), color='g', label='default', alpha=0.5)
-        plt.quiver(gri_x, gri_y, rot_x, np.zeros(turns_per_layer*geo.outcoil()[2]),color = 'b', label = 'rotated', alpha = 0.3)
-        plt.quiver(gri_x_lower, gri_y_lower, mag_fie_x_lower,  np.zeros(turns_per_layer*geo.outcoil()[2]), color = 'g', alpha = 0.5)
-        plt.quiver(gri_x_lower, gri_y_lower, rot_x_lower, np.zeros(turns_per_layer*geo.outcoil()[2]), color = 'b', alpha = 0.3)
-        plt.title('Magnetic Field (rotated anticlockwise {})'.format(angle))
+        # plt.quiver(gri_x, gri_y, mag_fie_x, np.zeros(turns_per_layer*geo.outcoil()[2]), color='g', label='default', alpha=0.5)
+        # plt.quiver(gri_x, gri_y, rot_x, np.zeros(turns_per_layer*geo.outcoil()[2]),color = 'b', label = 'rotated', alpha = 0.3)
+        # plt.quiver(gri_x_lower, gri_y_lower, mag_fie_x_lower,  np.zeros(turns_per_layer*geo.outcoil()[2]), color = 'g', alpha = 0.5)
+        # plt.quiver(gri_x_lower, gri_y_lower, rot_x_lower, np.zeros(turns_per_layer*geo.outcoil()[2]), color = 'b', alpha = 0.3)
+        # plt.title('Magnetic Field (rotated anticlockwise {})'.format(angle))
+        # plt.legend()
+        # plt.grid()
+        # plt.show()
+
+        plt.plot(inn_prop['Inncoil_position'], abs(mag_prop['Magnet_forces']), 'o-', label = 'femm')
+        plt.plot(inn_prop['Inncoil_position'], for_def,'o-', label = 'semi-analytical')
+        plt.ylabel('Force [N]')
+        plt.xlabel('Inner Coil Position [mm]')
         plt.legend()
         plt.grid()
         plt.show()
 
         if self.save:
-            np.savez_compressed(self.filename, Design=input_par2, Input_parameters=input_par1, Input_config=other_par, Innercoil_config=position.inncoil(), UpperOutcoil_config=position.upp_outcoil(),
-                                LowerOutercoil_config=position.low_outcoil(), UOC_forces=uppout_prop['UppOut_force'], LOC_forces=lowout_prop['LowOut_force'], Mag_forces=inn_prop['Inncoil_force'],
-                                IC_currents=inn_prop['Inncoil_current'], UOC_currents=uppout_prop['UppOut_current'], LOC_currents=lowout_prop['LowOut_current'], UOC_voltages=uppout_prop['UppOut_voltage'],
-                                LOC_voltages=lowout_prop['LowOut_voltage'], IC_voltages=inn_prop['Inncoil_voltage'], IC_positions=inn_prop['Inncoil_position'], IC_flux=inn_prop['Inncoil_flux'],
-                                UOC_flux=uppout_prop['UppOut_flux'], LOC_flux=lowout_prop['LowOut_flux'], Inn_Uppout_Lowout_DCR_as_per_catalog=[inn_dc, out_dc, lowout_dc])
+            np.savez_compressed(self.filename, Design = input_par2, Input_parameters = input_par1, coil_config_parameters = coil_con,
+                                Innercoil_config=position.inncoil(), UpperOutcoil_config=position.upp_outcoil(), LowerOutercoil_config=position.low_outcoil(),
+                                UOC_forces = uppout_prop['UppOut_force'], LOC_forces = lowout_prop['LowOut_force'], IC_forces = inn_prop['Inncoil_force'],
+                                Mag_forces=mag_prop['Magnet_forces'], semi_analytical_def = for_def, semi_analytical_imp = imp_force,
+                                IC_currents = inn_prop['Inncoil_current'], UOC_currents=uppout_prop['UppOut_current'], LOC_currents = lowout_prop['LowOut_current'],
+                                UOC_voltages = uppout_prop['UppOut_voltage'], LOC_voltages = lowout_prop['LowOut_voltage'], IC_voltages = inn_prop['Inncoil_voltage'],
+                                IC_positions = inn_prop['Inncoil_position'], IC_flux=inn_prop['Inncoil_flux'], UOC_flux=uppout_prop['UppOut_flux'], LOC_flux=lowout_prop['LowOut_flux'],
+                                Inn_Uppout_Lowout_DCR_as_per_catalog = [inn_dc, out_dc, lowout_dc])

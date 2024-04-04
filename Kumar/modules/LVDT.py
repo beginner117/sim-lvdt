@@ -24,7 +24,7 @@ class Analysis:
         value = feed.data
         in_pa = feed.Input()
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file =self.filename)
-        sensor = design.Sensortype(InnCoilCurrent=self.parameter1, Simfreq=10000, OutCoilCurrent=0)
+        sensor = design.Sensortype(InnCoilCurrent=0.02, Simfreq=10000, OutCoilCurrent=0)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype(outcoil_material=self.materials[1], inncoil_material=self.materials[0], magnet_material=self.materials[2])
         input_par1 = {'TotalSteps_StepSize(mm)_Offset' : self.sim_range, 'outercoil Diameter(mm)_Insulation(mm)_Wiretype':wire.prop_out(), 'innercoil Diameter(mm)_Insulation(mm)_Wiretype': wire.prop_inn(),

@@ -5,13 +5,14 @@ import coil
 import feed
 import numpy as np
 class Analysis1:
-    def __init__(self, save, default, offset, design_type=None, filename1=None, parameter1=None):
+    def __init__(self, save, default, offset, design_type=None, materials1 = None, filename1=None, parameter1=None):
         self.offset = offset
         self.save = save
         self.filename1 = filename1
         self.parameter1 = parameter1
         self.design_type = design_type
         self.default = default
+        self.materials1 = materials1
     def simulate(self):
         if self.default=='yes':
             value = feed.data
@@ -23,8 +24,8 @@ class Analysis1:
                          'OC_distance': 39.8, 'mag_len': 29.8, 'mag_dia': 8, 'ver_shi': 0}
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
-        wire = design.Wiretype(outcoil_material='32 AWG', inncoil_material='32 AWG', magnet_material="N40")  # can be changed
-        print('inner coil material - ', wire.inncoil_material, ', outer coil material - ', wire.outcoil_material)
+        wire = design.Wiretype(self.materials1[1], self.materials1[0], magnet_material=self.materials1[2])  # can be changed
+        print('inner coil material - ', wire.inncoil_material, ', outer coil material - ', wire.outcoil_material, ', magnet material - ', wire.magnet_material)
         position = coil.Position(inn_ht=geo.inncoil()[0], inn_rad=geo.inncoil()[1], inn_layers=geo.inncoil()[2],
                                  inn_dist=geo.inncoil()[3], out_ht=geo.outcoil()[0], out_rad=geo.outcoil()[1],
                                  out_layers=geo.outcoil()[2], out_dist=geo.outcoil()[3],

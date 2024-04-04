@@ -31,8 +31,6 @@ class Analysis:
         wire = design.Wiretype(self.materials[1], self.materials[0], magnet_material=self.materials[2])
         input_par1 = {'TotalSteps_StepSize(mm)_Offset': self.sim_range, 'outercoil Diameter(mm)_Insulation(mm)_Wiretype': wire.prop_out()[:3], 'innercoil Diameter(mm)_Insulation(mm)_Wiretype': wire.prop_inn()[:3],
                       'Innercoil_current(A)': sensor.para()[0], 'Frequency(Hz)': sensor.para()[1], 'Outercoil_current(A)': sensor.para()[2], 'Magnet_material':wire.mag_mat()}
-        other_par = {'quantities in order':'resistance(Ω/mm), electrical_conductivity(MS/m)[S is Siemens=1/Ω], resistivity(Ω*m), magnetic_perm(H/m)',
-        'Inner_coil':wire.prop_inn()[3:], 'Outer_coil':wire.prop_out()[3:]}
         if self.default=='yes':
             geo = design.Geometry(value[self.design_type]["inn_ht"], value[self.design_type]['inn_rad'], value[self.design_type]['inn_layers'], value[self.design_type]['inn_dist'], value[self.design_type]['out_ht'], value[self.design_type]['out_rad'],
                                   value[self.design_type]['out_layers'], value[self.design_type]['out_dist'], value[self.design_type]['mag_len'], value[self.design_type]['mag_dia'], value[self.design_type]['ver_shi'])

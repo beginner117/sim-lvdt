@@ -17,7 +17,8 @@ class Position_sensor:
     sensor_type - type of the position sensor to be simulated (string)
     save - whether or not to save the simulated data (boolean)
     sim_range - required simulation range. A list of length 3 containing (i)total simulations points (ii)step size (iii)offset/lower limit of the moving coil
-    data - name of the file, whether the simulating design is default NIKHEF design or not, type/parameter of the design"""
+    data - name of the file, whether the simulating design is default NIKHEF design or not, type/parameter of the design
+    mat_prop - list of materials used (inner coil material, outer coil material, magnet material) in simulation"""
     def __init__(self, sensor_type, save, sim_range, data, mat_prop=None, simulation=None):
         self.sensor_type = sensor_type
         self.save = save
@@ -60,12 +61,12 @@ class Position_sensor:
                 if self.data['is default'][i] == 'yes':
                     a = VC_only.Analysis(self.save, sim_range=self.sim_range['steps_size_offset'][i],
                                          default=self.data['is default'][i], filename=self.data['filename(s)'][i],
-                                         design_type=self.data['design or parameter'][i], simulation_type=self.simulation_type[i])
+                                         design_type=self.data['design or parameter'][i], materials =[self.material_prop[0], self.material_prop[1], self.material_prop[2]])
                     a.simulate()
                 else:
                     a = VC_only.Analysis(self.save, sim_range=self.sim_range['steps_size_offset'][i],
                                          default=self.data['is default'][i], filename=self.data['filename(s)'][i],
-                                         design_type=None, parameter1=self.data['design or parameter'][i], simulation_type=self.simulation_type[i])
+                                         design_type=None, parameter1=self.data['design or parameter'][i], materials =[self.material_prop[0], self.material_prop[1], self.material_prop[2]])
                     a.simulate()
             if self.sensor_type[i] == 'LVDT with yoke':
                 if self.data['is default'][i] == 'yes':
@@ -84,31 +85,31 @@ class Position_sensor:
                 if self.data['is default'][i] == 'yes':
                     a = VC_fields.Analysis(self.save, sim_range=self.sim_range['steps_size_offset'][i],
                                       default=self.data['is default'][i], filename=self.data['filename(s)'][i],
-                                      design_type=self.data['design or parameter'][i])
+                                      design_type=self.data['design or parameter'][i], materials =[self.material_prop[0], self.material_prop[1], self.material_prop[2]])
                     a.simulate()
                 else:
                     a = VC_fields.Analysis(self.save, sim_range=self.sim_range['steps_size_offset'][i],
                                       default=self.data['is default'][i], filename=self.data['filename(s)'][i],
-                                      design_type=None, parameter1=self.data['design or parameter'][i])
+                                      design_type=None,materials =[self.material_prop[0], self.material_prop[1], self.material_prop[2]], parameter1=self.data['design or parameter'][i])
                     a.simulate()
 
             if self.sensor_type[i] == 'LVDT_corrected':
                 if self.data['is default'][i] == 'yes':
                     a1 = LVDT_correction.Analysis(save = self.save, default=self.data['is default'][i], offset=self.sim_range['steps_size_offset'][i],
-                                       design=self.data['design or parameter'][i], filename=self.data['filename(s)'][i])
+                                       design=self.data['design or parameter'][i], materials =[self.material_prop[0], self.material_prop[1], self.material_prop[2]], filename=self.data['filename(s)'][i])
                     a1.simulate()
                 else:
                     a1 = LVDT_correction.Analysis(save = self.save, default=self.data['is default'][i], offset=self.sim_range['steps_size_offset'][i],
-                                       design=None, filename=self.data['filename(s)'][i], parameter=self.data['design or parameter'][i])
+                                       design=None, materials =[self.material_prop[0], self.material_prop[1], self.material_prop[2]],  filename=self.data['filename(s)'][i], parameter=self.data['design or parameter'][i])
                     a1.simulate()
             if self.sensor_type[i] == 'LVDT_mutual_inductance':
                 if self.data['is default'][i] == 'yes':
                     a1 = LVDT_mutual_inductance.Analysis1(save = self.save, default=self.data['is default'][i], offset=self.sim_range['steps_size_offset'][i],
-                                       design_type=self.data['design or parameter'][i], filename1=self.data['filename(s)'][i])
+                                       design_type=self.data['design or parameter'][i],materials1 =[self.material_prop[0], self.material_prop[1], self.material_prop[2]], filename1=self.data['filename(s)'][i])
                     a1.simulate()
                 else:
                     a1 = LVDT_mutual_inductance.Analysis1(save = self.save, default=self.data['is default'][i], offset=self.sim_range['steps_size_offset'][i],
-                                        design_type=None, filename1=self.data['filename(s)'][i], parameter1=self.data['design or parameter'][i])
+                                        design_type=None,materials1 =[self.material_prop[0], self.material_prop[1], self.material_prop[2]], filename1=self.data['filename(s)'][i], parameter1=self.data['design or parameter'][i])
                     a1.simulate()
 
 

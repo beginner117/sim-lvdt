@@ -6,19 +6,20 @@ import LVDT_mutual_inductance as LVDT_mutual_inductance
 
 rat_amp = []
 class Analysis:
-    def __init__(self, save, default, offset, design=None, filename=None, parameter=None ):
+    def __init__(self, save, default, offset, design=None,materials = None, filename=None, parameter=None ):
         self.save = save
         self.default = default
         self.design = design
         self.offset = offset
         self.parameter = parameter
         self.filename = filename
+        self.materials = materials
 
     def simulate(self):
         if self.default == 'yes':
-            a = LVDT_mutual_inductance.Analysis1(save=False, default=self.default, offset=self.offset, design_type=self.design)
+            a = LVDT_mutual_inductance.Analysis1(save=False, default=self.default, offset=self.offset, design_type=self.design, materials1=self.materials)
         else:
-            a = LVDT_mutual_inductance.Analysis1(save=False, default=self.default, offset=self.offset, parameter1=self.parameter)
+            a = LVDT_mutual_inductance.Analysis1(save=False, default=self.default, offset=self.offset, materials1=self.materials,  parameter1=self.parameter)
         b1 = a.simulate()
         # the inductance on one coil relative to the other is half of the net mutual inductance of both the coils
         M_UL = b1[0][1] / 2
