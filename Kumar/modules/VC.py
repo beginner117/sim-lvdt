@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import sys
 
 class Analysis:
-    def __init__(self,save, sim_range: list, default, filename=None, design_type= None, parameter1=None, simulation_type=None):
+    def __init__(self,save, sim_range: list, default, filename=None, design_type= None, materials = None, parameter1=None, simulation_type=None):
         self.save = save
         self.sim_range = sim_range
         self.filename = filename
@@ -17,7 +17,10 @@ class Analysis:
         self.sim_type = simulation_type
         self.design_type = design_type
         self.default = default
+        self.materials = materials
     def simulate(self):
+        """"
+        simulates the Voice coil performance"""
         femm.openfemm()  # The package must be initialized with the openfemm command.
         femm.newdocument(0)  # We need to create a new Magnetostatics document to work on.
         value = feed.data
@@ -25,7 +28,7 @@ class Analysis:
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file=self.filename)
         sensor = design.Sensortype(InnCoilCurrent=0, Simfreq=0, OutCoilCurrent=1)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
-        wire = design.Wiretype("31 AWG_AO", "32 AWG_AI", magnet_material='N40')
+        wire = design.Wiretype(self.materials[1], self.materials[0], magnet_material=self.materials[2])
         input_par1 = {'TotalSteps_StepSize(mm)_Offset': self.sim_range, 'outercoil Diameter(mm)_Insulation(mm)_Wiretype': wire.prop_out()[:3], 'innercoil Diameter(mm)_Insulation(mm)_Wiretype': wire.prop_inn()[:3],
                       'Innercoil_current(A)': sensor.para()[0], 'Frequency(Hz)': sensor.para()[1], 'Outercoil_current(A)': sensor.para()[2], 'Magnet_material':wire.mag_mat()}
         other_par = {'quantities in order':'resistance(Ω/mm), electrical_conductivity(MS/m)[S is Siemens=1/Ω], resistivity(Ω*m), magnetic_perm(H/m)',
@@ -47,7 +50,7 @@ class Analysis:
                              out_rad=geo.outcoil()[1], out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1], outwind_pr_layer=position.upp_outcoil()[3])
         print('coil config - [Coil_OutRadius, Coil_LowEnd, Coil_UppEnd, Coil_NrWind_p_Layer, Coil_NrWindings, Circuit_name]')
         print('inner coil config :', position.inncoil(), '\nupper outer coil config :', position.upp_outcoil(),'\nlower out coil config :', position.low_outcoil())
-        print('inner coil material - ', wire.inncoil_material, ', outer coil material - ', wire.outcoil_material)
+        print('inner coil material - ', wire.inncoil_material, ', outer coil material - ', wire.outcoil_material, ', magnet material - ', wire.magnet_material)
         print('inner, upper outer, total coil lengths : ', length.inncoil(), length.upp_outcoil(),
               length.inncoil() + (2 * length.upp_outcoil()))
         coil_con = ['Coil_OutRadius', 'Coil_Lowend', 'Coil_Uppend', 'Coil_turns(per layer)', 'Coil_turns total','coil_name']

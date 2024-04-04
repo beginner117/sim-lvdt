@@ -30,6 +30,10 @@ J = {'inn_ht': 18, 'lowinn_ht': 23, 'inn_rad': 21, 'inn_layers': 6, 'inn_dist': 
 A1 = {'inn_ht': 20, 'inn_rad': 9, 'inn_layers': 6, 'inn_dist': 0, 'out_ht': 10, 'out_rad': 20, 'out_layers': 5,
          'out_dist': 39.8, 'mag_len': 29.8, 'mag_dia': 8, 'ver_shi': 0}
 
+
+rough1 = {'IC_height': 20, 'IC_radius': 9, 'IC_layers': 6, 'IC_distance': 0, 'OC_height': 10, 'OC_radius': 20, 'OC_layers': 5,
+                         'OC_distance': 39.8, 'mag_len': 29.8, 'mag_dia': 8, 'ver_shi': 0}
+
 # naming for the designs
 data = {'A':A, 'B':B, 'C':C, 'D':D, 'E':E, 'F':F, 'G':G, 'H':H, 'I':I, 'J':J, 'top_up':A1, 'A_1':A_1}
 
@@ -40,14 +44,14 @@ wire_types = {'30 AWG': [0.254, 0.0216,'30 AWG', 103.7/304800],
               '34 AWG': [0.1602, 0.01652,'34 AWG', 261.3/304800],
               '32 AWG_JO_FI': [0.2032, 0.0178+(0.0062/2),'32 AWG_JO_FI', 162 / 304800, 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))],
               '32 AWG_JI_FO': [0.2032, 0.0178+(0.0202/2),'32 AWG_JI_FO', 162 / 304800, 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))],
-              '32 AWG_AI': [0.2032, 0.0178+(0.0102/2),'32 AWG_AI', 162 / 304800, 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))],
-              '31 AWG_AO': [0.2261, 0.0190+(0.0159/2),'31 AWG_AO', 130.9/304800],
+              '32 AWG_AI': [0.2032, 0.0178+(0.0102/2),'32 AWG_AI', 162 / 304800, 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))], #winded typeA inner
+              '31 AWG_AO': [0.2261, 0.0190+(0.0159/2),'31 AWG_AO', 130.9/304800], #winded typeA outer
               '31 AWG_AO1': [0.2261-0.017, 0.0190+((0.0159+0.017)/2),'31 AWG_AO1', 130.9/304800],
               'RS': [0.2, 0.033/2,'RS', 0.5441/1000],
-              'electrisola_1a': [0.190, 0.0155,'electrisola_1a', 0.6029/1000],   #typeJ-inner
-              'electrisola_1b': [0.190, 0.021,'electrisola_1b', 0.6029/1000],    #typeF-outer
-              'electrisola_2a': [0.200, 0.0195,'electrisola_2a', 0.5441/1000],   #typeF-inner
-              'electrisola_2b': [0.200, 0.017,'electrisola_2b', 0.5441/1000],    #typeJ-outer
+              'electrisola_1a': [0.190, 0.0155,'electrisola_1a', 0.6029/1000],   #winded typeJ-inner
+              'electrisola_1b': [0.190, 0.021,'electrisola_1b', 0.6029/1000],    #winded typeF-outer
+              'electrisola_2a': [0.200, 0.0195,'electrisola_2a', 0.5441/1000],   #winded typeF-inner
+              'electrisola_2b': [0.200, 0.017,'electrisola_2b', 0.5441/1000],    #winded typeJ-outer
               'electrisola_2c': [0.200, 0.0295,'electrisola_2c', 0.5441/1000]}
 
 blocks = dict(C = dict(b1 = [3.25, 28], b2 = [2.75, 9], b3 = [12.58, 9], b4 = [6.53, 8.65], b5 = [2.055, 2], b6 = [4.47, 4], b7 = [15.85, 6],
@@ -62,6 +66,14 @@ class Input:
         return [A, B, C, D, E, F, G, H, I, J]
     def return_data(self, design_type: str):
         return data[design_type]
+
+
+
+
+
+
+
+
 
 # WIRE DIAMETER(mm) - bare wire diameter
 # INSULATION(mm)    - thickness of the insulation
