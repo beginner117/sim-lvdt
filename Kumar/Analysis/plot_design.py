@@ -19,16 +19,16 @@ imp_mean = []
 
 a3 = ['2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18','19', '20', '21', '22', '23', '24']
 a4 = ['10_dist_39p8', '11_dist_38p8', '12_dist_37p8', '13_dist_36p8', '14_dist_35p8']
-output_files=["C:/Users/kumar/PycharmProjects/lvdtsimulations/Kumar/Analysis/A1/inn_ht/innwid_{}.npz".format(i)
-              for i in a3]
+output_files=["C:/Users/kumar/PycharmProjects/lvdtsimulations/Kumar/Analysis/topup/out_wid/outwid_{}.npz".format(i)
+              for i in a4]
 #legends = ['10\n(dist-39.8mm)','11\n(dist-38.8mm)', '12\n(dist-37.8mm)', '13\n(gap-36.8mm)', '14\n(gap-35.8mm)']
 legends = ['2', '3', '4', '5', '6', '7', '8', '9','10', '11', '12', '13', '14', '15', '16', '17', '18','19', '20', '21', '22', '23', '24']
 #correction = [1.0560480547414626, 1.0560483632577393, 1.0560487508641079, 1.0560485263668506] #inn_rad
-#correction = [1.0560480547414626, 1.0653959874651027, 1.0752790128386174, 1.085410814490247, 1.0957967516620084]   #out_wid
-correction = [1.0559921603532942, 1.0559628701145847, 1.055996207239448, 1.0560230491636033, 1.0559637020789578, 1.0560242747617417, 1.0560422680636767, 1.0559634202158819
-    ,1.0559639944437003, 1.0559636030920432, 1.0560787683422992, 1.0560644592153683, 1.0560258238172573,
-    1.0560345116708498, 1.0560290277845286, 1.056068513925496, 1.056000978524798, 1.056034159707231,
-              1.0560480547414626, 1.0560344612744659, 1.0560835540785851, 1.0561127581406786, 1.0559861769507246]  #inn_wid
+correction = [1.0560480547414626, 1.0653959874651027, 1.0752790128386174, 1.085410814490247, 1.0957967516620084]   #out_wid
+# correction = [1.0559921603532942, 1.0559628701145847, 1.055996207239448, 1.0560230491636033, 1.0559637020789578, 1.0560242747617417, 1.0560422680636767, 1.0559634202158819
+#     ,1.0559639944437003, 1.0559636030920432, 1.0560787683422992, 1.0560644592153683, 1.0560258238172573,
+#     1.0560345116708498, 1.0560290277845286, 1.056068513925496, 1.056000978524798, 1.056034159707231,
+#               1.0560480547414626, 1.0560344612744659, 1.0560835540785851, 1.0561127581406786, 1.0559861769507246]  #inn_wid
 for i in range(0,len(output_files)):
     b = np.load(output_files[i], allow_pickle=True)
     files.append(b)
@@ -61,6 +61,13 @@ class Lvdt():
             plt.savefig("upp_out.png")
             shutil.move("upp_out.png", self.path1)
         plt.show()
+    def info(self):
+        for i in range(0,n):
+            design_type = files[i]["Design_type"]
+            design_par = files[i]["Design_parameters"]
+            input_par = files[i]["Input_parameters"]
+            input_coil = files[i]["Innercoil_config"]
+            print(design_type,'\n', input_coil,'\n', input_par)
     def norm_sig(self):
         for i in range(0,n):
             out_sig = abs(np.array(files[i]["UOC_voltages"])) - abs(np.array(files[i]["LOC_voltages"]))
@@ -200,6 +207,13 @@ class VC:
                 path1 = os.path.join(parent_dir, self.directory)
                 self.path1 = path1
                 os.mkdir(self.path1)
+    def info(self):
+        for i in range(0,n):
+            design_type = files[i]["Design_type"]
+            design_par = files[i]["Design_parameters"]
+            input_par = files[i]["Input_parameters"]
+            input_coil = files[i]["Innercoil_config"]
+            print(design_type,'\n', input_coil,'\n', input_par)
     def force(self, para=None):
         for i in range(0,n):
             inn_pos = np.array(files[i]["UOC_positions"])

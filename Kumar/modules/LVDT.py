@@ -23,10 +23,10 @@ class Analysis:
         value = feed.data
         in_pa = feed.Input()
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file =self.filename)
-        sensor = design.Sensortype(InnCoilCurrent=0.01, Simfreq=10000, OutCoilCurrent=0)
+        sensor = design.Sensortype(InnCoilCurrent=self.parameter1, Simfreq=10000, OutCoilCurrent=0)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
-        wire = design.Wiretype(outcoil_material='31 AWG_AO', inncoil_material='32 AWG_AI', magnet_material="N40")
-        input_par1 = {'TotalSteps_StepSize_Offset' : self.sim_range, 'outercoil Diameter_Insulation_Wiretype':wire.prop_out(), 'innercoil Diameter_Insulation_Wiretype': wire.prop_inn(),
+        wire = design.Wiretype(outcoil_material='32 AWG', inncoil_material='32 AWG', magnet_material="N40")
+        input_par1 = {'TotalSteps_StepSize(mm)_Offset' : self.sim_range, 'outercoil Diameter(mm)_Insulation(mm)_Wiretype':wire.prop_out(), 'innercoil Diameter(mm)_Insulation(mm)_Wiretype': wire.prop_inn(),
                      'Innercoil_current(A)':sensor.para()[0], 'Frequency(Hz)':sensor.para()[1], 'Outercoil_current(A)':sensor.para()[2], 'Magnet_material':wire.mag_mat()}
         if self.default=='yes':
             geo = design.Geometry(value[self.design_type]["inn_ht"], value[self.design_type]['inn_rad'], value[self.design_type]['inn_layers'], value[self.design_type]['inn_dist'], value[self.design_type]['out_ht'], value[self.design_type]['out_rad'],
@@ -34,7 +34,8 @@ class Analysis:
             input_par3 = 'NIKHEF design type : '+self.design_type
             input_par2 = in_pa.return_data(self.design_type)
         if self.default == 'no':
-            input_par2 = {'IC_height':self.parameter1, 'IC_radius':11, 'IC_layers':6, 'IC_distance':0, 'OC_height':13.5, 'OC_radius':31.5, 'OC_layers':5, 'OC_distance':14.5, 'mag_len':40, 'mag_dia':10, 'ver_shi':0}
+            input_par2 = {'IC_height': 20, 'IC_radius': 9, 'IC_layers': 6, 'IC_distance': 0, 'OC_height': 10, 'OC_radius': 20, 'OC_layers': 5,
+                         'OC_distance': 39.8, 'mag_len': 29.8, 'mag_dia': 8, 'ver_shi': 0}
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
             input_par3 = 'not a priliminary NIKHEF design'
@@ -44,8 +45,9 @@ class Analysis:
                              out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1], outwind_pr_layer=position.upp_outcoil()[3])
         print('coil config - [Coil_OutRadius, Coil_LowEnd, Coil_UppEnd, Coil_NrWind_p_Layer, Coil_NrWindings, Circuit_name]')
         print('inner coil config :', position.inncoil(), '\nupper outer coil config :', position.upp_outcoil(), '\nlower out coil config :', position.low_outcoil())
-        print('inner coil material - ', wire.inncoil_material, ', outer coil material - ', wire.outcoil_material)
+        print('inner coil material - ', wire.inncoil_material,'(',str(wire.prop_inn()[0]+(2*wire.prop_inn()[1])),'mm)',', outer coil material - ', wire.outcoil_material,'(',str(wire.prop_out()[0]+(2*wire.prop_out()[1])),'mm)')
         print('inner, upper outer, total coil lengths : ',  length.inncoil(), length.upp_outcoil(), length.inncoil()+(2*length.upp_outcoil()))
+        coil_con = ['Coil_OutRadius', 'Coil_Lowend', 'Coil_Uppend', 'Coil_turns(per layer)', 'Coil_turns total', 'coil_name']
         if wire.prop_out()[3] and wire.prop_inn()[3]:
             inn_dc = length.inncoil()*wire.prop_inn()[3]
             out_dc = length.upp_outcoil()*wire.prop_out()[3]
@@ -132,7 +134,7 @@ class Analysis:
             print("Fitted slope & const of current normalised signals (without gain factor) :", abs(c1), abs(c2))
 
         if self.save:
-            np.savez_compressed(self.filename,Design_type=input_par3, Design_parameters = input_par2, Input_parameters = input_par1, Innercoil_config = position.inncoil(),
+            np.savez_compressed(self.filename,Design_type=input_par3, Design_parameters = input_par2, Input_parameters = input_par1, coil_config_parameters = coil_con, Innercoil_config = position.inncoil(),
                                 UpperOutcoil_config = position.upp_outcoil(), LowerOutercoil_config = position.low_outcoil(), IC_positions = inn_prop['Inncoil_position'],
                                 IC_voltages = inn_prop['Inncoil_voltage'], UOC_voltages = uppout_prop['UppOut_voltage'], LOC_voltages = lowout_prop['LowOut_voltage'],
                                 IC_currents = inn_prop['Inncoil_current'], UOC_currents=uppout_prop['UppOut_current'], LOC_currents = lowout_prop['LowOut_current'],

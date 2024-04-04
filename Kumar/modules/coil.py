@@ -145,8 +145,7 @@ class Length:
             LowOutCoil_TotalWire += circ * self.outwind_pr_layer
         extra_layer = 2 * np.pi * (self.out_rad + (i + 1) * (self.out_wiredia + self.out_wireins * 2))
         extra_circ = extra_layer * (self.out_layers - int(self.out_layers))
-        print("Total length of lower out coil wire (mm):", LowOutCoil_TotalWire, ' and extra :', extra_circ)
-        print("\n")
+        # print("Total length of lower out coil wire (mm):", LowOutCoil_TotalWire, ' and extra :', extra_circ)
         return LowOutCoil_TotalWire+extra_circ
 
 class Coil_prop:

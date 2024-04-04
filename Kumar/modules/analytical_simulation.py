@@ -74,4 +74,4 @@ class LVDT:
         m_v, co_v = np.polyfit(res[0],((res[3]-res[1])/inn_vol)*70.02, 1)
         print('voltage normalised slope of the response [V/mmV] with gain 70.02 : ', m_v)
 
-        print(res[3], res[0])
+        #print(res[3], res[0])

@@ -25,28 +25,32 @@ class Analysis:
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file=self.filename)
         sensor = design.Sensortype(InnCoilCurrent=0, Simfreq=0, OutCoilCurrent=1)
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
-        wire = design.Wiretype("32 AWG", "31 AWG", magnet_material='N40')
-        input_par1 = {'TotalSteps_StepSize_Offset': self.sim_range, 'outercoil Diameter(mm)_Insulation(mm)_Wiretype': wire.prop_out(), 'innercoil Diameter(mm)_Insulation(mm)_Wiretype': wire.prop_inn(),
+        wire = design.Wiretype("31 AWG_AO", "32 AWG_AI", magnet_material='N40')
+        input_par1 = {'TotalSteps_StepSize(mm)_Offset': self.sim_range, 'outercoil Diameter(mm)_Insulation(mm)_Wiretype': wire.prop_out()[:3], 'innercoil Diameter(mm)_Insulation(mm)_Wiretype': wire.prop_inn()[:3],
                       'Innercoil_current(A)': sensor.para()[0], 'Frequency(Hz)': sensor.para()[1], 'Outercoil_current(A)': sensor.para()[2], 'Magnet_material':wire.mag_mat()}
+        other_par = {'quantities in order':'resistance(Ω/mm), electrical_conductivity(MS/m)[S is Siemens=1/Ω], resistivity(Ω*m), magnetic_perm(H/m)',
+        'Inner_coil':wire.prop_inn()[3:], 'Outer_coil':wire.prop_out()[3:]}
         if self.default=='yes':
             geo = design.Geometry(value[self.design_type]["inn_ht"], value[self.design_type]['inn_rad'], value[self.design_type]['inn_layers'], value[self.design_type]['inn_dist'], value[self.design_type]['out_ht'], value[self.design_type]['out_rad'],
                                   value[self.design_type]['out_layers'], value[self.design_type]['out_dist'], value[self.design_type]['mag_len'], value[self.design_type]['mag_dia'], value[self.design_type]['ver_shi'])
             input_par2 = in_pa.return_data(self.design_type)
             input_par3 = 'NIKHEF design type : ' + self.design_type
         if self.default == 'no':
-            input_par2 = {'IC_height': 24, 'IC_radius': 11, 'IC_layers': 6, 'IC_distance': 0, 'OC_height': 13.5, 'OC_radius': 35, 'OC_layers': self.parameter1,
-                         'OC_distance': 54.5, 'mag_len': 40, 'mag_dia': 10, 'ver_shi': 0}
+            input_par2 = {'IC_height': 20, 'IC_radius': 9, 'IC_layers': 6, 'IC_distance': 0, 'OC_height': self.parameter1[0], 'OC_radius': 20, 'OC_layers': 5,
+                         'OC_distance': self.parameter1[1], 'mag_len': 29.8, 'mag_dia': 8, 'ver_shi': 0}
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
-            input_par3 = 'not a priliminary NIKHEF design'
+            input_par3 = 'not a NIKHEF design'
         position = coil.Position(inn_ht=geo.inncoil()[0], inn_rad=geo.inncoil()[1], inn_layers=geo.inncoil()[2], inn_dist=geo.inncoil()[3], out_ht=geo.outcoil()[0], out_rad=geo.outcoil()[1], out_layers=geo.outcoil()[2], out_dist=geo.outcoil()[3],
                                  ver_shi=geo.mag()[2], inn_wiredia=wire.prop_inn()[0], inn_wireins=wire.prop_inn()[1], out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1], mag_len=geo.mag()[0], mag_dia=geo.mag()[1])
         length = coil.Length(inn_layers=geo.inncoil()[2], inn_rad=geo.inncoil()[1], inn_wiredia=wire.prop_inn()[0], inn_wireins=wire.prop_inn()[1], innwind_pr_layer=position.inncoil()[3], out_layers=geo.outcoil()[2],
                              out_rad=geo.outcoil()[1], out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1], outwind_pr_layer=position.upp_outcoil()[3])
         print('coil config - [Coil_OutRadius, Coil_LowEnd, Coil_UppEnd, Coil_NrWind_p_Layer, Coil_NrWindings, Circuit_name]')
         print('inner coil config :', position.inncoil(), '\nupper outer coil config :', position.upp_outcoil(),'\nlower out coil config :', position.low_outcoil())
-        print('inner coil material - ', wire.inncoil_material, ', outer coil material - ', wire.outcoil_material, ', magnet material - ', wire.mag_mat())
-        print('inner, upper outer, total coil lengths : ', length.inncoil(), length.upp_outcoil(),length.inncoil() + (2 * length.upp_outcoil()))
+        print('inner coil material - ', wire.inncoil_material, ', outer coil material - ', wire.outcoil_material)
+        print('inner, upper outer, total coil lengths : ', length.inncoil(), length.upp_outcoil(),
+              length.inncoil() + (2 * length.upp_outcoil()))
+        coil_con = ['Coil_OutRadius', 'Coil_Lowend', 'Coil_Uppend', 'Coil_turns(per layer)', 'Coil_turns total','coil_name']
         if wire.prop_out()[3] and wire.prop_inn()[3]:
             inn_dc = length.inncoil() * wire.prop_inn()[3]
             out_dc = length.upp_outcoil() * wire.prop_out()[3]
@@ -90,6 +94,9 @@ class Analysis:
             femm.mo_groupselectblock(4)
             LowOut_Force19 = femm.mo_blockintegral(19)
             femm.mo_clearblock()
+            femm.mo_groupselectblock(1)
+            Innercoil_Force19 = femm.mo_blockintegral(19)
+            femm.mo_clearblock()
             femm.mo_groupselectblock(2)
             Magn_Force19 = femm.mo_blockintegral(19)
             femm.mo_clearblock()
@@ -111,6 +118,7 @@ class Analysis:
 
             uppout_prop['UppOut_force'][i] = UppOut_Force19
             lowout_prop['LowOut_force'][i] = LowOut_Force19
+            inn_prop['Inncoil_force'][i] = Innercoil_Force19
             mag_prop['Magnet_forces'][i] = Magn_Force19
 
             if self.sim_type == 'semi_analytical':
@@ -132,9 +140,9 @@ class Analysis:
         plt.show()
 
         if self.save:
-            np.savez_compressed(self.filename,Design_type=input_par3, Design = input_par2, Input_parameters = input_par1,
+            np.savez_compressed(self.filename,Design_type=input_par3, Design = input_par2, Input_parameters = input_par1, coil_config_parameters = coil_con,
                                 Innercoil_config=position.inncoil(), UpperOutcoil_config=position.upp_outcoil(), LowerOutercoil_config=position.low_outcoil(),
-                                UOC_forces = uppout_prop['UppOut_force'], LOC_forces = lowout_prop['LowOut_force'], Mag_forces = mag_prop['Magnet_forces'],
+                                UOC_forces = uppout_prop['UppOut_force'], LOC_forces = lowout_prop['LowOut_force'], Mag_forces = mag_prop['Magnet_forces'], IC_forces = inn_prop['Inncoil_force'],
                                 IC_currents = inn_prop['Inncoil_current'], UOC_currents=uppout_prop['UppOut_current'], LOC_currents = lowout_prop['LowOut_current'],
                                 UOC_voltages = uppout_prop['UppOut_voltage'], LOC_voltages = lowout_prop['LowOut_voltage'], IC_voltages = inn_prop['Inncoil_voltage'],
                                 IC_positions = inn_prop['Inncoil_position'], IC_flux=inn_prop['Inncoil_flux'], UOC_flux=uppout_prop['UppOut_flux'], LOC_flux=lowout_prop['LowOut_flux'],
