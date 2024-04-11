@@ -64,10 +64,9 @@ Here are the default assumptions
     Region 2, mesh - sphere with radius 300mm, auto mesh
     #For analytical calculations:
 
-NOTE - To modify any of the above parameters, alter the code in the respective modules. 
-For chainging the coil excitations and the boundary conditions of LVDT/VC/VC_only, modify the instance 'sensor' and 'bc', and to change the units and precisions, modify the command 'mi_probdef' in the corresponding LVDT/VC.py script 
-For changing the wire, magnet material modify the instance 'wire' in the corresponding LVDT/VC.py script and add this material to the 'prop_inn', 'prop_out' & 'mag_mat' methods of 'Wiretype' class in the design.py module. 
-(Make sure the modified material is available in the FEMM material library. If not, the new material must be defined with all the properties in the classes 'FEMM_coil' and 'FEMM_magnet' of the 'femm_model.py' module.)
+NOTE - To modify any of the above parameters, add the optinal argument 'mat_prop' explained above in the sim_code instance to change the materials modelled in the simulation and 
+for chainging the coil excitations, add the argument 'input_current' to the 'execute' method. To change the boundary conditions of LVDT/VC/VC_only, modify the instance 'bc', and to change the units and precisions, modify the command 'mi_probdef' in the corresponding LVDT/VC.py script 
+(Make sure the modified/newly added material above is available in the FEMM material library. If not, the new material must be defined with all the properties in the 'feed.py' module.)
     
 
 For a better understanding, a model code to simulate LVDTs is given in 'example.md' file. Please go through that.   
