@@ -42,10 +42,13 @@ Here is a explanation for simulating a typical LVDT/VC with just two lines. One 
     (NOTE - if analysis is not for a default design, go to the '.py' file of the specific sensor (for instance, LVDT.py or VC.py), 
      a line after, "if self.default == 'no':", modify the parameter that you want to change as 'self.parameter1')
     design or parameter = list with design type (if 'is default' is 'yes') or parameter (if 'is default is 'no')
+    _______OUTPUT______
+    saves all the data along with the simulation parameters in a .npz file (if the save argument above is True)
 OPTIONAL
 
-    simulation_type = list with strings 'semi_analytical' for analytical calculation. (This is an optional parameter) 
+
     mat_prop = list containing (i) inner coil material (ii) outer coil material (iii) magnet material
+    simulation_type = list with strings 'semi_analytical' for analytical calculation.
 
 Here are the default assumptions
 

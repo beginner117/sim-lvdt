@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import sys
 
 class Analysis:
-    def __init__(self,save, sim_range: list, default, filename=None, design_type= None, materials = None, parameter1=None, simulation_type=None):
+    def __init__(self,save, sim_range: list, default, filename, design_type,input_excitation, materials = None, parameter1=None, simulation_type=None):
         self.save = save
         self.sim_range = sim_range
         self.filename = filename
@@ -18,6 +18,7 @@ class Analysis:
         self.design_type = design_type
         self.default = default
         self.materials = materials
+        self.input_excitation = input_excitation
     def simulate(self):
         """"
         simulates the Voice coil performance"""
@@ -26,7 +27,7 @@ class Analysis:
         value = feed.data
         in_pa = feed.Input()
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file=self.filename)
-        sensor = design.Sensortype(InnCoilCurrent=0, Simfreq=0, OutCoilCurrent=1)
+        sensor = design.Sensortype(InnCoilCurrent=self.input_excitation[0], Simfreq=self.input_excitation[1], OutCoilCurrent=self.input_excitation[2])
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype(self.materials[1], self.materials[0], magnet_material=self.materials[2])
         input_par1 = {'TotalSteps_StepSize(mm)_Offset': self.sim_range, 'outercoil Diameter(mm)_Insulation(mm)_Wiretype': wire.prop_out()[:3], 'innercoil Diameter(mm)_Insulation(mm)_Wiretype': wire.prop_inn()[:3],
@@ -38,7 +39,7 @@ class Analysis:
             input_par3 = 'NIKHEF design type : ' + self.design_type
         if self.default == 'no':
             input_par2 = {'IC_height': 20, 'IC_radius': 9, 'IC_layers': 6, 'IC_distance': 0, 'OC_height': self.parameter1[0], 'OC_radius': 20, 'OC_layers': 5,
-                         'OC_distance': self.parameter1[1], 'mag_len': 29.8, 'mag_dia': 8, 'ver_shi': 0}
+                         'OC_distance': self.parameter1[1], 'mag_len': 30, 'mag_dia': 8, 'ver_shi': 0}
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
             input_par3 = 'not a NIKHEF design'

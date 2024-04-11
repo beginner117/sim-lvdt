@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class Analysis:
-    def __init__(self,save, sim_range: list, default, filename: str, design_type=None,materials=None, parameter1=None):
+    def __init__(self,save, sim_range: list, default, filename: str, design_type, input_excitation, materials=None, parameter1=None):
         self.save = save
         self.sim_range = sim_range
         self.filename = filename
@@ -15,13 +15,14 @@ class Analysis:
         self.design_type = design_type
         self.default = default
         self.materials = materials
+        self.input_excitation = input_excitation
     def simulate(self):
         print(self.parameter1)
         femm.openfemm()  # The package must be initialized with the openfemm command.
         femm.newdocument(0)  # We need to create a new Magnetostatics document to work on.
         value = feed.data
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file=self.filename)
-        sensor = design.Sensortype(InnCoilCurrent=0, Simfreq=0, OutCoilCurrent=1)
+        sensor = design.Sensortype(InnCoilCurrent=self.input_excitation[0], Simfreq=self.input_excitation[1], OutCoilCurrent=self.input_excitation[2])
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype(self.materials[1], self.materials[0], magnet_material=self.materials[2])
         input_par1 = {'TotalSteps_StepSize_Offset': self.sim_range, 'uppercoil Diameter_Insulation_Wiretype': wire.prop_out(),
@@ -92,9 +93,8 @@ class Analysis:
         mag_prop = res.magnet()
 
         move_group = femm_model.Femm_move(groups = [1,2], x_dist=0, y_dist=pre_simulation.parameters()[2])
-        for_def = []
-        for_imp = []
-
+        for_def = []; for_imp = []
+        mag_field_uppercoil = []; mag_field_lowercoil = []
         for i in range(0, pre_simulation.parameters()[0] + 1):
             print('coil position (from centre) : ', pre_simulation.parameters()[2] + pre_simulation.parameters()[1] * i)
             inn_prop['Inncoil_position'][i] = pre_simulation.parameters()[2] + pre_simulation.parameters()[1] * i
@@ -141,7 +141,7 @@ class Analysis:
             gri_x = [] ; mag_fie_x = [] ; mag_fie_y = [] ; gri_y = []
             def_force = [] ; imp_force = [] ; def_force_ver = [] ; imp_force_ver = []
             rot_x = [] ; rot_y = [] ; rot_x_lower = [] ; rot_y_lower= []
-            line_int = []; line_int2 = []
+            mag_field_upper = [] ; mag_field_lower = []
             turns_per_layer = int(position.upp_outcoil()[3])
 
             for item in range(0, geo.outcoil()[2]):
@@ -149,8 +149,8 @@ class Analysis:
                     grid_pt = [geo.outcoil()[1] + (item * (wire.prop_out()[0]+2*wire.prop_out()[1])), (geo.outcoil()[3]+geo.outcoil()[0])/2 - (j * (wire.prop_out()[0]+2*wire.prop_out()[1]))]
                     grid_pt_lower = [geo.outcoil()[1] + (item * (wire.prop_out()[0]+2*wire.prop_out()[1])), -(geo.outcoil()[3]+geo.outcoil()[0])/2 + (j * (wire.prop_out()[0]+2*wire.prop_out()[1]))]
 
-                    b_field = femm.mo_getb(grid_pt[0], grid_pt[1])
-                    b_field_lower = femm.mo_getb(grid_pt_lower[0], grid_pt_lower[1])
+                    b_field = femm.mo_getb(grid_pt[0], grid_pt[1]); mag_field_upper.append([grid_pt[0], grid_pt[1], b_field])
+                    b_field_lower = femm.mo_getb(grid_pt_lower[0], grid_pt_lower[1]); mag_field_lower.append([grid_pt_lower[0], grid_pt_lower[1], b_field_lower])
 
                     gri_x.append(grid_pt[0])
                     gri_x_lower.append(grid_pt_lower[0])
@@ -193,7 +193,7 @@ class Analysis:
                     imp_force.append(f-f_lower)
                     #print(imp_force, def_force)
             #print('default force:', sum(np.array(def_force)), 'updated force:', sum(np.array(imp_force)), 'int_for:')
-
+            mag_field_uppercoil.append(mag_field_upper); mag_field_lowercoil.append(mag_field_lower)
             for_def.append(sum(def_force))
             for_imp.append(sum(imp_force))
 
@@ -222,6 +222,7 @@ class Analysis:
                                 Innercoil_config=position.inncoil(), UpperOutcoil_config=position.upp_outcoil(), LowerOutercoil_config=position.low_outcoil(),
                                 UOC_forces = uppout_prop['UppOut_force'], LOC_forces = lowout_prop['LowOut_force'], IC_forces = inn_prop['Inncoil_force'],
                                 Mag_forces=mag_prop['Magnet_forces'], semi_analytical_def = for_def, semi_analytical_imp = imp_force,
+                                Magnetic_field_upper = mag_field_uppercoil, Magnetic_field_lower = mag_field_lowercoil,
                                 IC_currents = inn_prop['Inncoil_current'], UOC_currents=uppout_prop['UppOut_current'], LOC_currents = lowout_prop['LowOut_current'],
                                 UOC_voltages = uppout_prop['UppOut_voltage'], LOC_voltages = lowout_prop['LowOut_voltage'], IC_voltages = inn_prop['Inncoil_voltage'],
                                 IC_positions = inn_prop['Inncoil_position'], IC_flux=inn_prop['Inncoil_flux'], UOC_flux=uppout_prop['UppOut_flux'], LOC_flux=lowout_prop['LowOut_flux'],

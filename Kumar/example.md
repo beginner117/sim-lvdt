@@ -37,12 +37,11 @@ Example to compute the response semi-analytically (i.e, just by using magnetic f
     import sys
     sys.path.append('path to the directory containing all the modules above')
 
-    analytical = femm_simulation.Position_sensor(sensor_type=['LVDT', 'LVDT'], save=False, sim_range={'steps_size_offset':[[0,0,0], [0,0,0]},
-                                    data = {'filename(s)':['mag_field1', 'mag_field2'], 'is default':['yes', 'no'], 'design or parameter':['A', 3]},
-                                        simulation_type='semi_analytical')
+    analytical = femm_simulation.Position_sensor(sensor_type=['VC_fields'], save=False, sim_range={'steps_size_offset':[[10,1,-5]},
+                                    data = {'filename(s)':['mag_field1'], 'is default':['yes'], 'design or parameter':['A']})
     analytical.execute()
 
-The above code saves the magnetic field information in an '.npz' file. Using this, we can compute the flux followed by LVDT outer coil response
+The above code saves the magnetic field information in an '.npz' file. 
 
 Below is the code to get the outer coil flux from the magnetic field files(obtained from the above script). The outer coil flux should be saved as an '.npz' file to compute the response.
 The mandatory input arguments to save the '.npz' flux files are the offset of the outer coil and the file name

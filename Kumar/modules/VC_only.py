@@ -8,7 +8,7 @@ from scipy import integrate
 import numpy as np
 import matplotlib.pyplot as plt
 class Analysis:
-    def __init__(self, save, sim_range:list, default, filename, design_type=None,materials = None, sim_type = 'FEMM+ana',  parameter1=None):
+    def __init__(self, save, sim_range:list, default, filename, design_type,input_excitation, materials = None, sim_type = 'FEMM+ana',  parameter1=None):
         self.save = save
         self.sim_range = sim_range
         self.filename = filename
@@ -17,6 +17,7 @@ class Analysis:
         self.default = default
         self.sim_type = sim_type
         self.materials = materials
+        self.input_excitation = input_excitation
     def simulate(self):
         femm.openfemm()
         femm.newdocument(0)
