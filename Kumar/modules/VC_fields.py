@@ -209,13 +209,13 @@ class Analysis:
         # plt.grid()
         # plt.show()
 
-        plt.plot(inn_prop['Inncoil_position'], abs(mag_prop['Magnet_forces']), 'o-', label = 'femm')
-        plt.plot(inn_prop['Inncoil_position'], for_def,'o-', label = 'semi-analytical')
-        plt.ylabel('Force [N]')
-        plt.xlabel('Inner Coil Position [mm]')
-        plt.legend()
-        plt.grid()
-        plt.show()
+        # plt.plot(inn_prop['Inncoil_position'], abs(mag_prop['Magnet_forces']), 'o-', label = 'femm')
+        # plt.plot(inn_prop['Inncoil_position'], for_def,'o-', label = 'semi-analytical')
+        # plt.ylabel('Force [N]')
+        # plt.xlabel('Inner Coil Position [mm]')
+        # plt.legend()
+        # plt.grid()
+        # plt.show()
 
         if self.save:
             np.savez_compressed(self.filename, Design = input_par2, Input_parameters = input_par1, coil_config_parameters = coil_con,

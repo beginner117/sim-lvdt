@@ -6,6 +6,7 @@ import VC as VC
 import VC_only as VC_only
 import YOKE as YOKE
 import VC_fields as VC_fields
+import single_coil_fields as single_coil_fields
 import LVDT_correction as LVDT_correction
 import LVDT_mutual_inductance as LVDT_mutual_inductance
 import importlib
@@ -161,6 +162,19 @@ class Position_sensor:
                     a1 = LVDT_mutual_inductance.Analysis1(save = self.save, default=self.data['is default'][i], offset=self.sim_range['steps_size_offset'][i], input_excitation=excitation,
                                         design_type=None,materials1 =[self.material_prop[0], self.material_prop[1], self.material_prop[2]], filename1=self.data['filename(s)'][i], parameter1=self.data['design or parameter'][i])
                     a1.simulate()
+            if self.sensor_type[i] == 'inner_coil':
+                excitation = input_current if input_current is not None else [0, 0, [1, 1]]
+                print('single_coil')
+                if self.data['is default'][i] == 'yes':
+                    a = single_coil_fields.Analysis(self.save, sim_range=self.sim_range['steps_size_offset'][i],input_excitation=excitation,
+                                      default=self.data['is default'][i], filename=self.data['filename(s)'][i],
+                                      design_type=self.data['design or parameter'][i], materials =[self.material_prop[0], self.material_prop[1], self.material_prop[2]])
+                    a.simulate()
+                else:
+                    a = single_coil_fields.Analysis(self.save, sim_range=self.sim_range['steps_size_offset'][i],
+                                      default=self.data['is default'][i], filename=self.data['filename(s)'][i],input_excitation=excitation,
+                                      design_type=None,materials =[self.material_prop[0], self.material_prop[1], self.material_prop[2]], parameter1=self.data['design or parameter'][i])
+                    a.simulate()
 
 
 
