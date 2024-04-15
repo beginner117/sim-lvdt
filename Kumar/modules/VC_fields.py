@@ -68,14 +68,14 @@ class Analysis:
                                            turns_pr_layer=position.inncoil()[4])
         uppoutstr = femm_model.Femm_coil(x1=geo.outcoil()[1], y1=position.upp_outcoil()[2],
                                          x2=position.upp_outcoil()[0], y2=position.upp_outcoil()[1],
-                                         circ_name=position.upp_outcoil()[5], circ_current=sensor.para()[2],
+                                         circ_name=position.upp_outcoil()[5], circ_current=sensor.para()[2][0],
                                          circ_type=1, material=wire.outcoil_material,
                                          edit_mode=4, group=3, label1=wire.prop_out()[1],
                                          label2=geo.outcoil()[0], blockname=wire.prop_out()[2],
                                          turns_pr_layer=position.upp_outcoil()[4])
         lowoutstr = femm_model.Femm_coil(x1=geo.outcoil()[1], y1=position.low_outcoil()[2],
                                          x2=position.low_outcoil()[0], y2=position.low_outcoil()[1],
-                                         circ_name=position.low_outcoil()[5], circ_current=-sensor.para()[2],
+                                         circ_name=position.low_outcoil()[5], circ_current=-sensor.para()[2][1],
                                          circ_type=1, material=wire.outcoil_material,
                                          edit_mode=4, group=4, label1=wire.prop_out()[0],
                                          label2=geo.outcoil()[0], blockname=wire.prop_out()[2],
@@ -91,7 +91,7 @@ class Analysis:
         uppout_prop = res.uppout()
         lowout_prop = res.lowout()
         mag_prop = res.magnet()
-
+        
         move_group = femm_model.Femm_move(groups = [1,2], x_dist=0, y_dist=pre_simulation.parameters()[2])
         for_def = []; for_imp = []
         mag_field_uppercoil = []; mag_field_lowercoil = []

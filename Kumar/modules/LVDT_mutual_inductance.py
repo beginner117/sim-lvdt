@@ -5,7 +5,7 @@ import coil
 import feed
 import numpy as np
 class Analysis1:
-    def __init__(self, save, default, offset, design_type=None, materials1 = None, filename1=None, parameter1=None):
+    def __init__(self, save, default, offset, input_excitation, design_type, materials1 = None, filename1=None, parameter1=None):
         self.offset = offset
         self.save = save
         self.filename1 = filename1
@@ -13,6 +13,7 @@ class Analysis1:
         self.design_type = design_type
         self.default = default
         self.materials1 = materials1
+        self.input_excitation1 = input_excitation
     def simulate(self):
         if self.default=='yes':
             value = feed.data
@@ -43,6 +44,9 @@ class Analysis1:
         #trials = [[0.02, 0, 0, 10000], [0, 0.02, 0, 10000], [0, 0, 0.02, 10000], [0.02, 0.02, 0, 10000], [0, 0.02, 0.02, 10000], [0.02, 0, 0.02, 10000], [1,1,1, 0]]
         trials = [[0.02, 0, 0, 10000], [0.02, 0.02, 0, 10000],[0, 0.02, 0.02, 10000],
                    [0.02, 0, 0.02, 10000], [1, 1, 1, 0]]
+        # trials = [[self.input_excitation1[0], 0, 0, self.input_excitation1[1]], [self.input_excitation1[0], self.input_excitation1[0], 0, self.input_excitation1[1]],
+        #           [0, self.input_excitation1[0], self.input_excitation1[0], self.input_excitation1[1]],
+        #                       [self.input_excitation1[0], 0, self.input_excitation1[0], self.input_excitation1[1]], [1, 1, 1, 0]]
 
         self_ind = []
         mut_ind = []
