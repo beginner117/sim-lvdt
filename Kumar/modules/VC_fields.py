@@ -162,8 +162,8 @@ class Analysis:
                     mag_fie_x_lower.append(b_field_lower[0])
                     mag_fie_y_lower.append(b_field_lower[1])
 
-                    g = (2*np.pi * grid_pt[0] * b_field[0]*sensor.para()[2]) / (10 ** 3)
-                    g_lower = (2*np.pi * grid_pt_lower[0] * b_field_lower[0]*sensor.para()[2]) / (10 ** 3)
+                    g = (2*np.pi * grid_pt[0] * b_field[0]*sensor.para()[2][0]) / (10 ** 3)
+                    g_lower = (2*np.pi * grid_pt_lower[0] * b_field_lower[0]*sensor.para()[2][1]) / (10 ** 3)
                     def_force.append(g - g_lower)
 
                     angle = 0
@@ -188,8 +188,8 @@ class Analysis:
                     # line_int2.append(sum(line_int_for2))
 
 
-                    f = (6.28 * grid_pt[0] * c[0]*sensor.para()[2]) / (10 ** 3)
-                    f_lower = (6.28 * grid_pt_lower[0] * c_lower[0]*sensor.para()[2]) / (10 ** 3)
+                    f = (6.28 * grid_pt[0] * c[0]*sensor.para()[2][0]) / (10 ** 3)
+                    f_lower = (6.28 * grid_pt_lower[0] * c_lower[0]*sensor.para()[2][1]) / (10 ** 3)
                     imp_force.append(f-f_lower)
                     #print(imp_force, def_force)
             #print('default force:', sum(np.array(def_force)), 'updated force:', sum(np.array(imp_force)), 'int_for:')

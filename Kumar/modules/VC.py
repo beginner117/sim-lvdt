@@ -132,14 +132,15 @@ class Analysis:
 
             move_group = femm_model.Femm_move(groups=[1, 2], x_dist=0, y_dist=pre_simulation.parameters()[1])
 
-        Upp_Inductance = abs(uppout_prop['UppOut_flux'] / uppout_prop['UppOut_current'])
-        Upp_resistance = abs(uppout_prop['UppOut_voltage'] / uppout_prop['UppOut_current'])
-        print("magnet force :", mag_prop['Magnet_forces'])
-        print('upper coil ind, imp :', Upp_Inductance[1], Upp_resistance[1])
-        plt.plot(inn_prop['Inncoil_position'], abs(mag_prop['Magnet_forces']), 'o-')
-        plt.xlabel('Inner Coil Position [mm]')
-        plt.ylabel('Magnet Force [N]')
-        plt.show()
+        if sensor.para()[2][0] != 0:
+            Upp_Inductance = abs(uppout_prop['UppOut_flux'] / uppout_prop['UppOut_current'])
+            Upp_resistance = abs(uppout_prop['UppOut_voltage'] / uppout_prop['UppOut_current'])
+            print("magnet force :", mag_prop['Magnet_forces'])
+            print('upper coil ind, imp :', Upp_Inductance[1], Upp_resistance[1])
+            plt.plot(inn_prop['Inncoil_position'], abs(mag_prop['Magnet_forces']), 'o-')
+            plt.xlabel('Inner Coil Position [mm]')
+            plt.ylabel('Magnet Force [N]')
+            plt.show()
 
         if self.save:
             np.savez_compressed(self.filename,Design_type=input_par3, Design = input_par2, Input_parameters = input_par1, coil_config_parameters = coil_con,
