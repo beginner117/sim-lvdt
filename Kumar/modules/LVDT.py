@@ -36,8 +36,8 @@ class Analysis:
             input_par3 = 'NIKHEF design type : '+self.design_type
             input_par2 = in_pa.return_data(self.design_type)
         if self.default == 'no':
-            input_par2 = {'IC_height': 20, 'IC_radius': 9, 'IC_layers': 6, 'IC_distance': 0, 'OC_height': self.parameter1[0], 'OC_radius': 20, 'OC_layers': 5,
-                         'OC_distance': self.parameter1[1], 'mag_len': 30, 'mag_dia': 8, 'ver_shi': 0}
+            input_par2 = {'IC_height': 20, 'IC_radius': 9, 'IC_layers': 6, 'IC_distance': 0, 'OC_height': 10, 'OC_radius': self.parameter1, 'OC_layers': 5,
+                         'OC_distance': 39.8, 'mag_len': 30, 'mag_dia': 8, 'ver_shi': 0}
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
             input_par3 = 'not a priliminary NIKHEF design'
@@ -116,7 +116,7 @@ class Analysis:
             Inn_Impedance = abs(inn_prop['Inncoil_voltage'] / inn_prop['Inncoil_current'])
             print('Inn Inductance, Inn impedance : ', Inn_Inductance, Inn_Impedance)
             print('Inn voltage :', abs(inn_prop['Inncoil_voltage']))
-        if sensor.para()[2] != 0:
+        if sensor.para()[2][0] != 0:
             Out_Impedance = abs(uppout_prop['UppOut_voltage'] / uppout_prop['UppOut_current'])
             Out_Inductance = abs(uppout_prop['UppOut_flux'] / uppout_prop['UppOut_current'])
             Low_Impedance = abs(lowout_prop['LowOut_voltage'] / lowout_prop['LowOut_current'])

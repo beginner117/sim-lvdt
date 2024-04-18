@@ -196,5 +196,5 @@ class Coil_prop:
             _________output__________
             [Magnet force]
         """
-        magnet_forces = np.zeros(self.steps+1).astype(complex)
+        magnet_forces = np.zeros(self.steps+1)
         return {'Magnet_forces':magnet_forces}

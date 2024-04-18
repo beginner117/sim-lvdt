@@ -132,7 +132,7 @@ class Femm_magnet():
             #     if self.material == "high":
             #         femm.mi_addmaterial('high', 1.05, 1.05, 955000, 0, 0.667, 0, 0, 1, 0, 0, 0, 1, 0)
             except:
-                femm.mi_addmaterial(magnets[self.material][0], self.material[1], self.material[2], self.material[3], 0, self.material[4], 0, 0, 1, 0, 0, 0, 1, 0)
+                femm.mi_addmaterial(magnets[self.material][0], magnets[self.material][1], magnets[self.material][2], magnets[self.material][3], 0, magnets[self.material][4], 0, 0, 1, 0, 0, 0, 1, 0)
 
             femm.mi_clearselected()
             femm.mi_selectrectangle(self.x1, self.y1, self.x2, self.y2, self.edit_mode)

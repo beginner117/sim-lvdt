@@ -54,6 +54,7 @@ class Wiretype:
         self.inncoil_material = inncoil_material
         self.magnet_material = magnet_material
         self.wire_feed = feed.wire_types
+        self.magnet_feed = feed.magnet_types
 
     def prop_out(self):
         """

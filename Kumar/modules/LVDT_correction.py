@@ -6,21 +6,21 @@ import LVDT_mutual_inductance as LVDT_mutual_inductance
 
 rat_amp = []
 class Analysis:
-    def __init__(self, save, default, offset, input_excitation, design=None,materials = None, filename=None, parameter=None ):
+    def __init__(self, save, default, offset, materials = None, input_excitation=None, design=None, filename=None, parameter=None ):
         self.save = save
         self.default = default
         self.design = design
         self.offset = offset
         self.parameter = parameter
         self.filename = filename
-        self.materials = materials
-        self.input_excitation = input_excitation
+        self.materials = materials if materials is not None else ['32 AWG', '32 AWG', 'N40']
+        self.input_excitation = input_excitation if input_excitation is not None else [0.02, 10000, 0]
 
     def simulate(self):
         if self.default == 'yes':
-            a = LVDT_mutual_inductance.Analysis1(save=False, default=self.default, offset=self.offset, input_excitation=self.input_excitation, design_type=self.design, materials1=self.materials)
+            a = LVDT_mutual_inductance.Analysis1(save=False, default=self.default, offset=self.offset, materials1=self.materials, input_excitation=self.input_excitation, design_type=self.design)
         else:
-            a = LVDT_mutual_inductance.Analysis1(save=False, default=self.default, offset=self.offset, input_excitation=self.input_excitation, materials1=self.materials,  parameter1=self.parameter)
+            a = LVDT_mutual_inductance.Analysis1(save=False, default=self.default, offset=self.offset,materials1=self.materials, input_excitation=self.input_excitation,  parameter1=self.parameter)
         b1 = a.simulate()
         # the inductance on one coil relative to the other is half of the net mutual inductance of both the coils
         M_UL = b1[0][1] / 2
@@ -65,7 +65,8 @@ class Analysis:
         Z_lowout = np.sqrt(R_lowout ** 2 + X_lowout ** 2)
         Z_out = np.sqrt(R_out ** 2 + X_out ** 2)
 
-        Z_b_Tina = 2299.50 - 4221.47j  # coil DC resistance was also considered
+        #Z_b_Tina = 2299.50 - 4221.47j  # coil DC resistance was also considered
+        Z_b_Tina = 5600
         npoints = 100000
         rng = np.random.default_rng(12345)
         Z_b_real = Z_b_Tina.real * np.ones(npoints)  # Re[Z] from board

@@ -155,12 +155,12 @@ class Position_sensor:
             if self.sensor_type[i] == 'LVDT_mutual_inductance':
                 excitation = input_current if input_current is not None else [0.02, 10000, 0]
                 if self.data['is default'][i] == 'yes':
-                    a1 = LVDT_mutual_inductance.Analysis1(save = self.save, default=self.data['is default'][i], offset=self.sim_range['steps_size_offset'][i], input_excitation=excitation,
-                                       design_type=self.data['design or parameter'][i],materials1 =[self.material_prop[0], self.material_prop[1], self.material_prop[2]], filename1=self.data['filename(s)'][i])
+                    a1 = LVDT_mutual_inductance.Analysis1(save = self.save, default=self.data['is default'][i], offset=self.sim_range['steps_size_offset'][i],
+                                       design_type=self.data['design or parameter'][i], input_excitation=excitation, materials1 =[self.material_prop[0], self.material_prop[1], self.material_prop[2]], filename1=self.data['filename(s)'][i])
                     a1.simulate()
                 else:
-                    a1 = LVDT_mutual_inductance.Analysis1(save = self.save, default=self.data['is default'][i], offset=self.sim_range['steps_size_offset'][i], input_excitation=excitation,
-                                        design_type=None,materials1 =[self.material_prop[0], self.material_prop[1], self.material_prop[2]], filename1=self.data['filename(s)'][i], parameter1=self.data['design or parameter'][i])
+                    a1 = LVDT_mutual_inductance.Analysis1(save = self.save, default=self.data['is default'][i], offset=self.sim_range['steps_size_offset'][i],
+                                        design_type=None,input_excitation=excitation, materials1 =[self.material_prop[0], self.material_prop[1], self.material_prop[2]], filename1=self.data['filename(s)'][i], parameter1=self.data['design or parameter'][i])
                     a1.simulate()
             if self.sensor_type[i] == 'inner_coil':
                 excitation = input_current if input_current is not None else [0, 0, [1, 1]]

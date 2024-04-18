@@ -25,8 +25,8 @@ class Analysis:
         sensor = design.Sensortype(InnCoilCurrent=self.input_excitation[0], Simfreq=self.input_excitation[1], OutCoilCurrent=self.input_excitation[2])
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype(self.materials[1], self.materials[0], magnet_material=self.materials[2])
-        input_par1 = {'TotalSteps_StepSize_Offset': self.sim_range, 'uppercoil Diameter_Insulation_Wiretype': wire.prop_out(),
-                      'innercoil Diameter_Insulation_Wiretype': wire.prop_inn(), 'Innercoil_current': sensor.para()[0], 'Frequency': sensor.para()[1],
+        input_par1 = {'TotalSteps_StepSize_Offset': self.sim_range, 'uppercoil Diameter_Insulation_Wiretype': wire.prop_out()[:3],
+                      'innercoil Diameter_Insulation_Wiretype': wire.prop_inn()[:3], 'Innercoil_current': sensor.para()[0], 'Frequency': sensor.para()[1],
                       'Outercoil_current': sensor.para()[2], 'Magnet_material':wire.mag_mat()}
         if self.default=='yes':
             geo = design.Geometry(value[self.design_type]["inn_ht"], value[self.design_type]['inn_rad'], value[self.design_type]['inn_layers'], value[self.design_type]['inn_dist'], value[self.design_type]['out_ht'], value[self.design_type]['out_rad'],
@@ -81,7 +81,7 @@ class Analysis:
                                          label2=geo.outcoil()[0], blockname=wire.prop_out()[2],
                                          turns_pr_layer=position.low_outcoil()[4])
         magnetstr = femm_model.Femm_magnet(x1=0, y1=position.magnet()[0], x2=position.magnet()[2],
-                                           y2=position.magnet()[1], material=wire.mag_mat(), edit_mode=4, group=2,
+                                           y2=position.magnet()[1], material=wire.magnet_material, edit_mode=4, group=2,
                                            label1=0.5, label2=geo.mag()[0])
         bc = femm_model.Femm_bc(AirSpaceRadius_1=100, AirSpaceRadius_2=300, BC_Name='Outside', BC_Group=10,
                                 material='Air')
@@ -209,13 +209,13 @@ class Analysis:
         # plt.grid()
         # plt.show()
 
-        # plt.plot(inn_prop['Inncoil_position'], abs(mag_prop['Magnet_forces']), 'o-', label = 'femm')
-        # plt.plot(inn_prop['Inncoil_position'], for_def,'o-', label = 'semi-analytical')
-        # plt.ylabel('Force [N]')
-        # plt.xlabel('Inner Coil Position [mm]')
-        # plt.legend()
-        # plt.grid()
-        # plt.show()
+        plt.plot(abs(inn_prop['Inncoil_position']), abs(mag_prop['Magnet_forces']), 'o-', label = 'femm')
+        plt.plot(abs(inn_prop['Inncoil_position']), for_def,'o-', label = 'semi-analytical')
+        plt.ylabel('Force [N]')
+        plt.xlabel('Inner Coil Position [mm]')
+        plt.legend()
+        plt.grid()
+        plt.show()
 
         if self.save:
             np.savez_compressed(self.filename, Design = input_par2, Input_parameters = input_par1, coil_config_parameters = coil_con,
@@ -225,5 +225,5 @@ class Analysis:
                                 Magnetic_field_upper = mag_field_uppercoil, Magnetic_field_lower = mag_field_lowercoil,
                                 IC_currents = inn_prop['Inncoil_current'], UOC_currents=uppout_prop['UppOut_current'], LOC_currents = lowout_prop['LowOut_current'],
                                 UOC_voltages = uppout_prop['UppOut_voltage'], LOC_voltages = lowout_prop['LowOut_voltage'], IC_voltages = inn_prop['Inncoil_voltage'],
-                                IC_positions = inn_prop['Inncoil_position'], IC_flux=inn_prop['Inncoil_flux'], UOC_flux=uppout_prop['UppOut_flux'], LOC_flux=lowout_prop['LowOut_flux'],
+                                IC_positions = abs(inn_prop['Inncoil_position']), IC_flux=inn_prop['Inncoil_flux'], UOC_flux=uppout_prop['UppOut_flux'], LOC_flux=lowout_prop['LowOut_flux'],
                                 Inn_Uppout_Lowout_DCR_as_per_catalog = [inn_dc, out_dc, lowout_dc])
