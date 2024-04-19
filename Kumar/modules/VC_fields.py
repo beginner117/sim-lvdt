@@ -44,16 +44,12 @@ class Analysis:
                                  ver_shi=geo.mag()[2], inn_wiredia=wire.prop_inn()[0], inn_wireins=wire.prop_inn()[1], out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1], mag_len=geo.mag()[0], mag_dia=geo.mag()[1])
         length = coil.Length(inn_layers=geo.inncoil()[2], inn_rad=geo.inncoil()[1], inn_wiredia=wire.prop_inn()[0], inn_wireins=wire.prop_inn()[1], innwind_pr_layer=position.inncoil()[3], out_layers=geo.outcoil()[2],
                              out_rad=geo.outcoil()[1], out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1], outwind_pr_layer=position.upp_outcoil()[3])
-        print(
-            'coil config - [Coil_OutRadius, Coil_LowEnd, Coil_UppEnd, Coil_NrWind_p_Layer, Coil_NrWindings, Circuit_name]')
-        print('inner coil config :', position.inncoil(), '\nupper outer coil config :', position.upp_outcoil(),
-              '\nlower out coil config :', position.low_outcoil())
-        print('inner coil material - ', wire.inncoil_material, ', outer coil material - ', wire.outcoil_material,
-              ', magnet material - ', wire.magnet_material)
+        print('coil config - [Coil_OutRadius, Coil_LowEnd, Coil_UppEnd, Coil_NrWind_p_Layer, Coil_NrWindings, Circuit_name]')
+        print('inner coil config :', position.inncoil(), '\nupper outer coil config :', position.upp_outcoil(), '\nlower out coil config :', position.low_outcoil())
+        print('inner coil material - ', wire.inncoil_material, ', outer coil material - ', wire.outcoil_material,', magnet material - ', wire.magnet_material)
         print('inner, upper outer, total coil lengths : ', length.inncoil(), length.upp_outcoil(),
               length.inncoil() + (2 * length.upp_outcoil()))
-        coil_con = ['Coil_OutRadius', 'Coil_Lowend', 'Coil_Uppend', 'Coil_turns(per layer)', 'Coil_turns total',
-                    'coil_name']
+        coil_con = ['Coil_OutRadius', 'Coil_Lowend', 'Coil_Uppend', 'Coil_turns(per layer)', 'Coil_turns total', 'coil_name']
         if wire.prop_out()[3] and wire.prop_inn()[3]:
             inn_dc = length.inncoil() * wire.prop_inn()[3]
             out_dc = length.upp_outcoil() * wire.prop_out()[3]
@@ -149,8 +145,8 @@ class Analysis:
                     grid_pt = [geo.outcoil()[1] + (item * (wire.prop_out()[0]+2*wire.prop_out()[1])), (geo.outcoil()[3]+geo.outcoil()[0])/2 - (j * (wire.prop_out()[0]+2*wire.prop_out()[1]))]
                     grid_pt_lower = [geo.outcoil()[1] + (item * (wire.prop_out()[0]+2*wire.prop_out()[1])), -(geo.outcoil()[3]+geo.outcoil()[0])/2 + (j * (wire.prop_out()[0]+2*wire.prop_out()[1]))]
 
-                    b_field = femm.mo_getb(grid_pt[0], grid_pt[1]); mag_field_upper.append([grid_pt[0], grid_pt[1], b_field])
-                    b_field_lower = femm.mo_getb(grid_pt_lower[0], grid_pt_lower[1]); mag_field_lower.append([grid_pt_lower[0], grid_pt_lower[1], b_field_lower])
+                    b_field = femm.mo_getb(grid_pt[0], grid_pt[1]); mag_field_upper.append([grid_pt[0], grid_pt[1], b_field[0], b_field[1]])
+                    b_field_lower = femm.mo_getb(grid_pt_lower[0], grid_pt_lower[1]); mag_field_lower.append([grid_pt_lower[0], grid_pt_lower[1], b_field_lower[0], b_field_lower[1]])
 
                     gri_x.append(grid_pt[0])
                     gri_x_lower.append(grid_pt_lower[0])
@@ -209,8 +205,8 @@ class Analysis:
         # plt.grid()
         # plt.show()
 
-        plt.plot(abs(inn_prop['Inncoil_position']), abs(mag_prop['Magnet_forces']), 'o-', label = 'femm')
-        plt.plot(abs(inn_prop['Inncoil_position']), for_def,'o-', label = 'semi-analytical')
+        plt.plot(np.real(inn_prop['Inncoil_position']), abs(mag_prop['Magnet_forces']), 'o-', label = 'femm')
+        plt.plot(np.real(inn_prop['Inncoil_position']), for_def,'o-', label = 'semi-analytical')
         plt.ylabel('Force [N]')
         plt.xlabel('Inner Coil Position [mm]')
         plt.legend()
