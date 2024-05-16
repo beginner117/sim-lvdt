@@ -5,7 +5,7 @@ import coil
 import feed
 import numpy as np
 class Analysis1:
-    def __init__(self, save, default, offset,  design_type, input_excitation=None, materials1 = None, filename1=None, parameter1=None):
+    def __init__(self, save, default, offset,  design_type, input_excitation=None, materials1 = None,coil_dimensions1 = None,  filename1=None, parameter1=None):
         self.offset = offset
         self.save = save
         self.filename1 = filename1
@@ -13,6 +13,7 @@ class Analysis1:
         self.design_type = design_type
         self.default = default
         self.materials1 = materials1
+        self.des_dim1 = coil_dimensions1
         self.input_excitation1 = input_excitation
     def simulate(self):
         if self.default=='yes':
@@ -21,12 +22,21 @@ class Analysis1:
                                   value[self.design_type]['out_layers'], value[self.design_type]['out_dist'], value[self.design_type]['mag_len'], value[self.design_type]['mag_dia'], value[self.design_type]['ver_shi'])
             input_par2 = 'design type : '+self.design_type
         else:
-            input_par2 = {'IC_height': 20, 'IC_radius': 9, 'IC_layers': 6, 'IC_distance': 0, 'OC_height': 10, 'OC_radius': self.parameter1, 'OC_layers': 5,
-                         'OC_distance': 39.8, 'mag_len': 30, 'mag_dia': 8, 'ver_shi': 0}
+            try :
+                input_par2 = {'IC_height': self.des_dim1['inner'][0], 'IC_radius': self.des_dim1['inner'][1],
+                              'IC_layers': self.des_dim1['inner'][2], 'IC_distance': self.des_dim1['inner'][3],
+                              'OC_height': self.des_dim1['outer'][0], 'OC_radius': self.des_dim1['outer'][1],
+                              'OC_layers': self.des_dim1['outer'][2], 'OC_distance': self.des_dim1['outer'][3],
+                              'mag_len': self.des_dim1['magnet'][0], 'mag_dia': self.des_dim1['magnet'][1], 'ver_shi': 0}
+            except:
+                input_par2 = {'IC_height': 24, 'IC_radius': 11, 'IC_layers': 6, 'IC_distance': 0, 'OC_height': 13.5, 'OC_radius': 35, 'OC_layers': 7,
+                             'OC_distance': 54.5, 'mag_len': 40, 'mag_dia': 10, 'ver_shi': 0}
+
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
         wire = design.Wiretype(self.materials1[1], self.materials1[0], magnet_material=self.materials1[2])  # can be changed
         print('inner coil material - ', wire.inncoil_material, ', outer coil material - ', wire.outcoil_material, ', magnet material - ', wire.magnet_material)
+        print('geometry :', input_par2)
         position = coil.Position(inn_ht=geo.inncoil()[0], inn_rad=geo.inncoil()[1], inn_layers=geo.inncoil()[2],
                                  inn_dist=geo.inncoil()[3], out_ht=geo.outcoil()[0], out_rad=geo.outcoil()[1],
                                  out_layers=geo.outcoil()[2], out_dist=geo.outcoil()[3],
@@ -41,12 +51,7 @@ class Analysis1:
 
         other_par = {'current(amps)_AC frequency_inner wire_outer wire': [0.02, 10000, wire.inncoil_material, wire.outcoil_material]}
         #inner current_upper current_lower current_frequency
-        #trials = [[0.02, 0, 0, 10000], [0, 0.02, 0, 10000], [0, 0, 0.02, 10000], [0.02, 0.02, 0, 10000], [0, 0.02, 0.02, 10000], [0.02, 0, 0.02, 10000], [1,1,1, 0]]
-        trials = [[0.02, 0, 0, 10000], [0.02, 0.02, 0, 10000],[0, 0.02, 0.02, 10000],
-                   [0.02, 0, 0.02, 10000], [1, 1, 1, 0]]
-        # trials = [[self.input_excitation1[0], 0, 0, self.input_excitation1[1]], [self.input_excitation1[0], self.input_excitation1[0], 0, self.input_excitation1[1]],
-        #           [0, self.input_excitation1[0], self.input_excitation1[0], self.input_excitation1[1]],
-        #                       [self.input_excitation1[0], 0, self.input_excitation1[0], self.input_excitation1[1]], [1, 1, 1, 0]]
+        trials = [[0.02, 0, 0, 10000], [0, 0.02, 0, 10000], [0, 0, 0.02, 10000], [0.02, 0.02, 0, 10000], [0, 0.02, 0.02, 10000], [0.02, 0, 0.02, 10000], [1,1,1, 0]]
 
         self_ind = []
         mut_ind = []
@@ -102,26 +107,16 @@ class Analysis1:
                 Inn_Impedance = abs(inn_prop['Inncoil_voltage'] / inn_prop['Inncoil_current'])
                 self_ind.append(Inn_Inductance)
                 imp.append(Inn_Impedance)
-            # if trials[i][0]==0 and trials[i][2] == 0:
-            #     Out_Impedance = abs(uppout_prop['UppOut_voltage'] / uppout_prop['UppOut_current'])
-            #     Out_Inductance = abs(uppout_prop['UppOut_flux'] / uppout_prop['UppOut_current'])
-            #     self_ind.append(Out_Inductance)
-            #     imp.append(Out_Impedance)
-            # if trials[i][0]==0 and trials[i][1] == 0:
-            #     Low_Impedance = abs(lowout_prop['LowOut_voltage'] / lowout_prop['LowOut_current'])
-            #     Low_Inductance = abs(lowout_prop['LowOut_flux'] / lowout_prop['LowOut_current'])
-            #     self_ind.append(Low_Inductance)
-            #     imp.append(Low_Impedance)
-            if trials[i][0]==0:
+            if trials[i][0]==0 and trials[i][2] == 0:
                 Out_Impedance = abs(uppout_prop['UppOut_voltage'] / uppout_prop['UppOut_current'])
                 Out_Inductance = abs(uppout_prop['UppOut_flux'] / uppout_prop['UppOut_current'])
                 self_ind.append(Out_Inductance)
                 imp.append(Out_Impedance)
+            if trials[i][0]==0 and trials[i][1] == 0:
                 Low_Impedance = abs(lowout_prop['LowOut_voltage'] / lowout_prop['LowOut_current'])
                 Low_Inductance = abs(lowout_prop['LowOut_flux'] / lowout_prop['LowOut_current'])
                 self_ind.append(Low_Inductance)
                 imp.append(Low_Impedance)
-
             if trials[i][0]!= 0 and trials[i][1] != 0 and trials[i][2] == 0:
                 Inn_Inductance = abs(inn_prop['Inncoil_flux'] / inn_prop['Inncoil_current'])
                 Out_Inductance = abs(uppout_prop['UppOut_flux'] / uppout_prop['UppOut_current'])

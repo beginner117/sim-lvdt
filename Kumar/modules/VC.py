@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import sys
 
 class Analysis:
-    def __init__(self,save, sim_range: list, default, filename, design_type,input_excitation, materials = None, parameter1=None, simulation_type=None):
+    def __init__(self,save, sim_range: list, default, filename, design_type,input_excitation, materials, coil_dimensions=None, parameter1=None, simulation_type=None):
         self.save = save
         self.sim_range = sim_range
         self.filename = filename
@@ -18,6 +18,7 @@ class Analysis:
         self.design_type = design_type
         self.default = default
         self.materials = materials
+        self.des_dim = coil_dimensions
         self.input_excitation = input_excitation
     def simulate(self):
         """"
@@ -38,8 +39,16 @@ class Analysis:
             input_par2 = in_pa.return_data(self.design_type)
             input_par3 = 'NIKHEF design type : ' + self.design_type
         if self.default == 'no':
-            input_par2 = {'IC_height': 20, 'IC_radius': 9, 'IC_layers': 6, 'IC_distance': 0, 'OC_height': self.parameter1[0], 'OC_radius': 20, 'OC_layers': 5,
-                         'OC_distance': self.parameter1[1], 'mag_len': 30, 'mag_dia': 8, 'ver_shi': 0}
+            try:
+                input_par2 = {'IC_height': self.des_dim['inner'][0], 'IC_radius': self.des_dim['inner'][1],
+                              'IC_layers': self.des_dim['inner'][2], 'IC_distance': self.des_dim['inner'][3],
+                              'OC_height': self.des_dim['outer'][0], 'OC_radius': self.des_dim['outer'][1],
+                              'OC_layers': self.des_dim['outer'][2], 'OC_distance': self.des_dim['outer'][3],
+                              'mag_len': self.des_dim['magnet'][0], 'mag_dia': self.des_dim['magnet'][1], 'ver_shi': 0}
+            except:
+                input_par2 = {'IC_height': self.parameter1[0], 'IC_radius': 7, 'IC_layers': 6, 'IC_distance': 0,
+                              'OC_height': self.parameter1[1], 'OC_radius': 17, 'OC_layers': 7,
+                              'OC_distance': self.parameter1[2], 'mag_len': 30, 'mag_dia': 8, 'ver_shi': 0}
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
             input_par3 = 'not a NIKHEF design'
@@ -136,14 +145,14 @@ class Analysis:
             Upp_Inductance = abs(uppout_prop['UppOut_flux'] / uppout_prop['UppOut_current'])
             Upp_resistance = abs(uppout_prop['UppOut_voltage'] / uppout_prop['UppOut_current'])
             print("magnet force :", mag_prop['Magnet_forces'])
-            print('upper coil ind, imp :', Upp_Inductance, Upp_resistance)
-            plt.plot(abs(inn_prop['Inncoil_position']), abs(mag_prop['Magnet_forces']), 'o-')
+            print('upper out coil ind, imp :', Upp_Inductance, Upp_resistance)
+            plt.plot(np.real(inn_prop['Inncoil_position']), abs(mag_prop['Magnet_forces']), 'o-')
             plt.xlabel('Inner Coil Position [mm]')
             plt.ylabel('Magnet Force [N]')
             plt.show()
 
         if self.save:
-            np.savez_compressed(self.filename,Design_type=input_par3, Design = input_par2, Input_parameters = input_par1, coil_config_parameters = coil_con,
+            np.savez_compressed(self.filename,Design_type=input_par3, Design_parameters = input_par2, Input_parameters = input_par1, coil_config_parameters = coil_con,
                                 Innercoil_config=position.inncoil(), UpperOutcoil_config=position.upp_outcoil(), LowerOutercoil_config=position.low_outcoil(),
                                 UOC_forces = uppout_prop['UppOut_force'], LOC_forces = lowout_prop['LowOut_force'], Mag_forces = mag_prop['Magnet_forces'], IC_forces = inn_prop['Inncoil_force'],
                                 IC_currents = inn_prop['Inncoil_current'], UOC_currents=uppout_prop['UppOut_current'], LOC_currents = lowout_prop['LowOut_current'],
