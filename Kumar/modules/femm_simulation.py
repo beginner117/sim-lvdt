@@ -37,30 +37,14 @@ class Position_sensor:
         List of materials used (inner coil material, outer coil material, magnet material) in simulation.
         Default is ['32 AWG', '32 AWG', 'N40'].
 
+    lvdt_dim : dict, optional
+        dictionary specifying coil geometry in simulation.
+        The keys of this dictionary are 'inner', 'outer', 'magnet'.
+        The values of these keys are lists containing the values(in mm) of height, radius, layers, distance (in the order) for the coils and length, diameter (in the order) for the magnet.
+
     simulation : str, optional
         Type of the simulation.
         Default is 'femm'.
-
-    Attributes:
-    ----------
-    sensor_type : str
-        Type of the position sensor to be simulated.
-
-    save : bool
-        Whether to save the simulated data or not.
-
-    sim_range : list
-        Required simulation range.
-
-    data : str
-        Name of the file, whether the simulating design is default NIKHEF design or not,
-        and type/parameter of the design.
-
-    material_prop : list, optional
-        List of materials used in simulation.
-
-    simulation_type : list, optional
-        Type of the simulation
 
     """
     def __init__(self, sensor_type, save, sim_range, data, mat_prop=None, lvdt_dim=None, simulation=None):
