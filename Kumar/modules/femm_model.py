@@ -24,10 +24,12 @@ class Femm_bc():
         femm.mi_drawline(0, self.AirSpaceRadius_1, 0, -self.AirSpaceRadius_1)
         femm.mi_drawarc(0, -self.AirSpaceRadius_1, 0, self.AirSpaceRadius_1, 180, 2)
         femm.mi_getmaterial("Air")
+        #femm.hi_getmaterial('Air')
         femm.mi_clearselected()
         femm.mi_addblocklabel(self.AirSpaceRadius_1 / 4, self.AirSpaceRadius_1 / 2)
         femm.mi_selectlabel(self.AirSpaceRadius_1 / 4, self.AirSpaceRadius_1 / 2)
         femm.mi_setblockprop("Air", 0, 0.5, '', 0, 0, 0)
+        #femm.hi_addboundprop('Fixed Temperature', 0, 300, 0, 0, 0, 0)
         #femm.mi_setblockprop("Air", 1, 0, '', 0, 0, 0)
         femm.mi_clearselected()
         # Airspace2
