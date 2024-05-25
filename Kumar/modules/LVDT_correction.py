@@ -67,8 +67,8 @@ class Analysis:
         Z_out = np.sqrt(R_out ** 2 + X_out ** 2)
 
         #Z_b_Tina = 2299.50 - 4221.47j  # coil DC resistance was also considered (without 10Kohm)
-        #Z_b_Tina = 2724.5 - 2494.8j
-        Z_b_Tina = self.parameter
+        Z_b_Tina = 2743.9 - 2501.6j
+        #Z_b_Tina = self.parameter
         npoints = 100000
         rng = np.random.default_rng(12345)
         Z_b_real = Z_b_Tina.real * np.ones(npoints)  # Re[Z] from board

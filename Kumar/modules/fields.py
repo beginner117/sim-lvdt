@@ -82,18 +82,19 @@ class B_field:
         self.outer_voltage = outer_voltage ; self.outer_flux = outer_flux
         self.filename = filename
     def calculate(self):
-        r_vec = np.arange(0, self.r_max+self.dr, self.dr, dtype = np.double)
-        z_vec = np.arange(0, self.z_max+self.dz, self.dz, dtype = np.double)
+        r_vec = np.arange(0, self.r_max+self.dr, self.dr, dtype = np.double) #position vectors and flux
+        z_vec = np.arange(0, self.z_max+self.dz, self.dz, dtype = np.double) #z_vec will be mirrored about z=0 later
         print(len(z_vec), z_vec[1], r_vec[1])
-        b_vec = np.zeros((len(z_vec), len(r_vec), 2), dtype = np.double).astype(complex)
+        b_vec = np.zeros((len(z_vec), len(r_vec), 2), dtype = np.double).astype(complex) # Constructing the matrix of B field vectors (B_r,B_z)
+        # Computing the B field in the r,z-plane
         for i in range(len(z_vec)):
             for j in range(len(r_vec)):
                 if j < 5:
                     print(r_vec[j], z_vec[i])
                 b_vec[i, j, :] = femm.mo_getb(r_vec[j], z_vec[i])
 
-        b_vec_z = np.real(b_vec[:, :, 1])  #b_mat_z
-        b_vec_r = np.real(b_vec[:, :, 0])   #b_mat_r
+        b_vec_z = np.real(b_vec[:, :, 1])  #b_mat_z, Matrix of B(r,z) field with only z components (index: 1): only relevant data for flux computation
+        b_vec_r = np.real(b_vec[:, :, 0])   #b_mat_r, Matrix of B(r,z) field with only r components (index: 0)
 
         if self.filename:
             np.savez_compressed(self.filename, radial_vectors = r_vec, z_vectors = z_vec, radial_step = self.dr, z_step = self.dz,
