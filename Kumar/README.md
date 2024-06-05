@@ -46,9 +46,13 @@ Here is a explanation for simulating a typical LVDT/VC with just two lines. One 
     saves all the data along with the simulation parameters in a .npz file (if the save argument above is True)
 OPTIONAL
 
-
     mat_prop = list containing (i) inner coil material (ii) outer coil material (iii) magnet material
     simulation_type = list with strings 'semi_analytical' for analytical calculation.
+    lvdt_dim = dictionary with the coil geometry with 'inner', 'outer', 'magnet' as keys and corresponding dimensions (in mm)in lists as values.
+               Values of the keys are height, radius, layers, distance (in the order) for the coils and length, diameter (in the order) for the magnet
+               Example - {'inner':[24, 11, 6, 0], 'outer':[13.5, 35, 7, 54.5], 'magnet':[40, 10]}
+               NOTE - Alternatively(and prefarably), this geometry can also be defined in the 'feed.py' module with the apropriate name following the order of the existing designs in that module. 
+               MOST IMPORTANT, add the defined design as a value and your choice of name(for that design) as a key in the dictionary 'data' to call it directly with the name.
 
 Here are the default assumptions
 
@@ -58,6 +62,7 @@ Here are the default assumptions
     Outer coil excitation (for VC, VC_only) - 1A DC sinusoidal wave
     Units - millimeters
     precision - 1.0e-10
+
             Boundary conditions 
     material - Air
     Region 1, mesh - sphere with radius 100mm, 

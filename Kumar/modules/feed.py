@@ -29,11 +29,10 @@ J = {'inn_ht': 18, 'lowinn_ht': 23, 'inn_rad': 21, 'inn_layers': 6, 'inn_dist': 
      'mag_inn':31.65, 'mag_out':44.45, 'mag_ht':6.35,'mag_ver_shi':0, 'inner_distance':60.5, 'yoke_inn_dia':8}
 A1 = {'inn_ht': 20, 'inn_rad': 9, 'inn_layers': 6, 'inn_dist': 0, 'out_ht': 10, 'out_rad': 20, 'out_layers': 5,
          'out_dist': 39.8, 'mag_len': 30, 'mag_dia': 8, 'ver_shi': 0}
-A1_test = {'inn_ht': 20+1, 'inn_rad': 9+1, 'inn_layers': 6, 'inn_dist': 0, 'out_ht': 10+1, 'out_rad': 20+1, 'out_layers': 5,
-         'out_dist': 39.8+1, 'mag_len': 30, 'mag_dia': 8, 'ver_shi': 0}
+
 
 # naming for the designs
-data = {'A':A, 'B':B, 'C':C, 'D':D, 'E':E, 'F':F, 'G':G, 'H':H, 'I':I, 'J':J, 'top_up':A1, 'A_1':A_1, 'topup_test':A1_test}
+data = {'A':A, 'B':B, 'C':C, 'D':D, 'E':E, 'F':F, 'G':G, 'H':H, 'I':I, 'J':J, 'top_up':A1, 'A_1':A_1}
 
 #[wire_dia, insulation_thickness, name, resistance(Ω/mm), electrical_conductivity(MS/m)[S is Siemens=1/Ω], resistivity(Ω*m), magnetic_perm(H/m)]
 wire_types = {'30 AWG': [0.254, 0.0216,'30 AWG', 103.7/304800],

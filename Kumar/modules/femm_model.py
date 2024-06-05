@@ -24,10 +24,12 @@ class Femm_bc():
         femm.mi_drawline(0, self.AirSpaceRadius_1, 0, -self.AirSpaceRadius_1)
         femm.mi_drawarc(0, -self.AirSpaceRadius_1, 0, self.AirSpaceRadius_1, 180, 2)
         femm.mi_getmaterial("Air")
+        #femm.hi_getmaterial('Air')
         femm.mi_clearselected()
         femm.mi_addblocklabel(self.AirSpaceRadius_1 / 4, self.AirSpaceRadius_1 / 2)
         femm.mi_selectlabel(self.AirSpaceRadius_1 / 4, self.AirSpaceRadius_1 / 2)
         femm.mi_setblockprop("Air", 0, 0.5, '', 0, 0, 0)
+        #femm.hi_addboundprop('Fixed Temperature', 0, 300, 0, 0, 0, 0)
         #femm.mi_setblockprop("Air", 1, 0, '', 0, 0, 0)
         femm.mi_clearselected()
         # Airspace2
@@ -126,11 +128,6 @@ class Femm_magnet():
             femm.mi_drawrectangle(self.x1, self.y1, self.x2, self.y2)
             try:
                 femm.mi_getmaterial(self.material)
-            # except:
-            #     if self.material == "low":
-            #         femm.mi_addmaterial('low', 1.05, 1.05, 860000, 0, 0.667, 0, 0, 1, 0, 0, 0, 1, 0)
-            #     if self.material == "high":
-            #         femm.mi_addmaterial('high', 1.05, 1.05, 955000, 0, 0.667, 0, 0, 1, 0, 0, 0, 1, 0)
             except:
                 femm.mi_addmaterial(magnets[self.material][0], magnets[self.material][1], magnets[self.material][2], magnets[self.material][3], 0, magnets[self.material][4], 0, 0, 1, 0, 0, 0, 1, 0)
 
@@ -207,3 +204,4 @@ class Load_coil:
     def simulate(self):
         Coil_I, Coil_V, Coil_FluxLink = femm.mo_getcircuitproperties(self.name)
         return [Coil_I, Coil_V, Coil_FluxLink]
+

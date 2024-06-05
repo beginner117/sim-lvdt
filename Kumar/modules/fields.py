@@ -6,6 +6,7 @@ import numpy as np
 from multiprocessing import Process
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
+import time
 import threading
 
 class Coil_magfield:
@@ -81,18 +82,19 @@ class B_field:
         self.outer_voltage = outer_voltage ; self.outer_flux = outer_flux
         self.filename = filename
     def calculate(self):
-        r_vec = np.arange(0, self.r_max+self.dr, self.dr, dtype = np.double)
-        z_vec = np.arange(0, self.z_max+self.dz, self.dz, dtype = np.double)
+        r_vec = np.arange(0, self.r_max+self.dr, self.dr, dtype = np.double) #position vectors and flux
+        z_vec = np.arange(0, self.z_max+self.dz, self.dz, dtype = np.double) #z_vec will be mirrored about z=0 later
         print(len(z_vec), z_vec[1], r_vec[1])
-        b_vec = np.zeros((len(z_vec), len(r_vec), 2), dtype = np.double).astype(complex)
+        b_vec = np.zeros((len(z_vec), len(r_vec), 2), dtype = np.double).astype(complex) # Constructing the matrix of B field vectors (B_r,B_z)
+        # Computing the B field in the r,z-plane
         for i in range(len(z_vec)):
             for j in range(len(r_vec)):
                 if j < 5:
                     print(r_vec[j], z_vec[i])
                 b_vec[i, j, :] = femm.mo_getb(r_vec[j], z_vec[i])
 
-        b_vec_z = np.real(b_vec[:, :, 1])  #b_mat_z
-        b_vec_r = np.real(b_vec[:, :, 0])   #b_mat_r
+        b_vec_z = np.real(b_vec[:, :, 1])  #b_mat_z, Matrix of B(r,z) field with only z components (index: 1): only relevant data for flux computation
+        b_vec_r = np.real(b_vec[:, :, 0])   #b_mat_r, Matrix of B(r,z) field with only r components (index: 0)
 
         if self.filename:
             np.savez_compressed(self.filename, radial_vectors = r_vec, z_vectors = z_vec, radial_step = self.dr, z_step = self.dz,
@@ -125,6 +127,7 @@ class Flux:
             quit()
         n_theta = round(np.floor(np.pi/self.d_theta))  #no.of points in the theta coordinate
         int_vec = np.zeros(n_theta+1)  #initialize integral vector
+        #print('3-2-3-1 and loop length',n_theta, time.time())
         for i in range(0, n_theta+1):  #looping over all the angles (i*d_theta) less than pi
             #creating a B vector fiels and r vector field for a given angle theta
             b_vec_i = b_z_r_vec[b['radial_vectors']<((self.x_offset*np.cos(i*self.d_theta))+np.sqrt(R**2-(self.x_offset*np.sin(i*self.d_theta))**2))]
@@ -156,6 +159,7 @@ class Flux:
         b = np.load(self.datafile, allow_pickle=True)
         z_vec_len = len(b['z_vectors'])
         phi_vec = np.zeros(len(b['z_vectors']))
+        #print('3rd-2-3, z_vectors loop length and time', z_vec_len, time.time())
         for i in range(z_vec_len): #loop over all heights in z grid
             phi_vec[i] = self.asym_flux_polar(rad, b['mag_field_z'][i,:])[0]
         #creating the full phi_tot & z_tot vectors for the domain [-z_max,z_max] by mirroring the vectors in the domain [0, z_max]
@@ -178,13 +182,19 @@ class Flux:
         return [force_tot]
     def outcoil_flux(self, wire_thickness1, out_layers, out_radius, parallel_processing = None):
         #Total flux by looping over all outer coil layers and adding the flux of each layer
+        #print('3rd-1')
         phi_vec_list = []
         b = np.load(self.datafile, allow_pickle = True)
+        #print('3rd-2')
+        #print('layers', out_layers)
         for i in range(0, out_layers):
+            #print('3rd-2-1')
             rad_i = out_radius+(wire_thickness1*i)
+            #print('3rd-2-2')
             res_layer = self.outcoil(rad_i)
+            #print('3rd-2-3')
             phi_vec_list.append(res_layer[0])
-            print('layer : '+str(i+1) + 'completed')
+            #print('layer : '+str(i+1) + 'completed')
         z_vec_save = res_layer[1]
         if parallel_processing :
             processes = [Process(target=self.outcoil, args=(self.value[self.type]['out_rad']+(wire_thickness1*m))) for m in range(self.value[self.type]['out_layers'])]

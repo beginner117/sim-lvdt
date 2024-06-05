@@ -9,7 +9,7 @@ import sys
 import matplotlib.pyplot as plt
 
 class Analysis:
-    def __init__(self, save, sim_range:list, default, filename, input_excitation,  design_type, materials, simulation_type = None, parameter1=None):
+    def __init__(self, save, sim_range:list, default, filename, input_excitation,  design_type, materials, coil_dimensions=None, parameter1=None, simulation_type = None):
         self.save = save
         self.sim_range = sim_range
         self.filename = filename
@@ -17,6 +17,7 @@ class Analysis:
         self.sim_type = simulation_type
         self.design_type = design_type
         self.default = default
+        self.des_dim = coil_dimensions
         self.materials = materials
         self.input_excitation = input_excitation
     def simulate(self):
@@ -36,8 +37,13 @@ class Analysis:
             input_par3 = 'NIKHEF design type : '+self.design_type
             input_par2 = in_pa.return_data(self.design_type)
         if self.default == 'no':
-            input_par2 = {'IC_height': 20, 'IC_radius': 9, 'IC_layers': 6, 'IC_distance': 0, 'OC_height': 10, 'OC_radius': self.parameter1, 'OC_layers': 5,
-                         'OC_distance': 39.8, 'mag_len': 30, 'mag_dia': 8, 'ver_shi': 0}
+            try :
+                input_par2 = {'IC_height': self.des_dim['inner'][0], 'IC_radius': self.des_dim['inner'][1], 'IC_layers': self.des_dim['inner'][2], 'IC_distance': self.des_dim['inner'][3],
+                            'OC_height': self.des_dim['outer'][0], 'OC_radius': self.des_dim['outer'][1], 'OC_layers': self.des_dim['outer'][2], 'OC_distance': self.des_dim['outer'][3],
+                                            'mag_len': self.des_dim['magnet'][0], 'mag_dia': self.des_dim['magnet'][1], 'ver_shi': 0}
+            except:
+                input_par2 = {'IC_height': self.parameter1[0], 'IC_radius': 7, 'IC_layers': 6, 'IC_distance': 0, 'OC_height': self.parameter1[1], 'OC_radius': 17, 'OC_layers': 7,
+                             'OC_distance': self.parameter1[2], 'mag_len': 30, 'mag_dia': 8, 'ver_shi': 0}
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
             input_par3 = 'not a priliminary NIKHEF design'
@@ -49,6 +55,7 @@ class Analysis:
         print('inner coil config :', position.inncoil(), '\nupper outer coil config :', position.upp_outcoil(), '\nlower out coil config :', position.low_outcoil())
         print('inner coil material - ', wire.inncoil_material,', outer coil material - ', wire.outcoil_material, ', magnet material - ', wire.magnet_material)
         print('inner, upper outer, total coil lengths : ',  length.inncoil(), length.upp_outcoil(), length.inncoil()+(2*length.upp_outcoil()))
+        print('geometry :', input_par2)
         coil_con = ['Coil_OutRadius', 'Coil_Lowend', 'Coil_Uppend', 'Coil_turns(per layer)', 'Coil_turns total', 'coil_name']
         if wire.prop_out()[3] and wire.prop_inn()[3]:
             inn_dc = length.inncoil()*wire.prop_inn()[3]
@@ -131,9 +138,9 @@ class Analysis:
         print('normalised outcoil voltages :', Norm_OutCoil_Signals_v)
         if self.sim_range[0] != 0:
             b1, b2 = np.polyfit(inn_prop['Inncoil_position'], Norm_OutCoil_Signals_v * gainfactor, 1)
-            print("Fitted slope & const of voltage normalised signals (with gain factor 70.02) :", abs(b1), abs(b2))
+            print("Fitted slope(V/mmV) & const of voltage normalised signals (with gain factor 70.02) :", abs(b1), abs(b2))
             c1, c2 = np.polyfit(inn_prop['Inncoil_position'], Norm_OutCoil_Signals, 1)
-            print("Fitted slope & const of current normalised signals (without gain factor) :", abs(c1), abs(c2))
+            print("Fitted slope(V/mmA) & const of current normalised signals (without gain factor) :", abs(c1), abs(c2))
 
         if self.save:
             np.savez_compressed(self.filename,Design_type=input_par3, Design_parameters = input_par2, Input_parameters = input_par1, coil_config_parameters = coil_con, Innercoil_config = position.inncoil(),

@@ -144,6 +144,19 @@ class Geometry:
         mag_rad = self.mag_outrad - self.mag_innrad
         return [self.mag_ht, mag_rad, self.mag_ver_shi]
 
+class Dimensions:
+    def __init__(self, input_dimensions, variable):
+        self.in_dim = input_dimensions; self.def_var = variable
+        for key, value in self.in_dim.items():
+            if any(not isinstance(num, (int, float)) for num in value):
+                self.in_dim[key] = [self.def_var if not isinstance(num, (int, float)) else num for num in value]
+    def inner_coil(self):
+        return self.in_dim['inner']
+    def outer_coil(self):
+        return self.in_dim['outer']
+    def magnet(self):
+        return self.in_dim['magnet']
+
 class Blocks:
     def __init__(self, lvdt_type):
         self.type = lvdt_type

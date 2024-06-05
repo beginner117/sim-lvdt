@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class Analysis:
-    def __init__(self,save, sim_range: list, default, filename: str, design_type, input_excitation, materials=None, parameter1=None):
+    def __init__(self,save, sim_range: list, default, filename: str, design_type, input_excitation, materials, coil_dimensions=None, parameter1=None):
         self.save = save
         self.sim_range = sim_range
         self.filename = filename
@@ -15,6 +15,7 @@ class Analysis:
         self.design_type = design_type
         self.default = default
         self.materials = materials
+        self.des_dim = coil_dimensions
         self.input_excitation = input_excitation
     def simulate(self):
         print(self.parameter1)
@@ -32,9 +33,17 @@ class Analysis:
             geo = design.Geometry(value[self.design_type]["inn_ht"], value[self.design_type]['inn_rad'], value[self.design_type]['inn_layers'], value[self.design_type]['inn_dist'], value[self.design_type]['out_ht'], value[self.design_type]['out_rad'],
                                   value[self.design_type]['out_layers'], value[self.design_type]['out_dist'], value[self.design_type]['mag_len'], value[self.design_type]['mag_dia'], value[self.design_type]['ver_shi'])
             input_par2 = 'type'+self.design_type
-        else:
-            input_par2 = {'inn coil_height':5.2, 'inn coil_radius':10, 'inn coil_layers':1, 'inn coil_distance':0, 'out coil_height':5.2, 'out coil_radius':10, 'out coil_layers':1,
-                          'out coil_distance':0, 'mag_length':40, 'mag_diameter':10, 'ver_shi':0}
+        if self.default == 'no':
+            try:
+                input_par2 = {'IC_height': self.des_dim['inner'][0], 'IC_radius': self.des_dim['inner'][1],
+                              'IC_layers': self.des_dim['inner'][2], 'IC_distance': self.des_dim['inner'][3],
+                              'OC_height': self.des_dim['outer'][0], 'OC_radius': self.des_dim['outer'][1],
+                              'OC_layers': self.des_dim['outer'][2], 'OC_distance': self.des_dim['outer'][3],
+                              'mag_len': self.des_dim['magnet'][0], 'mag_dia': self.des_dim['magnet'][1], 'ver_shi': 0}
+            except:
+                input_par2 = {'IC_height': self.parameter1[0], 'IC_radius': 7, 'IC_layers': 6, 'IC_distance': 0,
+                              'OC_height': self.parameter1[1], 'OC_radius': 17, 'OC_layers': 7,
+                              'OC_distance': self.parameter1[2], 'mag_len': 30, 'mag_dia': 8, 'ver_shi': 0}
             geo = design.Geometry(input_par2['inn coil_height'], input_par2['inn coil_radius'], input_par2['inn coil_layers'], input_par2['inn coil_distance'],
                                   input_par2['out coil_height'], input_par2['out coil_radius'], input_par2['out coil_layers'], input_par2['out coil_distance'],
                                   input_par2['mag_length'], input_par2['mag_diameter'], input_par2['ver_shi'])
@@ -196,14 +205,14 @@ class Analysis:
             move_group = femm_model.Femm_move(groups=[1, 2], x_dist=0, y_dist=pre_simulation.parameters()[1])
         print('semi-analytical', '\nsemi analytical force :', for_def, '\nfemm force:', mag_prop['Magnet_forces'])
 
-        # plt.quiver(gri_x, gri_y, mag_fie_x, np.zeros(turns_per_layer*geo.outcoil()[2]), color='g', label='default', alpha=0.5)
+        plt.quiver(gri_x, gri_y, mag_fie_x, np.zeros(turns_per_layer*geo.outcoil()[2]), color='g', label='default', alpha=0.5)
         # plt.quiver(gri_x, gri_y, rot_x, np.zeros(turns_per_layer*geo.outcoil()[2]),color = 'b', label = 'rotated', alpha = 0.3)
-        # plt.quiver(gri_x_lower, gri_y_lower, mag_fie_x_lower,  np.zeros(turns_per_layer*geo.outcoil()[2]), color = 'g', alpha = 0.5)
+        plt.quiver(gri_x_lower, gri_y_lower, mag_fie_x_lower,  np.zeros(turns_per_layer*geo.outcoil()[2]), color = 'g', alpha = 0.5)
         # plt.quiver(gri_x_lower, gri_y_lower, rot_x_lower, np.zeros(turns_per_layer*geo.outcoil()[2]), color = 'b', alpha = 0.3)
-        # plt.title('Magnetic Field (rotated anticlockwise {})'.format(angle))
-        # plt.legend()
-        # plt.grid()
-        # plt.show()
+        plt.title('Magnetic Field (rotated anticlockwise {})'.format(angle))
+        plt.legend()
+        plt.grid()
+        plt.show()
 
         plt.plot(np.real(inn_prop['Inncoil_position']), abs(mag_prop['Magnet_forces']), 'o-', label = 'femm')
         plt.plot(np.real(inn_prop['Inncoil_position']), for_def,'o-', label = 'semi-analytical')
