@@ -66,8 +66,7 @@ class Analysis:
         Z_lowout = np.sqrt(R_lowout ** 2 + X_lowout ** 2)
         Z_out = np.sqrt(R_out ** 2 + X_out ** 2)
 
-        #Z_b_Tina = 2743.9 - 2501.6j     #2299.50 - 4221.47j is without 10Kohm
-        Z_b_Tina = self.parameter
+        Z_b_Tina = self.parameter  # with 10kohm: 2743.9 - 2501.6j, without 10Kohm: 2299.50 - 4221.47j
         npoints = 100000
         rng = np.random.default_rng(12345)
         Z_b_real = Z_b_Tina.real * np.ones(npoints)  # Re[Z] from board
@@ -114,7 +113,7 @@ class Analysis:
         ratio_amp = amp_r[0] / amp_r[1]
         print('correction factor', ratio_amp)
         rat_amp.append(ratio_amp)
-        print('board impedance(ohms) :', Z_b_Tina)
+        print('board impedance(ohms), magnitude:', Z_b_Tina, abs(Z_b_Tina))
         print('correction ratio :', rat_amp)
 
         if self.save:
