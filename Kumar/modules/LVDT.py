@@ -54,6 +54,7 @@ class Analysis:
         print('coil config - [Coil_OutRadius, Coil_LowEnd, Coil_UppEnd, Coil_NrWind_p_Layer, Coil_NrWindings, Circuit_name]')
         print('inner coil config :', position.inncoil(), '\nupper outer coil config :', position.upp_outcoil(), '\nlower out coil config :', position.low_outcoil())
         print('inner coil material - ', wire.inncoil_material,', outer coil material - ', wire.outcoil_material, ', magnet material - ', wire.magnet_material)
+        print('excitations :', sensor.para())
         print('inner, upper outer, total coil lengths : ',  length.inncoil(), length.upp_outcoil(), length.inncoil()+(2*length.upp_outcoil()))
         print('geometry :', input_par2)
         coil_con = ['Coil_OutRadius', 'Coil_Lowend', 'Coil_Uppend', 'Coil_turns(per layer)', 'Coil_turns total', 'coil_name']
@@ -82,7 +83,7 @@ class Analysis:
         uppout_prop = res.uppout()
         lowout_prop = res.lowout()
 
-        move_group = femm_model.Femm_move(groups = [1,2], x_dist=0, y_dist=pre_simulation.parameters()[2])
+        move_group = femm_model.Femm_move(groups = [1, 2], x_dist=0, y_dist=pre_simulation.parameters()[2])
 
         for i in range(0, pre_simulation.parameters()[0] + 1):
             print('coil position (from centre) : ', pre_simulation.parameters()[2] + pre_simulation.parameters()[1] * i)
@@ -136,6 +137,7 @@ class Analysis:
         gainfactor = 70.02
         Norm_OutCoil_Signals_v = OutCoil_Signals / abs(inn_prop['Inncoil_voltage'])
         print('normalised outcoil voltages :', Norm_OutCoil_Signals_v)
+
         if self.sim_range[0] != 0:
             b1, b2 = np.polyfit(inn_prop['Inncoil_position'], Norm_OutCoil_Signals_v * gainfactor, 1)
             print("Fitted slope(V/mmV) & const of voltage normalised signals (with gain factor 70.02) :", abs(b1), abs(b2))
