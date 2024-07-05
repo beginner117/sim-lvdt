@@ -10,9 +10,26 @@ import time
 import matplotlib.pyplot as plt
 
 class LVDT:
+    """
+
+    Args:
+        load_file (str): file containing the magnetic field information.
+    Methods:
+        outer_flux(offset, flux_file, wire_dia=None, outer_coil_layers=None, outer_coil_rad=None):
+        response(inncoil_range, outer_coil_dist=None, outer_coil_width=None, wire_dia=None, inner_current=None):
+    """
     def __init__(self, load_file):
         self.file = load_file
     def outer_flux(self, offset, flux_file, wire_dia = None, outer_coil_layers=None, outer_coil_rad=None):
+        """
+            Calculates the outer coil flux based on the provided parameters.
+            Args:
+                offset (float): Offset value for flux calculation.
+                flux_file (str): Path to the file where flux data will be saved.
+                wire_dia (float, optional): Diameter of the wire (if nothing is mentioned, it takes the values from the field file).
+                outer_coil_layers (int, optional): Number of layers in the outer coil (if nothing is mentioned, it takes the values from the field file).
+                outer_coil_rad (float, optional): Outer coil radius (if nothing is mentioned, it takes the values from the field file).
+        """
         f = np.load(self.file, allow_pickle=True)
         f1 = f['Innercoil_config'].item()
         f2 = f['Input_parameters'].item()
@@ -38,6 +55,17 @@ class LVDT:
         print('4th', time.time())
 
     def response(self, inncoil_range, outer_coil_dist=None, outer_coil_width=None, wire_dia = None, inner_current=None):
+        """
+            Computes the LVDT response characteristics.
+            Args:
+                inncoil_range (list or array): Range of inner coil distances (in mm) for analysis.
+                outer_coil_dist (float, optional): Distance between inner and outer coils (default: None).
+                outer_coil_width (float, optional): Width of the outer coil (default: None).
+                wire_dia (float, optional): Diameter of the wire (default: None).
+                inner_current (float, optional): Current applied to the inner coil (default: None).
+            Returns:
+                list: Slope of the response (V/mmA) and voltage-normalized slope (V/mmV)
+        """
         f = np.load(self.file, allow_pickle=True)
         f1 = f['Innercoil_config'].item()
         f2 = f['Input_parameters'].item()

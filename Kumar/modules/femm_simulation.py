@@ -61,7 +61,7 @@ class Position_sensor:
         Parameters:
         ----------
         input_current : list, optional
-            Inner coil, outer coil(upper and lower) currents for the simulation. Default values for LVDT is [0.02, 10000, [0,0]] and for VC is [0, 0, [1,1]]
+            Inner coil current(in Amp), frequency(in Hz), outer coil(upper and lower currents in a tuple) for the simulation. Default values for LVDT is [0.02, 10000, [0,0]] and for VC is [0, 0, [1,1]]
         """
         for i in range(len(self.sensor_type)):
             if self.sensor_type[i] == 'LVDT':

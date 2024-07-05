@@ -72,6 +72,24 @@ class Coil_magfield:
         return [sum(def_force), sum(imp_force)]
 
 class B_field:
+    """
+    Represents a magnetic field calculation in a cylindrical coordinate system.
+    Args:
+        r_max (float): Maximum radial distance in mm.
+        z_max (float): Maximum axial distance in mm.
+        r_grid (float): Radial grid spacing in mm.
+        z_grid (float): Axial grid spacing in mm.
+        filename (str, optional): Name of the file to save results (default: None).
+        design_type (str, optional): Type of magnetic field design (default: None).
+        design_parameters (dict, optional): Parameters related to the magnetic field design (default: None).
+        input_parameters (dict, optional): Input parameters for the calculation (default: None).
+        inner_voltage (float, optional): Voltage applied to the inner coil (default: None).
+        inner_flux (float, optional): Magnetic flux in the inner coil (default: None).
+        outer_voltage (float, optional): Voltage applied to the upper(assuming the symmetric lower outer coil) outer coil (default: None).
+        outer_flux (float, optional): Magnetic flux in the upper(assuming the symmetric lower outer coil) outer coil (default: None).
+    Methods:
+        calculate(): Computes the magnetic field distribution and saves results if a filename is provided.
+    """
     def __init__(self, r_max,z_max, r_grid, z_grid, filename=None,design_type=None,design_parameters=None, input_parameters=None,
                  inner_voltage=None, inner_flux=None, outer_voltage=None, outer_flux=None):
         self.r_max = r_max; self.z_max = z_max
@@ -82,6 +100,11 @@ class B_field:
         self.outer_voltage = outer_voltage ; self.outer_flux = outer_flux
         self.filename = filename
     def calculate(self):
+        """
+        Computes the magnetic field distribution.
+        Saved file contains information about the radial and axial vectors, step sizes for grid spacing, matrices of B-field values (with r and z components), details about the input parameters and coil-related information such as voltages and fluxes.
+        :return: list: containing the B-field vectors (B_r + i*B_z) for each grid point.
+        """
         r_vec = np.arange(0, self.r_max+self.dr, self.dr, dtype = np.double) #position vectors and flux
         z_vec = np.arange(0, self.z_max+self.dz, self.dz, dtype = np.double) #z_vec will be mirrored about z=0 later
         print(len(z_vec), z_vec[1], r_vec[1])
@@ -116,8 +139,6 @@ class Flux:
         self.wire_thickness = wire_thickness
         self.flux = None
         self.force = None
-        #self.value = feed.data
-        #self.wire = design.Wiretype(outcoil_material=self.coil_wire, inncoil_material=self.coil_wire)
     def asym_flux_polar(self, R, b_z_r_vec):
         #computes the magnetic flux inside a circle with radius R, angular stepsize dtheta, offset a, in the x-direction from centre of the innercoil by integrating B_z(r) field
         b = np.load(self.datafile, allow_pickle=True)
@@ -127,7 +148,7 @@ class Flux:
             quit()
         n_theta = round(np.floor(np.pi/self.d_theta))  #no.of points in the theta coordinate
         int_vec = np.zeros(n_theta+1)  #initialize integral vector
-        #print('3-2-3-1 and loop length',n_theta, time.time())
+
         for i in range(0, n_theta+1):  #looping over all the angles (i*d_theta) less than pi
             #creating a B vector fiels and r vector field for a given angle theta
             b_vec_i = b_z_r_vec[b['radial_vectors']<((self.x_offset*np.cos(i*self.d_theta))+np.sqrt(R**2-(self.x_offset*np.sin(i*self.d_theta))**2))]
@@ -159,14 +180,14 @@ class Flux:
         b = np.load(self.datafile, allow_pickle=True)
         z_vec_len = len(b['z_vectors'])
         phi_vec = np.zeros(len(b['z_vectors']))
-        #print('3rd-2-3, z_vectors loop length and time', z_vec_len, time.time())
+
         for i in range(z_vec_len): #loop over all heights in z grid
             phi_vec[i] = self.asym_flux_polar(rad, b['mag_field_z'][i,:])[0]
         #creating the full phi_tot & z_tot vectors for the domain [-z_max,z_max] by mirroring the vectors in the domain [0, z_max]
         z_tot = np.concatenate((-np.flipud(b['z_vectors'][1:]), b['z_vectors'][1:]))
         phi_tot = np.concatenate((np.flipud(phi_vec[1:]), phi_vec[1:]))*(10**-6)  #converting from mm^2 to m^2
-        # if self.save:
-        #     np.savez_compressed(self.flux_file, z_vec = z_tot, phi_vec = phi_tot)
+        if self.save:
+            np.savez_compressed(self.flux_file, z_vec = z_tot, phi_vec = phi_tot)
         return [phi_tot, z_tot]
     def outcoil_for(self, rad):
         b = np.load(self.datafile, allow_pickle=True)
@@ -182,19 +203,13 @@ class Flux:
         return [force_tot]
     def outcoil_flux(self, wire_thickness1, out_layers, out_radius, parallel_processing = None):
         #Total flux by looping over all outer coil layers and adding the flux of each layer
-        #print('3rd-1')
         phi_vec_list = []
         b = np.load(self.datafile, allow_pickle = True)
-        #print('3rd-2')
-        #print('layers', out_layers)
         for i in range(0, out_layers):
-            #print('3rd-2-1')
             rad_i = out_radius+(wire_thickness1*i)
-            #print('3rd-2-2')
             res_layer = self.outcoil(rad_i)
-            #print('3rd-2-3')
             phi_vec_list.append(res_layer[0])
-            #print('layer : '+str(i+1) + 'completed')
+            print('layer : '+str(i+1) + 'completed')
         z_vec_save = res_layer[1]
         if parallel_processing :
             processes = [Process(target=self.outcoil, args=(self.value[self.type]['out_rad']+(wire_thickness1*m))) for m in range(self.value[self.type]['out_layers'])]
@@ -234,8 +249,6 @@ class Flux:
                                 innercoil_voltage=b['innercoil_voltage'], innercoil_flux=b['innercoil_flux'],
                                 upp_outercoil_voltage=b['upp_outercoil_voltage'], upp_outercoil_flux=b['upp_outercoil_flux'])
         return [z_vec_save, sum(for_vec_list)]
-
-
 
 
 class Voltages:
@@ -317,7 +330,7 @@ class Plots:
             input_parameters = self.b['Innercoil_config'].item()
             out_dist = input_parameters['out_dist']
             out_ht = input_parameters['out_ht']
-            wire_width, wire_ins = input_parameters1['outercoil Diameter_Insulation_Wiretype'][0:2]
+            wire_width, wire_ins = input_parameters1['outercoil Diameter(mm)_Insulation(mm)_Wiretype'][0:2]
             wire_tot = wire_width + 2 * wire_ins
             # plot the emitting coil as a rectangle
             plt.gca().add_patch(
@@ -331,26 +344,6 @@ class Plots:
                                            wire_tot * input_parameters['out_layers'], input_parameters['out_ht'], edgecolor='red',
                                            facecolor='none', lw=2)))
 
-        if parameter== 'gradient_log':
-            grad_r, grad_z = np.gradient(np.sqrt(np.real(b_r_tot)**2 + np.real(b_z_tot)**2), dr, dz)
-            grad_tot = np.sqrt(grad_r**2 + grad_z**2)
-            out_dist = 1
-            out_ht = 1
-            wire_dia = 1
-
-
-            fig1, ax1 = plt.subplots(layout = 'constrained')
-            cs = ax1.contourf()
-            cbar = fig1.colorbar(cs)
-            cbar.ax.set_ylabel(r'$log(|\nabla B/\nabla B_{max}|)$')
-        if parameter == 'gradient':
-            fig1, ax2 = plt.subplots(layout='constrained')
-            CS = ax2.contourf()
-            cbar = fig1.colorbar(CS)
-            cbar.ax.set_ylabel(r'$|\nabla B/\nabla B_{max}|$')
-        if parameter == 'gradient_quiver':
-            rows = np.arange(0, len(z_tot), n_quiver_z)
-            cols = np.arange(0, len(r_vec), n_quiver_r)
 
 
 
