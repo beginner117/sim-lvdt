@@ -53,6 +53,9 @@ OPTIONAL
                Example - {'inner':[24, 11, 6, 0], 'outer':[13.5, 35, 7, 54.5], 'magnet':[40, 10]}
                NOTE - Alternatively(and prefarably), this geometry can also be defined in the 'feed.py' module with the apropriate name following the order of the existing designs in that module. 
                MOST IMPORTANT, add the defined design as a value and your choice of name(for that design) as a key in the dictionary 'data' to call it directly with the name.
+    #arguments in the execute method 
+    input_current : list with Inner coil current(in amps), frequency(in Hz), outer coil(upper and lower in a tuple) currents
+    (Default values for LVDT is [0.02, 10000, [0,0]] and for VC is [0, 0, [1,1]])
 
 Here are the default assumptions
 
@@ -70,8 +73,11 @@ Here are the default assumptions
     #For analytical calculations:
 
 NOTE - To modify any of the above parameters, add the optinal argument 'mat_prop' explained above in the sim_code instance to change the materials modelled in the simulation and 
-for chainging the coil excitations, add the argument 'input_current' to the 'execute' method. To change the boundary conditions of LVDT/VC/VC_only, modify the instance 'bc', and to change the units and precisions, modify the command 'mi_probdef' in the corresponding LVDT/VC.py script 
-(Make sure the modified/newly added material above is available in the FEMM material library. If not, the new material must be defined with all the properties in the 'feed.py' module.)
-    
+for chainging the coil excitations, add the argument 'input_current' to the 'execute' method. 
+(Make sure the modified/newly added material above is available in the FEMM material library. If not, the new material must be defined with all the properties in the 'feed.py' module)
+
+NOTE2 - A lot of other information like resistances, currents e.t.c are obtained from the simulation. To know them, load the saved '.npz' file and look for all the data 
+
+To change the boundary conditions of LVDT/VC/VC_only, modify the instance 'bc', and to change the units and precisions, modify the command 'mi_probdef' in the corresponding LVDT/VC.py script
 
 For a better understanding, a model code to simulate LVDTs is given in 'example.md' file. Please go through that.   

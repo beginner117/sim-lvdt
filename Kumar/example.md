@@ -41,7 +41,7 @@ Example to compute the response semi-analytically (i.e, just by using magnetic f
                                     data = {'filename(s)':['mag_field1'], 'is default':['yes'], 'design or parameter':['A']})
     analytical.execute()
 
-The above code saves the magnetic field information in an '.npz' file. 
+The above code saves the magnetic field information in an '.npz' file. (It takes time) 
 
 Below is the code to get the outer coil flux from the magnetic field files(obtained from the above script). The outer coil flux should be saved as an '.npz' file to compute the response.
 The mandatory input arguments to save the '.npz' flux files are the offset of the outer coil and the file name
