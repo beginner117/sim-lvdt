@@ -42,7 +42,7 @@ class Analysis:
                             'OC_height': self.des_dim['outer'][0], 'OC_radius': self.des_dim['outer'][1], 'OC_layers': self.des_dim['outer'][2], 'OC_distance': self.des_dim['outer'][3],
                                             'mag_len': self.des_dim['magnet'][0], 'mag_dia': self.des_dim['magnet'][1], 'ver_shi': 0}
             except:
-                input_par2 = {'IC_height': self.parameter1[0], 'IC_radius': 7, 'IC_layers': 6, 'IC_distance': 0, 'OC_height': self.parameter1[1], 'OC_radius': 17, 'OC_layers': 7,
+                input_par2 = {'IC_height': 20, 'IC_radius': 9, 'IC_layers': 6, 'IC_distance': 0, 'OC_height': self.parameter1[0], 'OC_radius': self.parameter1[1], 'OC_layers': 5,
                              'OC_distance': self.parameter1[2], 'mag_len': 30, 'mag_dia': 8, 'ver_shi': 0}
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
@@ -112,7 +112,7 @@ class Analysis:
 
             if self.sim_type == 'semi_analytical':
                 print('calculating magnetic fields for the given configuration with ')
-                mag_field = fields.B_field(40, 45, 0.1, 0.01, self.filename, input_par3, input_par2, input_par1, inn_prop['Inncoil_voltage'][0], inn_prop['Inncoil_flux'][0]
+                mag_field = fields.B_field(40, 45, 0.1, 0.1, self.filename, input_par3, input_par2, input_par1, inn_prop['Inncoil_voltage'][0], inn_prop['Inncoil_flux'][0]
                                            ,uppout_prop['UppOut_voltage'][0], uppout_prop['UppOut_flux'][0])
                 mag_field.calculate()
                 print('field calculation completed')
