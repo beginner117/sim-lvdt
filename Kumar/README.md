@@ -51,6 +51,8 @@ OPTIONAL
     lvdt_dim = dictionary with the coil geometry with 'inner', 'outer', 'magnet' as keys and corresponding dimensions (in mm)in lists as values.
                Values of the keys are height, radius, layers, distance (in the order) for the coils and length, diameter (in the order) for the magnet
                Example - {'inner':[24, 11, 6, 0], 'outer':[13.5, 35, 7, 54.5], 'magnet':[40, 10]}
+        (In simulations using the above 'lvdt_dim' argument, make sure to input 'False' to the argument 'is default' and any random value for the argument 'design or parameter'
+
                NOTE - Alternatively(and prefarably), this geometry can also be defined in the 'feed.py' module with the apropriate name following the order of the existing designs in that module. 
                MOST IMPORTANT, add the defined design as a value and your choice of name(for that design) as a key in the dictionary 'data' to call it directly with the name.
     #arguments in the execute method 
