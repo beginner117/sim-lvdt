@@ -5,6 +5,7 @@ import coil
 import feed
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.integrate import dblquad
 
 class Analysis:
     def __init__(self,save, sim_range: list, default, filename: str, design_type, input_excitation, materials, coil_dimensions=None, parameter1=None):
@@ -98,7 +99,7 @@ class Analysis:
         mag_prop = res.magnet()
         
         move_group = femm_model.Femm_move(groups = [1,2], x_dist=0, y_dist=pre_simulation.parameters()[2])
-        for_def = []; for_imp = []
+        for_def = []; for_imp = []; for_theo = []
         mag_field_uppercoil = []; mag_field_lowercoil = []
         for i in range(0, pre_simulation.parameters()[0] + 1):
             print('coil position (from centre) : ', pre_simulation.parameters()[2] + pre_simulation.parameters()[1] * i)
@@ -144,8 +145,7 @@ class Analysis:
 
             mag_fie_x_lower = [] ; mag_fie_y_lower = [] ; gri_x_lower = [] ; gri_y_lower = []
             gri_x = [] ; mag_fie_x = [] ; mag_fie_y = [] ; gri_y = []
-            def_force = [] ; imp_force = [] ; def_force_ver = [] ; imp_force_ver = []
-            rot_x = [] ; rot_y = [] ; rot_x_lower = [] ; rot_y_lower= []
+            def_force = [] ; def_force_ver = [] ; theo_force = []
             mag_field_upper = [] ; mag_field_lower = []
             turns_per_layer = int(position.upp_outcoil()[3])
 
@@ -171,51 +171,47 @@ class Analysis:
                     g_lower = (2*np.pi * grid_pt_lower[0] * b_field_lower[0]*sensor.para()[2][1]) / (10 ** 3)
                     def_force.append(g - g_lower)
 
-                    angle = 0
-                    theta = (angle / 180) * np.pi
-                    rotMatrix = np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
-                    c = np.dot(rotMatrix, np.array(b_field))
-                    c_lower = np.dot(rotMatrix, np.array(b_field_lower))
+                    dis1 = ((geo.mag()[0] / 2 - grid_pt[1]) ** 2)/1000000; dis2 = ((geo.mag()[0] / 2 + grid_pt[1]) ** 2)/1000000  #conversion from mm to mts by dividing with 1000000
+                    mu = 4*np.pi/1000000; M = 1.2
+                    con = -mu * M / (4 * np.pi)
+                    f1 = lambda r, theta: (r*(2 * (grid_pt[0]/1000) - (2*r * np.cos(theta))))/2*((r ** 2) + dis1 + ((grid_pt[0]/1000) ** 2) - (2*r * (grid_pt[0]/1000) * np.cos(theta)))**1.5
+                    f2 = lambda r, theta: (r * (2 * (grid_pt[0]/1000) - (2 * r * np.cos(theta)))) / 2 * ((r ** 2) + dis2 + ((grid_pt[0]/1000) ** 2) - (2 * r * (grid_pt[0]/1000) * np.cos(theta))) ** 1.5
+                    c1 = dblquad(f1, 0, 2*np.pi, 0, geo.mag()[1]/2)
+                    c1_2 = dblquad(f2, 0, 2 * np.pi, 0, geo.mag()[1] / 2)
+                    mat_for_upp = ((c1[0]+c1_2[0])*2*np.pi*grid_pt[0]*con)/1000
+                    dis1_low = ((geo.mag()[0] / 2 - grid_pt_lower[1]) ** 2)/1000000
+                    dis2_low = ((geo.mag()[0] / 2 + grid_pt_lower[1]) ** 2)/1000000
+                    con = -mu * M / (4 * np.pi)
+                    f1_low = lambda r, theta: (r * (2 * (grid_pt_lower[0]/1000) - (2 * r * np.cos(theta)))) / 2 * (
+                                (r ** 2) + dis1 + ((grid_pt_lower[0]/1000) ** 2) - (2 * r * (grid_pt_lower[0]/1000) * np.cos(theta))) ** 1.5
+                    f2_low = lambda r, theta: (r * (2 * (grid_pt_lower[0]/1000) - (2 * r * np.cos(theta)))) / 2 * (
+                                (r ** 2) + dis2 + ((grid_pt_lower[0]/1000) ** 2) - (2 * r * (grid_pt_lower[0]/1000) * np.cos(theta))) ** 1.5
+                    c1_low = dblquad(f1_low, 0, 2 * np.pi, 0, geo.mag()[1] / 2000)
+                    c1_low_2 = dblquad(f2_low, 0, 2 * np.pi, 0, geo.mag()[1] / 2000)
+                    mat_for_low = ((c1_low[0]+c1_low_2[0])*2 * np.pi * grid_pt_lower[0] * con)/1000
 
-                    rot_x.append(c[0])
-                    rot_y.append(c[1])
-                    rot_x_lower.append(c_lower[0])
-                    rot_y_lower.append(c_lower[1])
-                    line_int_for = []; line_int_for2 = []
-                    # for k in range(0, 1801):
-                    #     angle_f = 0.1*k
-                    #     sector_force = 2*c[0]*angle_f*2*np.pi*grid_pt[0]/360
-                    #     line_int_for.append(sector_force)
-                    #     sector_force_low = 2*c_lower[0]*angle_f*2*np.pi*grid_pt_lower[0]/360
-                    #     line_int_for2.append(sector_force_low)
-                    #
-                    # line_int.append(sum(line_int_for))
-                    # line_int2.append(sum(line_int_for2))
+                    theo_force.append(mat_for_upp+mat_for_low)
 
 
-                    f = (6.28 * grid_pt[0] * c[0]*sensor.para()[2][0]) / (10 ** 3)
-                    f_lower = (6.28 * grid_pt_lower[0] * c_lower[0]*sensor.para()[2][1]) / (10 ** 3)
-                    imp_force.append(f-f_lower)
-                    #print(imp_force, def_force)
             #print('default force:', sum(np.array(def_force)), 'updated force:', sum(np.array(imp_force)), 'int_for:')
             mag_field_uppercoil.append(mag_field_upper); mag_field_lowercoil.append(mag_field_lower)
             for_def.append(sum(def_force))
-            for_imp.append(sum(imp_force))
-
+            for_theo.append(sum(theo_force))
             move_group = femm_model.Femm_move(groups=[1, 2], x_dist=0, y_dist=pre_simulation.parameters()[1])
-        print('semi-analytical', '\nsemi analytical force :', for_def, '\nfemm force:', mag_prop['Magnet_forces'])
+        print('semi-analytical', '\nsemi analytical force :', for_def, '\nfemm force:', mag_prop['Magnet_forces'], '\nanalytical force :', for_theo)
 
         plt.quiver(gri_x, gri_y, mag_fie_x, np.zeros(turns_per_layer*geo.outcoil()[2]), color='g', label='default', alpha=0.5)
         # plt.quiver(gri_x, gri_y, rot_x, np.zeros(turns_per_layer*geo.outcoil()[2]),color = 'b', label = 'rotated', alpha = 0.3)
         plt.quiver(gri_x_lower, gri_y_lower, mag_fie_x_lower,  np.zeros(turns_per_layer*geo.outcoil()[2]), color = 'g', alpha = 0.5)
         # plt.quiver(gri_x_lower, gri_y_lower, rot_x_lower, np.zeros(turns_per_layer*geo.outcoil()[2]), color = 'b', alpha = 0.3)
-        plt.title('Magnetic Field (rotated anticlockwise {})'.format(angle))
+        #plt.title('Magnetic Field (rotated anticlockwise {})'.format(angle))
         plt.legend()
         plt.grid()
         plt.show()
 
         plt.plot(np.real(inn_prop['Inncoil_position']), abs(mag_prop['Magnet_forces']), 'o-', label = 'femm')
         plt.plot(np.real(inn_prop['Inncoil_position']), for_def,'o-', label = 'semi-analytical')
+        plt.plot(np.real(inn_prop['Inncoil_position']), for_theo, 'o-', label='analytical')
         plt.ylabel('Force [N]')
         plt.xlabel('Inner Coil Position [mm]')
         plt.legend()
@@ -226,7 +222,7 @@ class Analysis:
             np.savez_compressed(self.filename, Design = input_par2, Input_parameters = input_par1, coil_config_parameters = coil_con,
                                 Innercoil_config=position.inncoil(), UpperOutcoil_config=position.upp_outcoil(), LowerOutercoil_config=position.low_outcoil(),
                                 UOC_forces = uppout_prop['UppOut_force'], LOC_forces = lowout_prop['LowOut_force'], IC_forces = inn_prop['Inncoil_force'],
-                                Mag_forces=mag_prop['Magnet_forces'], semi_analytical_def = for_def, semi_analytical_imp = imp_force,
+                                Mag_forces=mag_prop['Magnet_forces'], semi_analytical_def = for_def,
                                 Magnetic_field_upper = mag_field_uppercoil, Magnetic_field_lower = mag_field_lowercoil,
                                 IC_currents = inn_prop['Inncoil_current'], UOC_currents=uppout_prop['UppOut_current'], LOC_currents = lowout_prop['LowOut_current'],
                                 UOC_voltages = uppout_prop['UppOut_voltage'], LOC_voltages = lowout_prop['LowOut_voltage'], IC_voltages = inn_prop['Inncoil_voltage'],
