@@ -102,10 +102,11 @@ class Position_sensor:
                                          parameter1=self.data['design or parameter'][i], materials =[self.material_prop[0], self.material_prop[1], self.material_prop[2]])
                     a.simulate()
             if self.sensor_type[i] == 'LVDT with yoke':
+                excitation = input_current if input_current is not None else [1, 0, [0]]
                 if self.data['is default'][i] == 'yes':
                     a = YOKE.Analysis(self.save, sim_range=self.sim_range['steps_size_offset'][i],
-                                      default=self.data['is default'][i], filename=self.data['filename(s)'][i],
-                                      design_type=self.data['design or parameter'][i])
+                                      default=self.data['is default'][i], filename=self.data['filename(s)'][i],input_excitation=excitation,
+                                      design_type=self.data['design or parameter'][i], materials =[self.material_prop[0], self.material_prop[1], self.material_prop[2]])
                     a.simulate()
                 else:
                     a = YOKE.Analysis(self.save, sim_range=self.sim_range['steps_size_offset'][i],
