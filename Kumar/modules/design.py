@@ -84,7 +84,7 @@ class Wiretype:
 
 class Geometry:
     def __init__(self, inn_ht, inn_rad, inn_layers, inn_dist, out_ht=None, out_rad=None, out_layers=None, out_dist=None, mag_len=None, mag_dia=None, ver_shi=None,
-                 innlow_ht = None, mag_ht=None, mag_innrad=None, mag_outrad=None, mag_ver_shi=None):
+                 innlow_ht = None,innlow_rad = None,innlow_layers = None, mag_ht=None, mag_innrad=None, mag_outrad=None, mag_ver_shi=None):
         """
             class to determine the coil geometry
             ________INPUT________
@@ -104,8 +104,8 @@ class Geometry:
         self.inn_dist = inn_dist; self.out_dist = out_dist
         self.out_ht = out_ht; self.out_rad = out_rad; self.out_layers = out_layers
         self.mag_len = mag_len; self.mag_dia = mag_dia; self.ver_shi = ver_shi
-        self.innLOW_ht = innlow_ht; self.mag_ht = mag_ht; self.mag_innrad = mag_innrad; self.mag_outrad = mag_outrad;
-        self.mag_ver_shi = mag_ver_shi
+        self.innLOW_ht = innlow_ht; self.innLOW_rad = innlow_rad; self.innLOW_layers = innlow_layers
+        self.mag_ht = mag_ht; self.mag_innrad = mag_innrad; self.mag_outrad = mag_outrad; self.mag_ver_shi = mag_ver_shi
 
     def inncoil(self):
         """
@@ -120,7 +120,7 @@ class Geometry:
             _______Output_______
             [ lower inner coil height, lower inner coil radius, no. of layers, distance between coils]
         """
-        return [self.innLOW_ht, self.inn_rad, self.inn_layers, self.inn_dist]
+        return [self.innLOW_ht, self.innLOW_rad, self.innLOW_layers, self.inn_dist]
     def outcoil(self):
         """
             method in the class 'Geometry' that returns the geometric properties of the outer coil
