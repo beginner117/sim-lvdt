@@ -4,18 +4,31 @@ import feed
 wires = feed.wire_types
 magnets = feed.magnet_types
 class Femm_bc():
+    """
+        Class to define and create boundary conditions for the FEMM model.
+    """
     def __init__(self, AirSpaceRadius_1, AirSpaceRadius_2, BC_Name, BC_Group, material:str, parameter=None):
         """
-        This method defines and creates the boundary conditions for the FEMM model
-        _____________INPUT_________
-        AirSpaceRadius_1: radius of the selected space1_(float)
-        AirSpaceRadius_2: radius of the selected space2_(float)
-        BC_Name: name of the boundary region_(string)
-        BC_Group: group number of the region_(integer)
-        material: material of the boundary region, vacuum, air e.t.c_(string)___should be chosen from the material library in FEMM
-        ____________OUTPUT_________
-        creates boundary conditions with the above properties for simulation
-        NO return values
+        Initialize the boundary conditions for the FEMM model.
+
+        Parameters
+        ----------
+        AirSpaceRadius_1 : float
+            Radius of the selected space 1.
+        AirSpaceRadius_2 : float
+            Radius of the selected space 2.
+        BC_Name : str
+            Name of the boundary region.
+        BC_Group : int
+            Group number of the region.
+        material : str
+            Material of the boundary region (e.g., vacuum, air). Should be chosen from the material library in FEMM or should be defined separately.
+        parameter : optional
+            Additional parameter for the boundary condition.
+
+        Returns
+        -------
+        None
         """
         self.AirSpaceRadius_1 = AirSpaceRadius_1; self.AirSpaceRadius_2 = AirSpaceRadius_2
         self.BC_Name = BC_Name; self.BC_Group = BC_Group
@@ -24,13 +37,10 @@ class Femm_bc():
         femm.mi_drawline(0, self.AirSpaceRadius_1, 0, -self.AirSpaceRadius_1)
         femm.mi_drawarc(0, -self.AirSpaceRadius_1, 0, self.AirSpaceRadius_1, 180, 2)
         femm.mi_getmaterial("Air")
-        #femm.hi_getmaterial('Air')
         femm.mi_clearselected()
         femm.mi_addblocklabel(self.AirSpaceRadius_1 / 4, self.AirSpaceRadius_1 / 2)
         femm.mi_selectlabel(self.AirSpaceRadius_1 / 4, self.AirSpaceRadius_1 / 2)
         femm.mi_setblockprop("Air", 0, 0.5, '', 0, 0, 0)
-        #femm.hi_addboundprop('Fixed Temperature', 0, 300, 0, 0, 0, 0)
-        #femm.mi_setblockprop("Air", 1, 0, '', 0, 0, 0)
         femm.mi_clearselected()
         # Airspace2
         femm.mi_drawline(0, self.AirSpaceRadius_2, 0, -self.AirSpaceRadius_2)
@@ -49,28 +59,56 @@ class Femm_bc():
         femm.mi_clearselected()
 
 class Femm_coil():
+        """
+        Class to define and create a (circular) coil with a defined current.
+        """
         def __init__(self, x1, y1, x2, y2, circ_name, circ_current, circ_type, material, edit_mode, group, label1, label2, blockname, turns_pr_layer
                      , parameter=None,simulation_type=None):
             """
-            This method defines and creates a (circular) coil with defined current
-            ____________________INPUT_______________
-            x1:  x-coordinate of the edge of the rectangle [planar view of circular the coil is a rectangle]_(float)
-            y1: y-coordinate of the edge of the rectangle [planar view of circular the coil is a rectangle]_(float)
-            x2: x-coordinate of the diagonally opposite edge of (x1,y1) on the rectangle _ (float)
-            y2: y-coordinate of the diagonally opposite edge of (x1,y1) on the rectangle _ (float)
-            circ_name: name of the circuit_(string)
-            circ_type: type of connection['0' for parallel and '1' for series]_(0 or 1)
-            material: material of the coil/wire chosen from the FEMM library_(string)
-            edit_mode: entities in the model block that can be edited when the block is selected_(0-nodes, 1-block labels
-                        2-segments, 3-arcs, 4-all entity types)
-            group: group of the coil_(integer)
-            label1: x-coordinate of block label location
-            label2: y-coordinate of block label location
-            blockname: name of the block
-            turns_pr_layer: number of turns per layer_(float)
-            ___________________OUTPUT______________
-            creates a coil with the defined properties and current
-            NO return value
+            Initialize the coil with the specified properties and current.
+
+            Parameters
+            ----------
+            x1 : float
+                x-coordinate of the edge of the rectangle (planar view of the circular coil is a rectangle).
+            y1 : float
+                y-coordinate of the edge of the rectangle (planar view of the circular coil is a rectangle).
+            x2 : float
+                x-coordinate of the diagonally opposite edge of (x1, y1) on the rectangle.
+            y2 : float
+                y-coordinate of the diagonally opposite edge of (x1, y1) on the rectangle.
+            circ_name : str
+                Name of the circuit.
+            circ_current : float
+                Current in the circuit.
+            circ_type : int
+                Type of connection (0 for parallel, 1 for series).
+            material : str
+                Material of the coil/wire chosen from the FEMM library.
+            edit_mode : int
+                Entities in the model block that can be edited when the block is selected (0-nodes, 1-block labels, 2-segments, 3-arcs, 4-all entity types).
+            group : int
+                Group of the coil.
+            label1 : float
+                x-coordinate of block label location.
+            label2 : float
+                y-coordinate of block label location.
+            blockname : str
+                Name of the block.
+            turns_pr_layer : float
+                Number of turns per layer.
+            parameter : optional
+                Additional parameter for the coil.
+            simulation_type : optional
+                Type of simulation (e.g., 'semi_analytical').
+
+            Returns
+            -------
+            None
+
+            Example
+            -------
+
             """
             self.x1 = x1; self.y1 = y1
             self.x2 = x2; self.y2 = y2
@@ -102,22 +140,41 @@ class Femm_coil():
             femm.mi_clearselected()
 
 class Femm_magnet():
+        """
+        Class to define and create a magnet.
+        """
         def __init__(self, x1, y1, x2, y2, material, edit_mode, group, label1, label2):
             """
-            This method defines and creates a magnet
-            ____________________INPUT_______________
-            x1: x-coordinate of the edge of the rectangle [planar view of cylindrical magnet is a rectangle]_(float)
-            y1: y-coordinate of the edge of the rectangle [planar view of cylindrical magnet is a rectangle]_(float)
-            x2: x-coordinate of the diagonally opposite edge of (x1,y1) on the rectangle _ (float)
-            y2: y-coordinate of the diagonally opposite edge of (x1,y1) on the rectangle _ (float)
-            material: material of the magnet chosen from the FEMM library_(string)
-            edit_mode:
-            group: group of the magnet_(integer)
-            label1:
-            label2:
-            ___________________OUTPUT______________
-            modells a magnet with the defined properties
-            NO return value
+        Initialize the magnet with the specified properties.
+
+        Parameters
+        ----------
+        x1 : float
+            x-coordinate of the edge of the rectangle (planar view of the cylindrical magnet is a rectangle).
+        y1 : float
+            y-coordinate of the edge of the rectangle (planar view of the cylindrical magnet is a rectangle).
+        x2 : float
+            x-coordinate of the diagonally opposite edge of (x1, y1) on the rectangle.
+        y2 : float
+            y-coordinate of the diagonally opposite edge of (x1, y1) on the rectangle.
+        material : str
+            Material of the magnet chosen from the FEMM library.
+        edit_mode : int
+            Entities in the model block that can be edited when the block is selected (0-nodes, 1-block labels, 2-segments, 3-arcs, 4-all entity types).
+        group : int
+            Group of the magnet.
+        label1 : float
+            x-coordinate of block label location.
+        label2 : float
+            y-coordinate of block label location.
+
+        Returns
+        -------
+        None
+
+        Example
+        -------
+
             """
             self.x1 = x1; self.y1 = y1
             self.x2 = x2; self.y2 = y2
