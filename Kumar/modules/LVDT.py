@@ -79,15 +79,18 @@ class Analysis:
         bc = femm_model.Femm_bc(AirSpaceRadius_1=100, AirSpaceRadius_2=300, BC_Name='Outside', BC_Group=10, material='Air')
 
         res = coil.Coil_prop(pre_simulation.parameters()[0])
-        inn_prop = res.inncoil()
-        uppout_prop = res.uppout()
-        lowout_prop = res.lowout()
+        # inn_prop = res.inncoil()
+        # uppout_prop = res.uppout()
+        # lowout_prop = res.lowout()
+        inn_prop = res.gen_coil()
+        uppout_prop = res.gen_coil()
+        lowout_prop = res.gen_coil()
 
         move_group = femm_model.Femm_move(groups = [1, 2], x_dist=0, y_dist=pre_simulation.parameters()[2])
 
         for i in range(0, pre_simulation.parameters()[0] + 1):
             print('coil position (from centre) : ', pre_simulation.parameters()[2] + pre_simulation.parameters()[1] * i)
-            inn_prop['Inncoil_position'][i] = pre_simulation.parameters()[2] + (pre_simulation.parameters()[1] * i)
+            inn_prop['position'][i] = pre_simulation.parameters()[2] + (pre_simulation.parameters()[1] * i)
 
             femm.mi_zoom(-2, -50, 50, 50)
             femm.mi_refreshview()
@@ -96,59 +99,59 @@ class Analysis:
             femm.mi_loadsolution()
 
             UppOutCoil_I, UppOutCoil_V, UppOutCoil_FluxLink = femm.mo_getcircuitproperties(position.upp_outcoil()[5])
-            uppout_prop['UppOut_voltage'][i] = UppOutCoil_V
-            uppout_prop['UppOut_current'][i] = UppOutCoil_I
-            uppout_prop['UppOut_flux'][i] = UppOutCoil_FluxLink
+            uppout_prop['voltage'][i] = UppOutCoil_V
+            uppout_prop['current'][i] = UppOutCoil_I
+            uppout_prop['flux'][i] = UppOutCoil_FluxLink
 
             LowOutCoil_I, LowOutCoil_V, LowOutCoil_FluxLink = femm.mo_getcircuitproperties(position.low_outcoil()[5])
-            lowout_prop['LowOut_voltage'][i] = LowOutCoil_V
-            lowout_prop['LowOut_current'][i] = LowOutCoil_I
-            lowout_prop['LowOut_flux'][i] = LowOutCoil_FluxLink
+            lowout_prop['voltage'][i] = LowOutCoil_V
+            lowout_prop['current'][i] = LowOutCoil_I
+            lowout_prop['flux'][i] = LowOutCoil_FluxLink
 
             InnCoil_I, InnCoil_V, InnCoil_FluxLink = femm.mo_getcircuitproperties(position.inncoil()[5])
-            inn_prop['Inncoil_voltage'][i] = InnCoil_V
-            inn_prop['Inncoil_current'][i] = InnCoil_I
-            inn_prop['Inncoil_flux'][i] = InnCoil_FluxLink
+            inn_prop['voltage'][i] = InnCoil_V
+            inn_prop['current'][i] = InnCoil_I
+            inn_prop['flux'][i] = InnCoil_FluxLink
 
             if self.sim_type == 'semi_analytical':
                 print('calculating magnetic fields for the given configuration with ')
-                mag_field = fields.B_field(40, 45, 0.1, 0.1, self.filename, input_par3, input_par2, input_par1, inn_prop['Inncoil_voltage'][0], inn_prop['Inncoil_flux'][0]
-                                           ,uppout_prop['UppOut_voltage'][0], uppout_prop['UppOut_flux'][0])
+                mag_field = fields.B_field(40, 45, 0.1, 0.1, self.filename, input_par3, input_par2, input_par1, inn_prop['voltage'][0], inn_prop['flux'][0]
+                                           ,uppout_prop['voltage'][0], uppout_prop['flux'][0])
                 mag_field.calculate()
                 print('field calculation completed')
                 sys.exit()
 
             move_group = femm_model.Femm_move(groups=[1, 2], x_dist=0, y_dist=pre_simulation.parameters()[1])
         if sensor.para()[0] != 0:
-            Inn_Inductance = abs(inn_prop['Inncoil_flux'] / inn_prop['Inncoil_current'])
-            Inn_Impedance = abs(inn_prop['Inncoil_voltage'] / inn_prop['Inncoil_current'])
+            Inn_Inductance = abs(inn_prop['flux'] / inn_prop['current'])
+            Inn_Impedance = abs(inn_prop['voltage'] / inn_prop['current'])
             print('Inn Inductance, Inn impedance : ', Inn_Inductance, Inn_Impedance)
-            print('Inn voltage :', abs(inn_prop['Inncoil_voltage']))
+            print('Inn voltage :', abs(inn_prop['voltage']))
         if sensor.para()[2][0] != 0:
-            Out_Impedance = abs(uppout_prop['UppOut_voltage'] / uppout_prop['UppOut_current'])
-            Out_Inductance = abs(uppout_prop['UppOut_flux'] / uppout_prop['UppOut_current'])
-            Low_Impedance = abs(lowout_prop['LowOut_voltage'] / lowout_prop['LowOut_current'])
-            Low_Inductance = abs(lowout_prop['LowOut_flux'] / lowout_prop['LowOut_current'])
+            Out_Impedance = abs(uppout_prop['voltage'] / uppout_prop['current'])
+            Out_Inductance = abs(uppout_prop['flux'] / uppout_prop['current'])
+            Low_Impedance = abs(lowout_prop['voltage'] / lowout_prop['current'])
+            Low_Inductance = abs(lowout_prop['flux'] / lowout_prop['current'])
             print('Out Inductance, Upp impedance : ', Out_Inductance, Out_Impedance)
             print('Low Inductance, Low impedance : ', Low_Inductance, Low_Impedance)
 
-        OutCoil_Signals = (abs(uppout_prop['UppOut_voltage']) - abs(lowout_prop['LowOut_voltage']))
-        Norm_OutCoil_Signals = OutCoil_Signals / abs(inn_prop['Inncoil_current'])
+        OutCoil_Signals = (abs(uppout_prop['voltage']) - abs(lowout_prop['voltage']))
+        Norm_OutCoil_Signals = OutCoil_Signals / abs(inn_prop['current'])
         gainfactor = 70.02
-        Norm_OutCoil_Signals_v = OutCoil_Signals / abs(inn_prop['Inncoil_voltage'])
+        Norm_OutCoil_Signals_v = OutCoil_Signals / abs(inn_prop['voltage'])
         print('normalised outcoil voltages :', Norm_OutCoil_Signals_v)
 
         if self.sim_range[0] != 0:
-            b1, b2 = np.polyfit(inn_prop['Inncoil_position'], Norm_OutCoil_Signals_v * gainfactor, 1)
+            b1, b2 = np.polyfit(inn_prop['position'], Norm_OutCoil_Signals_v * gainfactor, 1)
             print("Fitted slope(V/mmV) & const of voltage normalised signals (with gain factor 70.02) :", abs(b1), abs(b2))
-            c1, c2 = np.polyfit(inn_prop['Inncoil_position'], Norm_OutCoil_Signals, 1)
+            c1, c2 = np.polyfit(inn_prop['position'], Norm_OutCoil_Signals, 1)
             print("Fitted slope(V/mmA) & const of current normalised signals (without gain factor) :", abs(c1), abs(c2))
 
         if self.save:
             np.savez_compressed(self.filename,Design_type=input_par3, Design_parameters = input_par2, Input_parameters = input_par1, coil_config_parameters = coil_con, Innercoil_config = position.inncoil(),
-                                UpperOutcoil_config = position.upp_outcoil(), LowerOutercoil_config = position.low_outcoil(), IC_positions = inn_prop['Inncoil_position'],
-                                IC_voltages = inn_prop['Inncoil_voltage'], UOC_voltages = uppout_prop['UppOut_voltage'], LOC_voltages = lowout_prop['LowOut_voltage'],
-                                IC_currents = inn_prop['Inncoil_current'], UOC_currents=uppout_prop['UppOut_current'], LOC_currents = lowout_prop['LowOut_current'],
-                                IC_flux = inn_prop['Inncoil_flux'], UOC_flux = uppout_prop['UppOut_flux'], LOC_flux = lowout_prop['LowOut_flux'],
+                                UpperOutcoil_config = position.upp_outcoil(), LowerOutercoil_config = position.low_outcoil(), IC_positions = inn_prop['position'],
+                                IC_voltages = inn_prop['voltage'], UOC_voltages = uppout_prop['voltage'], LOC_voltages = lowout_prop['voltage'],
+                                IC_currents = inn_prop['current'], UOC_currents=uppout_prop['current'], LOC_currents = lowout_prop['current'],
+                                IC_flux = inn_prop['flux'], UOC_flux = uppout_prop['flux'], LOC_flux = lowout_prop['flux'],
                                 Inn_Uppout_Lowout_DCR_as_per_catalog = [inn_dc, out_dc, lowout_dc])
 

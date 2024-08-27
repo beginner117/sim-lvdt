@@ -83,16 +83,16 @@ class Analysis:
         bc = femm_model.Femm_bc(AirSpaceRadius_1=100, AirSpaceRadius_2=300, BC_Name='Outside', BC_Group=10, material='Air')
 
         res = coil.Coil_prop(pre_simulation.parameters()[0])
-        inn_prop = res.inncoil()
-        uppout_prop = res.uppout()
-        lowout_prop = res.lowout()
         mag_prop = res.magnet()
+        inn_prop = res.gen_coil()
+        uppout_prop = res.gen_coil()
+        lowout_prop = res.gen_coil()
 
         move_group = femm_model.Femm_move(groups = [1,2], x_dist=0, y_dist=pre_simulation.parameters()[2])
 
         for i in range(0, pre_simulation.parameters()[0] + 1):
             print('coil position (from centre) : ', pre_simulation.parameters()[2] + pre_simulation.parameters()[1] * i)
-            inn_prop['Inncoil_position'][i] = pre_simulation.parameters()[2] + pre_simulation.parameters()[1] * i
+            inn_prop['position'][i] = pre_simulation.parameters()[2] + pre_simulation.parameters()[1] * i
             femm.mi_zoom(-2, -50, 50, 50)
             femm.mi_refreshview()
             femm.mi_saveas('VC_ETpf_LIP.fem')
@@ -113,23 +113,23 @@ class Analysis:
             femm.mo_clearblock()
 
             UppOutCoil_I, UppOutCoil_V, UppOutCoil_FluxLink = femm.mo_getcircuitproperties(position.upp_outcoil()[5])
-            uppout_prop['UppOut_voltage'][i] = UppOutCoil_V
-            uppout_prop['UppOut_current'][i] = UppOutCoil_I
-            uppout_prop['UppOut_flux'][i] = UppOutCoil_FluxLink
+            uppout_prop['voltage'][i] = UppOutCoil_V
+            uppout_prop['current'][i] = UppOutCoil_I
+            uppout_prop['flux'][i] = UppOutCoil_FluxLink
+            uppout_prop['force'][i] = UppOut_Force19
 
             LowOutCoil_I, LowOutCoil_V, LowOutCoil_FluxLink = femm.mo_getcircuitproperties(position.low_outcoil()[5])
-            lowout_prop['LowOut_voltage'][i] = LowOutCoil_V
-            lowout_prop['LowOut_current'][i] = LowOutCoil_I
-            lowout_prop['LowOut_flux'][i] = LowOutCoil_FluxLink
+            lowout_prop['voltage'][i] = LowOutCoil_V
+            lowout_prop['current'][i] = LowOutCoil_I
+            lowout_prop['flux'][i] = LowOutCoil_FluxLink
+            lowout_prop['force'][i] = LowOut_Force19
 
             InnCoil_I, InnCoil_V, InnCoil_FluxLink = femm.mo_getcircuitproperties(position.inncoil()[5])
-            inn_prop['Inncoil_voltage'][i] = InnCoil_V
-            inn_prop['Inncoil_current'][i] = InnCoil_I
-            inn_prop['Inncoil_flux'][i] = InnCoil_FluxLink
+            inn_prop['voltage'][i] = InnCoil_V
+            inn_prop['current'][i] = InnCoil_I
+            inn_prop['flux'][i] = InnCoil_FluxLink
+            inn_prop['force'][i] = Innercoil_Force19
 
-            uppout_prop['UppOut_force'][i] = UppOut_Force19
-            lowout_prop['LowOut_force'][i] = LowOut_Force19
-            inn_prop['Inncoil_force'][i] = Innercoil_Force19
             mag_prop['Magnet_forces'][i] = Magn_Force19
 
             if self.sim_type == 'semi_analytical':
@@ -142,20 +142,15 @@ class Analysis:
             move_group = femm_model.Femm_move(groups=[1, 2], x_dist=0, y_dist=pre_simulation.parameters()[1])
 
         if sensor.para()[2][0] != 0:
-            Upp_Inductance = abs(uppout_prop['UppOut_flux'] / uppout_prop['UppOut_current'])
-            Upp_resistance = abs(uppout_prop['UppOut_voltage'] / uppout_prop['UppOut_current'])
             print("magnet force :", mag_prop['Magnet_forces'])
-            print('upper out coil ind, imp :', Upp_Inductance, Upp_resistance)
-            plt.plot(np.real(inn_prop['Inncoil_position']), abs(mag_prop['Magnet_forces']), 'o-')
-            plt.xlabel('Inner Coil Position [mm]')
-            plt.ylabel('Magnet Force [N]')
-            plt.show()
+            Upp_Inductance = abs(uppout_prop['flux'] / uppout_prop['current'])
+            Upp_resistance = abs(uppout_prop['voltage'] / uppout_prop['current'])
 
         if self.save:
             np.savez_compressed(self.filename,Design_type=input_par3, Design_parameters = input_par2, Input_parameters = input_par1, coil_config_parameters = coil_con,
                                 Innercoil_config=position.inncoil(), UpperOutcoil_config=position.upp_outcoil(), LowerOutercoil_config=position.low_outcoil(),
-                                UOC_forces = uppout_prop['UppOut_force'], LOC_forces = lowout_prop['LowOut_force'], Mag_forces = mag_prop['Magnet_forces'], IC_forces = inn_prop['Inncoil_force'],
-                                IC_currents = inn_prop['Inncoil_current'], UOC_currents=uppout_prop['UppOut_current'], LOC_currents = lowout_prop['LowOut_current'],
-                                UOC_voltages = uppout_prop['UppOut_voltage'], LOC_voltages = lowout_prop['LowOut_voltage'], IC_voltages = inn_prop['Inncoil_voltage'],
-                                IC_positions = inn_prop['Inncoil_position'], IC_flux=inn_prop['Inncoil_flux'], UOC_flux=uppout_prop['UppOut_flux'], LOC_flux=lowout_prop['LowOut_flux'],
+                                UOC_forces = uppout_prop['force'], LOC_forces = lowout_prop['force'], Mag_forces = mag_prop['Magnet_forces'], IC_forces = inn_prop['force'],
+                                IC_currents = inn_prop['current'], UOC_currents=uppout_prop['current'], LOC_currents = lowout_prop['current'],
+                                UOC_voltages = uppout_prop['voltage'], LOC_voltages = lowout_prop['voltage'], IC_voltages = inn_prop['voltage'],
+                                IC_positions = inn_prop['position'], IC_flux=inn_prop['flux'], UOC_flux=uppout_prop['flux'], LOC_flux=lowout_prop['flux'],
                                 Inn_Uppout_Lowout_DCR_as_per_catalog = [inn_dc, out_dc, lowout_dc])

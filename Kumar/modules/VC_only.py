@@ -25,7 +25,7 @@ class Analysis:
         value = feed.data
         in_pa = feed.Input()
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file=self.filename)
-        sensor = design.Sensortype(InnCoilCurrent=0, Simfreq=0, OutCoilCurrent=1)
+        sensor = design.Sensortype(InnCoilCurrent=self.input_excitation[0], Simfreq=self.input_excitation[1], OutCoilCurrent=self.input_excitation[2])
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
         wire = design.Wiretype(self.materials[1], self.materials[0], magnet_material=self.materials[2])
         input_par1 = {'TotalSteps_StepSize(mm)_Offset(mm)': self.sim_range, 'uppercoil Diameter(mm)_Insulation(mm)_Wiretype': wire.prop_out(),
@@ -75,13 +75,13 @@ class Analysis:
         bc = femm_model.Femm_bc(AirSpaceRadius_1=100, AirSpaceRadius_2=300, BC_Name='Outside', BC_Group=10, material='Air')
 
         res = coil.Coil_prop(pre_simulation.parameters()[0])
-        uppout_prop = res.uppout()
+        uppout_prop = res.gen_coil()
         mag_for = res.magnet()
         move_group = femm_model.Femm_move(groups=[3], x_dist=0, y_dist=pre_simulation.parameters()[2])
         for_def = []; for_imp = []; for_ana = []
         for i in range(0, pre_simulation.parameters()[0] + 1):
             print('coil position (from centre) : ', pre_simulation.parameters()[2] + pre_simulation.parameters()[1] * i)
-            uppout_prop['UppOut_position'][i] = pre_simulation.parameters()[2] + pre_simulation.parameters()[1] * i
+            uppout_prop['position'][i] = pre_simulation.parameters()[2] + pre_simulation.parameters()[1] * i
             femm.mi_zoom(-2, -50, 50, 50)
             femm.mi_refreshview()
             femm.mi_saveas('VConly_ETpf_LIP.fem')
@@ -96,44 +96,33 @@ class Analysis:
             femm.mo_clearblock()
 
             UppOutCoil_I, UppOutCoil_V, UppOutCoil_FluxLink = femm.mo_getcircuitproperties(position.upp_outcoil()[5])
-            uppout_prop['UppOut_voltage'][i] = UppOutCoil_V
-            uppout_prop['UppOut_current'][i] = UppOutCoil_I
-            uppout_prop['UppOut_flux'][i] = UppOutCoil_FluxLink
-            uppout_prop['UppOut_force'][i] = UppOut_Force19
+            uppout_prop['voltage'][i] = UppOutCoil_V
+            uppout_prop['current'][i] = UppOutCoil_I
+            uppout_prop['flux'][i] = UppOutCoil_FluxLink
+            uppout_prop['force'][i] = UppOut_Force19
             mag_for['Magnet_forces'][i] = Magn_Force19
             move_group = femm_model.Femm_move(groups=[3], x_dist=0, y_dist=pre_simulation.parameters()[1])
 
-        Upp_Inductance = abs(uppout_prop['UppOut_flux'] / uppout_prop['UppOut_current'])
-        Upp_resistance = abs(uppout_prop['UppOut_voltage'] / uppout_prop['UppOut_current'])
+        Upp_Inductance = abs(uppout_prop['flux'] / uppout_prop['current'])
+        Upp_resistance = abs(uppout_prop['voltage'] / uppout_prop['current'])
         print('upp out resistance as per femm :', abs(Upp_resistance))
         print('magnet force :', np.real(mag_for['Magnet_forces']))
-        # inn_pos = np.array(uppout_prop["UppOut_position"])
-        # nor_mag_force = np.real(mag_for['Magnet_forces']/uppout_prop['UppOut_current'])
-        # a1, a2, a3 = np.polyfit(inn_pos, nor_mag_force, 2)
-        # fit_for = (a1 * (inn_pos ** 2)) + (a2 * inn_pos) + a3
-        plt.plot(np.real(uppout_prop['UppOut_position']),
-                 abs(np.real(mag_for['Magnet_forces'] / uppout_prop['UppOut_current'])), 'o-')
-        plt.xlabel('Coil (centre) Position relative to Magnet (centre) [mm]')
-        plt.ylabel('Normalised Magnet Force [N/A]')
-        plt.grid()
-        plt.title('Simulated force [Type : I, {}layers_DC excitation]'.format(self.parameter1))
-        plt.show()
 
         if self.save:
             if self.sim_type == 'FEMM+ana':
                 np.savez_compressed(self.filename, Design_type=input_par3, Design = input_par2, Input_parameters=input_par1,
                                     UpperOutcoil_config=position.upp_outcoil(),
-                                    UOC_positions=uppout_prop['UppOut_position'], UOC_forces=uppout_prop['UppOut_force'],
+                                    UOC_positions=uppout_prop['position'], UOC_forces=uppout_prop['force'],
                                     Mag_forces=np.array(for_def), Mag_forces_imp=np.array(for_imp),
-                                    UOC_flux=uppout_prop['UppOut_flux'], UOC_voltages=uppout_prop['UppOut_voltage'], UOC_currents=uppout_prop['UppOut_current'])
+                                    UOC_flux=uppout_prop['flux'], UOC_voltages=uppout_prop['voltage'], UOC_currents=uppout_prop['current'])
             if self.sim_type == 'math+ana':
                 np.savez_compressed(self.filename, Design_type=input_par3, Design = input_par2, Input_parameters=input_par1,
                                     UpperOutcoil_config=position.upp_outcoil(),
-                                    UOC_positions=uppout_prop['UppOut_position'], UOC_forces=uppout_prop['UppOut_force'], Mag_forces=np.array(for_ana),
-                                    UOC_flux=uppout_prop['UppOut_flux'], UOC_voltages=uppout_prop['UppOut_voltage'], UOC_currents=uppout_prop['UppOut_current'])
+                                    UOC_positions=uppout_prop['position'], UOC_forces=uppout_prop['force'], Mag_forces=np.array(for_ana),
+                                    UOC_flux=uppout_prop['flux'], UOC_voltages=uppout_prop['voltage'], UOC_currents=uppout_prop['current'])
             if self.sim_type == None:
-                np.savez_compressed(self.filename, Design_type=input_par3, Design = input_par2, Input_parameters = input_par1, UpperOutcoil_config=position.upp_outcoil(),Input_config = other_par,
-                                    UOC_positions = uppout_prop['UppOut_position'], UOC_forces = uppout_prop['UppOut_force'], Mag_forces = mag_for['Magnet_forces'],
-                                    UOC_flux=uppout_prop['UppOut_flux'], UOC_voltages = uppout_prop['UppOut_voltage'], UOC_currents=uppout_prop['UppOut_current'])
+                np.savez_compressed(self.filename, Design_type=input_par3, Design = input_par2, Input_parameters = input_par1, UpperOutcoil_config=position.upp_outcoil(),
+                                    UOC_positions = uppout_prop['position'], UOC_forces = uppout_prop['force'], Mag_forces = mag_for['Magnet_forces'],
+                                    UOC_flux=uppout_prop['flux'], UOC_voltages = uppout_prop['voltage'], UOC_currents=uppout_prop['current'])
 
 
