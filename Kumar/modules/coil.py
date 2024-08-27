@@ -30,7 +30,8 @@ class Position():
                 InnCoil_Circuit_name]
         """
         InnCoil_OutRadius = self.inn_rad + ((self.inn_wiredia + self.inn_wireins * 2) * self.inn_layers)
-        InnCoil_Lowend = (self.inn_dist - self.inn_ht) / 2
+        #InnCoil_Lowend = (self.inn_dist - self.inn_ht) / 2
+        InnCoil_Lowend = (0 - self.inn_ht) / 2
         InnCoil_Uppend = InnCoil_Lowend + self.inn_ht
         InnCoil_NrWind_p_Layer = (self.inn_ht) / (self.inn_wiredia + self.inn_wireins * 2)
         InnCoil_NrWindings = InnCoil_NrWind_p_Layer * self.inn_layers
@@ -154,42 +155,13 @@ class Coil_prop:
     """
     def __init__(self, steps):
         self.steps = steps
-    def inncoil(self):
-        """
-            returns the modelled inner coil properties
-            _________output__________
-            [Inncoil_current, Inncoil_voltage, Inncoil_flux, Inncoil_force, Inncoil_position]
-        """
-        inncoil_currents = np.zeros(self.steps + 1).astype(complex)
-        inncoil_voltages = np.zeros(self.steps + 1).astype(complex)
-        inncoil_flux = np.zeros(self.steps + 1).astype(complex)
-        inncoil_forces = np.zeros(self.steps + 1).astype(complex)
-        inncoil_positions = np.zeros(self.steps + 1).astype(complex)
-        return {'Inncoil_current' : inncoil_currents, 'Inncoil_voltage': inncoil_voltages, 'Inncoil_flux':inncoil_flux, 'Inncoil_force':inncoil_forces, 'Inncoil_position':inncoil_positions}
-    def uppout(self):
-        """
-            returns the modelled upper outer coil properties
-            _________output__________
-            [Upper out coil current, Upper out coil voltage, Upper out coil flux, Upper out coil force, Upper out coil position]
-        """
-        uppout_currents = np.zeros(self.steps + 1).astype(complex)
-        uppout_voltages = np.zeros(self.steps + 1).astype(complex)
-        uppout_flux = np.zeros(self.steps + 1).astype(complex)
-        uppout_forces = np.zeros(self.steps + 1).astype(complex)
-        uppout_positions = np.zeros(self.steps + 1).astype(complex)
-        return {'UppOut_current':uppout_currents, 'UppOut_voltage':uppout_voltages, 'UppOut_flux':uppout_flux, 'UppOut_force':uppout_forces, 'UppOut_position':uppout_positions}
-    def lowout(self):
-        """
-            returns the modelled lower outer coil properties
-            _________output__________
-            [Lower out coil current, Lower out coil voltage, Lower out coil flux, Lower out coil force, Lower out coil position]
-        """
-        lowout_currents = np.zeros(self.steps + 1).astype(complex)
-        lowout_voltages = np.zeros(self.steps + 1).astype(complex)
-        lowout_flux = np.zeros(self.steps + 1).astype(complex)
-        lowout_forces = np.zeros(self.steps + 1).astype(complex)
-        lowout_positions = np.zeros(self.steps + 1).astype(complex)
-        return {'LowOut_current':lowout_currents, 'LowOut_voltage':lowout_voltages, 'LowOut_flux':lowout_flux, 'LowOut_force':lowout_forces, 'LowOut_position':lowout_positions}
+    def gen_coil(self):
+        currents = np.zeros(self.steps + 1).astype(complex)
+        voltages = np.zeros(self.steps + 1).astype(complex)
+        flux = np.zeros(self.steps + 1).astype(complex)
+        forces = np.zeros(self.steps + 1).astype(complex)
+        positions = np.zeros(self.steps + 1).astype(complex)
+        return {'current': currents, 'voltage': voltages, 'flux': flux, 'force': forces, 'position': positions}
     def magnet(self):
         """
             returns the modelled magnet properties
