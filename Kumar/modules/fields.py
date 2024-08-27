@@ -11,7 +11,7 @@ import threading
 
 class Coil_magfield:
 
-    def __init__(self, radius, coil_height, current, turns_pr_layer, layers, insulated_wire_thickness, position,r_offset, upper_uppend=None,lower_uppend = None, angle=0, freq = 0):
+    def __init__(self, r_offset, angle, freq, current, radius, coil_height, turns_pr_layer, layers, insulated_wire_thickness, position, upper_uppend=None,lower_uppend = None):
         self.upper_uppend = upper_uppend
         self.lower_uppend = lower_uppend
         self.r_offset = r_offset
@@ -71,6 +71,19 @@ class Coil_magfield:
         #print('default force :', sum(def_force), 'updated force:', sum(imp_force))
         return [sum(def_force), sum(imp_force)]
 
+class Force_field:
+    def __init__(self, B_field_file):
+        self.field_file = B_field_file
+        self.file = np.load(self.field_file, allow_pickle=True)
+    def forces(self, x_offset, out_radius, out_dist,out_ht, turns_pr_layer, layers,wire_dia, insulated_thickness):
+        for layer in range(0, layers):
+            for turn in range(0, turns_pr_layer):
+                grid_pt_upp = [out_radius+(layer*(wire_dia + 2*insulated_thickness)), (out_dist+out_ht)/2 - (turn*(wire_dia+2*insulated_thickness))]
+                grid_pt_low = [out_radius+(layer*(wire_dia + 2*insulated_thickness)), -(out_dist+out_ht)/2 + (turn*(wire_dia+2*insulated_thickness))]
+
+                b_field_upp = femm.mo_getb(grid_pt_upp[0], grid_pt_upp[1])
+                b_field_low = femm.mo_getb(grid_pt_low[0], grid_pt_low[1])
+
 class B_field:
     """
     Represents a magnetic field calculation in a cylindrical coordinate system.
@@ -122,10 +135,10 @@ class B_field:
         if self.filename:
             np.savez_compressed(self.filename, radial_vectors = r_vec, z_vectors = z_vec, radial_step = self.dr, z_step = self.dz,
                                 mag_field_z = b_vec_z, mag_field_r = b_vec_r,
-                                Design_type = self.design, Input_parameters = self.input_parameters, Innercoil_config = self.coil_config,
+                                Design_type = self.design, Input_parameters = self.input_parameters, Coils_config = self.coil_config,
                                 innercoil_voltage = self.inner_voltage, innercoil_flux = self.inner_flux,
                                 upp_outercoil_voltage = self.outer_voltage, upp_outercoil_flux = self.outer_flux)
-        return [b_vec]
+        return b_vec
 
 class Flux:
     def __init__(self, datafile, x_offset,  flux_file=None, save = None, type=None, coil_wiretype=None, wire_thickness=None):
@@ -209,7 +222,7 @@ class Flux:
             rad_i = out_radius+(wire_thickness1*i)
             res_layer = self.outcoil(rad_i)
             phi_vec_list.append(res_layer[0])
-            print('layer : '+str(i+1) + 'completed')
+            print('layer'+str(i+1) + ' : completed')
         z_vec_save = res_layer[1]
         if parallel_processing :
             processes = [Process(target=self.outcoil, args=(self.value[self.type]['out_rad']+(wire_thickness1*m))) for m in range(self.value[self.type]['out_layers'])]
@@ -222,7 +235,7 @@ class Flux:
         print('flux is in T.m^2')
         if self.save:
             np.savez_compressed(self.flux_file, z_vec = z_vec_save, phi_vec = sum(phi_vec_list),
-                                Design_type = b['Design_type'], Input_parameters = b['Input_parameters'], Innercoil_config = b['Innercoil_config'],
+                                Design_type = b['Design_type'], Input_parameters = b['Input_parameters'], Coils_config = b['Coils_config'],
                                 innercoil_voltage=b['innercoil_voltage'], innercoil_flux=b['innercoil_flux'],
                                 upp_outercoil_voltage=b['upp_outercoil_voltage'], upp_outercoil_flux=b['upp_outercoil_flux'])
         return [z_vec_save, sum(phi_vec_list)]

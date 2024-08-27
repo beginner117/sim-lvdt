@@ -31,11 +31,9 @@ class LVDT:
                 outer_coil_rad (float, optional): Outer coil radius (if nothing is mentioned, it takes the values from the field file).
         """
         f = np.load(self.file, allow_pickle=True)
-        f1 = f['Innercoil_config'].item()
+        f1 = f['Coils_config'].item()
         f2 = f['Input_parameters'].item()
-        print('1st', time.time())
         flux_data = fields.Flux(self.file, offset, flux_file, save=True)
-        print('2nd', time.time())
         if wire_dia:
             wire_thickness = wire_dia
         else:
@@ -50,9 +48,7 @@ class LVDT:
             outer_rad = outer_coil_rad
         else:
             outer_rad = f1['out_rad']
-        print('3rd', time.time())
         flux_data.outcoil_flux(wire_thickness, outcoil_layers, outer_rad)
-        print('4th', time.time())
 
     def response(self, inncoil_range, outer_coil_dist=None, outer_coil_width=None, wire_dia = None, inner_current=None):
         """
@@ -67,7 +63,7 @@ class LVDT:
                 list: Slope of the response (V/mmA) and voltage-normalized slope (V/mmV)
         """
         f = np.load(self.file, allow_pickle=True)
-        f1 = f['Innercoil_config'].item()
+        f1 = f['Coils_config'].item()
         f2 = f['Input_parameters'].item()
         inn_vol = abs(f['innercoil_voltage'].item())
         if wire_dia:
