@@ -9,9 +9,9 @@ A_1 = {'inn_ht': 24, 'inn_rad': 11, 'inn_layers': 6, 'inn_dist': 0, 'out_ht': 13
          'out_dist': 54.5, 'mag_len': 40, 'mag_dia': 10, 'ver_shi': 0}
 B = {'inn_ht': 10, 'inn_rad': 4.5, 'inn_layers': 6, 'inn_dist': 0, 'out_ht': 10, 'out_rad': 25, 'out_layers': 7,
      'out_dist': 36, 'mag_len': 8, 'mag_dia': 5, 'ver_shi': 0}
-C = {'inn_ht': 15, 'lowinn_ht': 22.5, 'inn_rad': 13.55, 'inn_layers': 6, 'inn_dist': 0, 'out_ht': 12,
-     'out_rad': 20.5, 'out_layers': 5, 'out_dist': 13, 'mag_len': 0, 'mag_dia': 0, 'ver_shi': 0, 'mag_inn':24.1,
-     'mag_out':28.57, 'mag_ht':6.35, 'inner_distance':45, 'yoke_inn_dia':5}
+C = {'inn_ht': 15, 'lowinn_ht': 22.5, 'lowinn_rad': 13.55,'lowinn_layers': 6, 'inn_rad': 13.55, 'inn_layers': 6, 'inn_dist': 45,
+     'out_ht': 12, 'out_rad': 20.5, 'out_layers': 5, 'out_dist': 13, 'mag_len': 0, 'mag_dia': 0, 'ver_shi': 0, 'mag_inn':24.1,
+     'mag_out':28.57, 'mag_ht':6.35,'mag_ver_shi':0, 'inner_distance':45, 'yoke_inn_dia':5}
 D = {'inn_ht': 8, 'inn_rad': 7, 'inn_layers': 6, 'inn_dist': 0, 'out_ht': 8, 'out_rad': 11.5, 'out_layers': 7,
      'out_dist': 10, 'mag_len': 0, 'mag_dia': 0, 'ver_shi': 0}
 E = {'inn_ht': 8, 'inn_rad': 8, 'inn_layers': 6, 'inn_dist': 0, 'out_ht': 8, 'out_rad': 13, 'out_layers': 7,
@@ -24,7 +24,7 @@ H = {'inn_ht': 0, 'inn_rad': 0, 'inn_layers': 0, 'inn_dist': 0, 'out_ht': 10, 'o
      'out_dist': 0, 'mag_len': 6, 'mag_dia': 3, 'ver_shi': 0}
 I = {'inn_ht': 0, 'inn_rad': 0, 'inn_layers': 0, 'inn_dist': 0, 'out_ht': 5.2, 'out_rad': 10, 'out_layers': 8,
      'out_dist': 0, 'mag_len': 3, 'mag_dia': 1.5, 'ver_shi': 0}
-J = {'inn_ht': 18, 'lowinn_ht': 23, 'inn_rad': 21, 'inn_layers': 6, 'inn_dist': 0, 'out_ht': 13.5,
+J = {'inn_ht': 18, 'lowinn_ht': 23,'lowinn_rad': 21, 'lowinn_layers': 6, 'inn_rad': 21, 'inn_layers': 6, 'inn_dist': 60.5, 'out_ht': 13.5,
      'out_rad': 31.5, 'out_layers': 5, 'out_dist': 14.5, 'mag_len': 0, 'mag_dia': 0, 'ver_shi': 0,
      'mag_inn':31.65, 'mag_out':44.45, 'mag_ht':6.35,'mag_ver_shi':0, 'inner_distance':60.5, 'yoke_inn_dia':8}
 A1 = {'inn_ht': 20, 'inn_rad': 9, 'inn_layers': 6, 'inn_dist': 0, 'out_ht': 10, 'out_rad': 20, 'out_layers': 5,
