@@ -76,9 +76,9 @@ class Analysis1:
             bc = femm_model.Femm_bc(AirSpaceRadius_1=100, AirSpaceRadius_2=300, BC_Name='Outside', BC_Group=10, material='Air')
 
             res = coil.Coil_prop(0)
-            inn_prop = res.inncoil()
-            uppout_prop = res.uppout()
-            lowout_prop = res.lowout()
+            inn_prop = res.gen_coil()
+            uppout_prop = res.gen_coil()
+            lowout_prop = res.gen_coil()
             move_group = femm_model.Femm_move(groups = [1,2], x_dist=0, y_dist=self.offset)
 
             femm.mi_zoom(-2, -50, 50, 50)
@@ -88,54 +88,54 @@ class Analysis1:
             femm.mi_loadsolution()
 
             UppOutCoil_I, UppOutCoil_V, UppOutCoil_FluxLink = femm.mo_getcircuitproperties(position.upp_outcoil()[5])
-            uppout_prop['UppOut_voltage'] = UppOutCoil_V
-            uppout_prop['UppOut_current'] = UppOutCoil_I
-            uppout_prop['UppOut_flux'] = UppOutCoil_FluxLink
+            uppout_prop['voltage'] = UppOutCoil_V
+            uppout_prop['current'] = UppOutCoil_I
+            uppout_prop['flux'] = UppOutCoil_FluxLink
 
             LowOutCoil_I, LowOutCoil_V, LowOutCoil_FluxLink = femm.mo_getcircuitproperties(position.low_outcoil()[5])
-            lowout_prop['LowOut_voltage'] = LowOutCoil_V
-            lowout_prop['LowOut_current']= LowOutCoil_I
-            lowout_prop['LowOut_flux'] = LowOutCoil_FluxLink
+            lowout_prop['voltage'] = LowOutCoil_V
+            lowout_prop['current']= LowOutCoil_I
+            lowout_prop['flux'] = LowOutCoil_FluxLink
 
             InnCoil_I, InnCoil_V, InnCoil_FluxLink = femm.mo_getcircuitproperties(position.inncoil()[5])
-            inn_prop['Inncoil_voltage'] = InnCoil_V
-            inn_prop['Inncoil_current'] = InnCoil_I
-            inn_prop['Inncoil_flux'] = InnCoil_FluxLink
+            inn_prop['voltage'] = InnCoil_V
+            inn_prop['current'] = InnCoil_I
+            inn_prop['flux'] = InnCoil_FluxLink
 
             if trials[i][1]==0 and trials[i][2] == 0:
-                Inn_Inductance = abs(inn_prop['Inncoil_flux'] / inn_prop['Inncoil_current'])
-                Inn_Impedance = abs(inn_prop['Inncoil_voltage'] / inn_prop['Inncoil_current'])
+                Inn_Inductance = abs(inn_prop['flux'] / inn_prop['current'])
+                Inn_Impedance = abs(inn_prop['voltage'] / inn_prop['current'])
                 self_ind.append(Inn_Inductance)
                 imp.append(Inn_Impedance)
             if trials[i][0]==0 and trials[i][2] == 0:
-                Out_Impedance = abs(uppout_prop['UppOut_voltage'] / uppout_prop['UppOut_current'])
-                Out_Inductance = abs(uppout_prop['UppOut_flux'] / uppout_prop['UppOut_current'])
+                Out_Impedance = abs(uppout_prop['voltage'] / uppout_prop['current'])
+                Out_Inductance = abs(uppout_prop['flux'] / uppout_prop['current'])
                 self_ind.append(Out_Inductance)
                 imp.append(Out_Impedance)
             if trials[i][0]==0 and trials[i][1] == 0:
-                Low_Impedance = abs(lowout_prop['LowOut_voltage'] / lowout_prop['LowOut_current'])
-                Low_Inductance = abs(lowout_prop['LowOut_flux'] / lowout_prop['LowOut_current'])
+                Low_Impedance = abs(lowout_prop['voltage'] / lowout_prop['current'])
+                Low_Inductance = abs(lowout_prop['flux'] / lowout_prop['current'])
                 self_ind.append(Low_Inductance)
                 imp.append(Low_Impedance)
             if trials[i][0]!= 0 and trials[i][1] != 0 and trials[i][2] == 0:
-                Inn_Inductance = abs(inn_prop['Inncoil_flux'] / inn_prop['Inncoil_current'])
-                Out_Inductance = abs(uppout_prop['UppOut_flux'] / uppout_prop['UppOut_current'])
+                Inn_Inductance = abs(inn_prop['flux'] / inn_prop['current'])
+                Out_Inductance = abs(uppout_prop['flux'] / uppout_prop['current'])
                 mut_ind.append([Inn_Inductance, Out_Inductance])
                 print('Inner & Upper out coil inducatnces when excited :', Inn_Inductance, Out_Inductance)
             if trials[i][1]!= 0 and trials[i][2] != 0 and trials[i][0] == 0:
-                Out_Inductance = abs(uppout_prop['UppOut_flux'] / uppout_prop['UppOut_current'])
-                Low_Inductance = abs(lowout_prop['LowOut_flux'] / lowout_prop['LowOut_current'])
+                Out_Inductance = abs(uppout_prop['flux'] / uppout_prop['current'])
+                Low_Inductance = abs(lowout_prop['flux'] / lowout_prop['current'])
                 mut_ind.append([ Out_Inductance, Low_Inductance])
                 print('Upper & Lower out coil inducatnces when excited :', Out_Inductance, Low_Inductance)
             if trials[i][2]!= 0 and trials[i][0] != 0 and trials[i][1] == 0:
-                Low_Inductance = abs(lowout_prop['LowOut_flux'] / lowout_prop['LowOut_current'])
-                Inn_Inductance = abs(inn_prop['Inncoil_flux'] / inn_prop['Inncoil_current'])
+                Low_Inductance = abs(lowout_prop['flux'] / lowout_prop['current'])
+                Inn_Inductance = abs(inn_prop['flux'] / inn_prop['current'])
                 mut_ind.append([Low_Inductance, Inn_Inductance])
                 print('Lower out & Inner coil inducatnces when excited :', Low_Inductance, Inn_Inductance)
             if trials[i][2] == 1 and trials[i][0] ==1 and trials[i][1] == 1:
-                Inn_Impedance = abs(inn_prop['Inncoil_voltage'] / inn_prop['Inncoil_current'])
-                Out_Impedance = abs(uppout_prop['UppOut_voltage'] / uppout_prop['UppOut_current'])
-                Low_Impedance = abs(lowout_prop['LowOut_voltage'] / lowout_prop['LowOut_current'])
+                Inn_Impedance = abs(inn_prop['voltage'] / inn_prop['current'])
+                Out_Impedance = abs(uppout_prop['voltage'] / uppout_prop['current'])
+                Low_Impedance = abs(lowout_prop['voltage'] / lowout_prop['current'])
                 dc_r = [Inn_Impedance, Out_Impedance, Low_Impedance]
 
         mut = []
