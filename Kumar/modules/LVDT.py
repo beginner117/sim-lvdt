@@ -1,9 +1,9 @@
 import femm
-import design
-import femm_model
-import coil
-import feed
-import fields
+import design as design
+import femm_model as femm_model
+import coil as coil
+import feed as feed
+import fields as fields
 import numpy as np
 import sys
 import matplotlib.pyplot as plt
@@ -31,6 +31,7 @@ class Analysis:
         wire = design.Wiretype(outcoil_material=self.materials[1], inncoil_material=self.materials[0], magnet_material=self.materials[2])
         input_par1 = {'TotalSteps_StepSize(mm)_Offset' : self.sim_range, 'outercoil Diameter(mm)_Insulation(mm)_Wiretype':wire.prop_out(), 'innercoil Diameter(mm)_Insulation(mm)_Wiretype': wire.prop_inn(),
                      'Innercoil_current(A)':sensor.para()[0], 'Frequency(Hz)':sensor.para()[1], 'Outercoil_current(A)':sensor.para()[2], 'Magnet_material':wire.mag_mat()}
+        print('check1', self.des_dim)
         if self.default=='yes':
             geo = design.Geometry(value[self.design_type]["inn_ht"], value[self.design_type]['inn_rad'], value[self.design_type]['inn_layers'], value[self.design_type]['inn_dist'], value[self.design_type]['out_ht'], value[self.design_type]['out_rad'],
                                   value[self.design_type]['out_layers'], value[self.design_type]['out_dist'], value[self.design_type]['mag_len'], value[self.design_type]['mag_dia'], value[self.design_type]['ver_shi'])
@@ -38,17 +39,18 @@ class Analysis:
             input_par2 = in_pa.return_data(self.design_type)
         if self.default == 'no':
             try :
-                input_par2 = {'IC_height': self.des_dim['inner'][0], 'IC_radius': self.des_dim['inner'][1], 'IC_layers': self.des_dim['inner'][2], 'IC_distance': self.des_dim['inner'][3],
+                input_par2 = {'IC_height': self.des_dim['inner'][0], 'IC_radius': self.des_dim['inner'][1], 'IC_layers': self.des_dim['inner'][2], 'IC_distance': 0,
                             'OC_height': self.des_dim['outer'][0], 'OC_radius': self.des_dim['outer'][1], 'OC_layers': self.des_dim['outer'][2], 'OC_distance': self.des_dim['outer'][3],
                                             'mag_len': self.des_dim['magnet'][0], 'mag_dia': self.des_dim['magnet'][1], 'ver_shi': 0}
             except:
-                input_par2 = {'IC_height': 20, 'IC_radius': 9, 'IC_layers': 6, 'IC_distance': 0, 'OC_height': self.parameter1[0], 'OC_radius': self.parameter1[1], 'OC_layers': 5,
-                             'OC_distance': self.parameter1[2], 'mag_len': 30, 'mag_dia': 8, 'ver_shi': 0}
+                input_par2 = {'IC_height': self.parameter1[0], 'IC_radius': self.parameter1[1], 'IC_layers': 6, 'IC_distance': 0, 'OC_height': self.parameter1[2], 'OC_radius': self.parameter1[3], 'OC_layers': 5,
+                             'OC_distance': self.parameter1[4], 'mag_len': 30, 'mag_dia': 8, 'ver_shi': 0}
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
             input_par3 = 'not a priliminary NIKHEF design'
         position = coil.Position(inn_ht=geo.inncoil()[0], inn_rad=geo.inncoil()[1], inn_layers=geo.inncoil()[2], inn_dist=geo.inncoil()[3], out_ht=geo.outcoil()[0], out_rad=geo.outcoil()[1], out_layers=geo.outcoil()[2], out_dist=geo.outcoil()[3],
                                  ver_shi=geo.mag()[2], inn_wiredia=wire.prop_inn()[0], inn_wireins=wire.prop_inn()[1], out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1], mag_len=geo.mag()[0], mag_dia=geo.mag()[1])
+        print('test2-innwiredia_innlayers',type(wire.prop_inn()[0]),  type(geo.inncoil()[2]))
         length = coil.Length(inn_layers=geo.inncoil()[2], inn_rad=geo.inncoil()[1], inn_wiredia=wire.prop_inn()[0], inn_wireins=wire.prop_inn()[1], innwind_pr_layer=position.inncoil()[3], out_layers=geo.outcoil()[2], out_rad=geo.outcoil()[1],
                              out_wiredia=wire.prop_out()[0], out_wireins=wire.prop_out()[1], outwind_pr_layer=position.upp_outcoil()[3])
         print('coil config - [Coil_OutRadius, Coil_LowEnd, Coil_UppEnd, Coil_NrWind_p_Layer, Coil_NrWindings, Circuit_name]')
@@ -137,15 +139,33 @@ class Analysis:
 
         OutCoil_Signals = (abs(uppout_prop['voltage']) - abs(lowout_prop['voltage']))
         Norm_OutCoil_Signals = OutCoil_Signals / abs(inn_prop['current'])
-        gainfactor = 70.02
+        gainfactor = 70   #70.02
         Norm_OutCoil_Signals_v = OutCoil_Signals / abs(inn_prop['voltage'])
         print('normalised outcoil voltages :', Norm_OutCoil_Signals_v)
 
         if self.sim_range[0] != 0:
             b1, b2 = np.polyfit(inn_prop['position'], Norm_OutCoil_Signals_v * gainfactor, 1)
-            print("Fitted slope(V/mmV) & const of voltage normalised signals (with gain factor 70.02) :", abs(b1), abs(b2))
+            print("Fitted slope(V/mmV) & const of voltage normalised signals (with gain factor 70) :", abs(b1), abs(b2))
             c1, c2 = np.polyfit(inn_prop['position'], Norm_OutCoil_Signals, 1)
             print("Fitted slope(V/mmA) & const of current normalised signals (without gain factor) :", abs(c1), abs(c2))
+
+        fit_sig = c1*np.real(inn_prop['position']) + c2
+        fit_error = Norm_OutCoil_Signals - fit_sig
+
+        plt.plot(np.real(inn_prop['position']), Norm_OutCoil_Signals, 'o--')
+        plt.xlabel('Inner Coil Position [mm]')
+        plt.ylabel('Normalised outer coil signals [V/A]')
+        plt.title('LVDT sensitivity')
+        plt.grid()
+        plt.show()
+
+        plt.plot(np.real(inn_prop['position']), abs(fit_error)*100/abs(fit_sig), 'o--')
+        plt.xlabel('Inner Coil Position [mm]')
+        plt.ylabel('Rel error (fit - actual)*!00/actual [%]')
+        plt.title('LVDT linearity')
+        plt.ylim(0, 5)
+        plt.grid()
+        plt.show()
 
         if self.save:
             np.savez_compressed(self.filename,Design_type=input_par3, Design_parameters = input_par2, Input_parameters = input_par1, coil_config_parameters = coil_con, Innercoil_config = position.inncoil(),
@@ -154,4 +174,8 @@ class Analysis:
                                 IC_currents = inn_prop['current'], UOC_currents=uppout_prop['current'], LOC_currents = lowout_prop['current'],
                                 IC_flux = inn_prop['flux'], UOC_flux = uppout_prop['flux'], LOC_flux = lowout_prop['flux'],
                                 Inn_Uppout_Lowout_DCR_as_per_catalog = [inn_dc, out_dc, lowout_dc])
+
+
+        return {'coil_positions': np.real(inn_prop['position']), 'slope':np.real(c1),
+                'norm_signals':Norm_OutCoil_Signals, 'rel_error':abs(fit_error)*100/abs(fit_sig)}
 

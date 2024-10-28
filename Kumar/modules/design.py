@@ -1,4 +1,7 @@
-import feed
+import sys
+sys.path.append('./../../modules/')
+import feed as feed
+
 class Sensortype:
     def __init__(self, InnCoilCurrent, Simfreq, OutCoilCurrent):
         """

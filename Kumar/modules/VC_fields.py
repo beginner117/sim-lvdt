@@ -228,3 +228,5 @@ class Analysis:
                                 UOC_voltages = uppout_prop['UppOut_voltage'], LOC_voltages = lowout_prop['LowOut_voltage'], IC_voltages = inn_prop['Inncoil_voltage'],
                                 IC_positions = abs(inn_prop['Inncoil_position']), IC_flux=inn_prop['Inncoil_flux'], UOC_flux=uppout_prop['UppOut_flux'], LOC_flux=lowout_prop['LowOut_flux'],
                                 Inn_Uppout_Lowout_DCR_as_per_catalog = [inn_dc, out_dc, lowout_dc])
+
+        return {'coil_positions': np.real(inn_prop['position']), 'magnet_forces': abs(mag_prop['Magnet_forces'])}

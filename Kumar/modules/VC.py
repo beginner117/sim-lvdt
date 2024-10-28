@@ -30,7 +30,7 @@ class Analysis:
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file=self.filename)
         sensor = design.Sensortype(InnCoilCurrent=self.input_excitation[0], Simfreq=self.input_excitation[1], OutCoilCurrent=self.input_excitation[2])
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
-        wire = design.Wiretype(self.materials[1], self.materials[0], magnet_material=self.materials[2])
+        wire = design.Wiretype(outcoil_material=self.materials[1],inncoil_material= self.materials[0], magnet_material=self.materials[2])
         input_par1 = {'TotalSteps_StepSize(mm)_Offset': self.sim_range, 'outercoil Diameter(mm)_Insulation(mm)_Wiretype': wire.prop_out()[:3], 'innercoil Diameter(mm)_Insulation(mm)_Wiretype': wire.prop_inn()[:3],
                       'Innercoil_current(A)': sensor.para()[0], 'Frequency(Hz)': sensor.para()[1], 'Outercoil_current(A)': sensor.para()[2], 'Magnet_material':wire.mag_mat()}
         if self.default=='yes':
@@ -41,7 +41,7 @@ class Analysis:
         if self.default == 'no':
             try:
                 input_par2 = {'IC_height': self.des_dim['inner'][0], 'IC_radius': self.des_dim['inner'][1],
-                              'IC_layers': self.des_dim['inner'][2], 'IC_distance': self.des_dim['inner'][3],
+                              'IC_layers': self.des_dim['inner'][2], 'IC_distance': 0,
                               'OC_height': self.des_dim['outer'][0], 'OC_radius': self.des_dim['outer'][1],
                               'OC_layers': self.des_dim['outer'][2], 'OC_distance': self.des_dim['outer'][3],
                               'mag_len': self.des_dim['magnet'][0], 'mag_dia': self.des_dim['magnet'][1], 'ver_shi': 0}
@@ -146,6 +146,19 @@ class Analysis:
             Upp_Inductance = abs(uppout_prop['flux'] / uppout_prop['current'])
             Upp_resistance = abs(uppout_prop['voltage'] / uppout_prop['current'])
 
+            print('upper out coil ind, imp :', Upp_Inductance, Upp_resistance)
+
+        k1, k2, k3 = np.polyfit(np.real(inn_prop['position']), mag_prop['Magnet_forces'], 2)
+        fit_forces = k1*((np.real(inn_prop['position']))**2) + k2*(np.real(inn_prop['position'])) + k3
+
+        plt.plot(np.real(inn_prop['position']), fit_forces, 'o--', label = 'fit')
+        plt.plot(np.real(inn_prop['position']), mag_prop['Magnet_forces'], 'o--', label = 'unfit')
+        plt.xlabel('Inner Coil Position [mm]')
+        plt.ylabel('Fitted Magnet Force [N/A]')
+        plt.title('Actuation force')
+        plt.legend()
+        plt.grid()
+        plt.show()
         if self.save:
             np.savez_compressed(self.filename,Design_type=input_par3, Design_parameters = input_par2, Input_parameters = input_par1, coil_config_parameters = coil_con,
                                 Innercoil_config=position.inncoil(), UpperOutcoil_config=position.upp_outcoil(), LowerOutercoil_config=position.low_outcoil(),
@@ -154,3 +167,5 @@ class Analysis:
                                 UOC_voltages = uppout_prop['voltage'], LOC_voltages = lowout_prop['voltage'], IC_voltages = inn_prop['voltage'],
                                 IC_positions = inn_prop['position'], IC_flux=inn_prop['flux'], UOC_flux=uppout_prop['flux'], LOC_flux=lowout_prop['flux'],
                                 Inn_Uppout_Lowout_DCR_as_per_catalog = [inn_dc, out_dc, lowout_dc])
+
+        return {'coil_positions': np.real(inn_prop['position']), 'magnet_forces': abs(mag_prop['Magnet_forces'])}

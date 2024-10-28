@@ -29,10 +29,14 @@ J = {'inn_ht': 18, 'lowinn_ht': 23,'lowinn_rad': 21, 'lowinn_layers': 6, 'inn_ra
      'mag_inn':31.65, 'mag_out':44.45, 'mag_ht':6.35,'mag_ver_shi':0, 'inner_distance':60.5, 'yoke_inn_dia':8}
 A1 = {'inn_ht': 20, 'inn_rad': 9, 'inn_layers': 6, 'inn_dist': 0, 'out_ht': 10, 'out_rad': 20, 'out_layers': 5,
          'out_dist': 39.8, 'mag_len': 30, 'mag_dia': 8, 'ver_shi': 0}
-
+A2 = {'inn_ht': 18, 'inn_rad':4.5 , 'inn_layers':3 , 'inn_dist': 0, 'out_ht':13.5 , 'out_rad':11.8 , 'out_layers':1 ,
+         'out_dist': 14, 'mag_len':0 , 'mag_dia':0 , 'ver_shi':0 }
+# A3 = {'inn_ht': 0, 'inn_rad': 0, 'inn_layers': 0, 'inn_dist': 0, 'out_ht': , 'out_rad': , 'out_layers': ,
+#          'out_dist':0 , 'mag_len': , 'mag_dia': , 'ver_shi':0 }
 
 # naming for the designs
-data = {'A':A, 'B':B, 'C':C, 'D':D, 'E':E, 'F':F, 'G':G, 'H':H, 'I':I, 'J':J, 'top_up':A1, 'A_1':A_1}
+data = {'A':A, 'B':B, 'C':C, 'D':D, 'E':E, 'F':F, 'G':G, 'H':H, 'I':I, 'J':J, 'top_up':A1, 'A_1':A_1,
+        'pisa1':A2}
 
 #[wire_dia, insulation_thickness, name, resistance(Ω/mm), electrical_conductivity(MS/m)[S is Siemens=1/Ω], resistivity(Ω*m), magnetic_perm(H/m)]
 wire_types = {'30 AWG': [0.254, 0.0216,'30 AWG', 103.7/304800],
@@ -50,7 +54,8 @@ wire_types = {'30 AWG': [0.254, 0.0216,'30 AWG', 103.7/304800],
               'electrisola_1b': [0.190, 0.021,'electrisola_1b', 0.6029/1000],    #winded typeF-outer
               'electrisola_2a': [0.200, 0.0195,'electrisola_2a', 0.5441/1000],   #winded typeF-inner
               'electrisola_2b': [0.200, 0.017,'electrisola_2b', 0.5441/1000],    #winded typeJ-outer
-              'electrisola_2c': [0.200, 0.0295,'electrisola_2c', 0.5441/1000]}
+              'electrisola_2c': [0.200, 0.0295,'electrisola_2c', 0.5441/1000],
+              'electrisola_p': [0.190, 0.0175, 'electrisola_p', 0.6029/1000]}
 
 blocks = dict(C = dict(b1 = [3.25, 28], b2 = [2.75, 9], b3 = [12.58, 9], b4 = [6.53, 8.65], b5 = [2.055, 2], b6 = [4.47, 4], b7 = [15.85, 6],
                        yoke_innrad = 5, yoke_uppend =-7.5-26.25-6.75, yoke_outrad = 28.575, yoke_inngap = 2.45),
@@ -68,13 +73,6 @@ class Input:
         return [A, B, C, D, E, F, G, H, I, J]
     def return_data(self, design_type: str):
         return data[design_type]
-
-
-
-
-
-
-
 
 
 # WIRE DIAMETER(mm) - bare wire diameter

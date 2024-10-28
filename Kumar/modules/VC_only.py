@@ -27,7 +27,7 @@ class Analysis:
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file=self.filename)
         sensor = design.Sensortype(InnCoilCurrent=self.input_excitation[0], Simfreq=self.input_excitation[1], OutCoilCurrent=self.input_excitation[2])
         femm.mi_probdef(sensor.para()[1], 'millimeters', 'axi', 1.0e-10)
-        wire = design.Wiretype(self.materials[1], self.materials[0], magnet_material=self.materials[2])
+        wire = design.Wiretype(outcoil_material=self.materials[0], inncoil_material='32 AWG', magnet_material=self.materials[1])
         input_par1 = {'TotalSteps_StepSize(mm)_Offset(mm)': self.sim_range, 'uppercoil Diameter(mm)_Insulation(mm)_Wiretype': wire.prop_out(),
                        'Magnet_material':wire.mag_mat(), 'Frequency(Hz)': sensor.para()[1], 'Outercoil_current(A)': sensor.para()[2]}
         if self.default == 'yes':
@@ -38,18 +38,18 @@ class Analysis:
             input_par3 = 'design type ' + self.design_type
         if self.default == 'no':
             try:
-                input_par2 = {'IC_height': self.des_dim['inner'][0], 'IC_radius': self.des_dim['inner'][1],
-                              'IC_layers': self.des_dim['inner'][2], 'IC_distance': self.des_dim['inner'][3],
+                input_par2 = {'IC_height': 0, 'IC_radius': 0,
+                              'IC_layers': 0, 'IC_distance': 0,
                               'OC_height': self.des_dim['outer'][0], 'OC_radius': self.des_dim['outer'][1],
-                              'OC_layers': self.des_dim['outer'][2], 'OC_distance': self.des_dim['outer'][3],
+                              'OC_layers': self.des_dim['outer'][2], 'OC_distance': 0,
                               'mag_len': self.des_dim['magnet'][0], 'mag_dia': self.des_dim['magnet'][1], 'ver_shi': 0}
             except:
                 input_par2 = {'IC_height': self.parameter1[0], 'IC_radius': 7, 'IC_layers': 6, 'IC_distance': 0,
                               'OC_height': self.parameter1[1], 'OC_radius': 17, 'OC_layers': 7,
                               'OC_distance': self.parameter1[2], 'mag_len': 30, 'mag_dia': 8, 'ver_shi': 0}
-            geo = design.Geometry(input_par2['inn coil_height'], input_par2['inn coil_radius'], input_par2['inn coil_layers'], input_par2['inn coil_distance'],
-                                  input_par2['out coil_height'], input_par2['out coil_radius'], input_par2['out coil_layers'], input_par2['out coil_distance'],
-                                  input_par2['mag_length'], input_par2['mag_diameter'], input_par2['ver_shi'])
+            geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'],
+                                  input_par2['OC_height'], input_par2['OC_radius'], input_par2['OC_layers'], input_par2['OC_distance'],
+                                  input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
             input_par3 = 'not a priliminary NIKHEF design'
         position = coil.Position(inn_ht=geo.inncoil()[0], inn_rad=geo.inncoil()[1], inn_layers=geo.inncoil()[2],
                                  inn_dist=geo.inncoil()[3], out_ht=geo.outcoil()[0], out_rad=geo.outcoil()[1],
@@ -107,6 +107,13 @@ class Analysis:
         Upp_resistance = abs(uppout_prop['voltage'] / uppout_prop['current'])
         print('upp out resistance as per femm :', abs(Upp_resistance))
         print('magnet force :', np.real(mag_for['Magnet_forces']))
+        plt.plot(np.real(uppout_prop['position']),
+                 (np.real(mag_for['Magnet_forces'] / uppout_prop['current'])), 'o--')
+        plt.xlabel('Coil (centre) Position relative to Magnet (centre) [mm]')
+        plt.ylabel('Normalised Magnet Force [N/A]')
+        plt.title('Actuation force (VC only)')
+        plt.grid()
+        plt.show()
 
         if self.save:
             if self.sim_type == 'FEMM+ana':
@@ -125,4 +132,4 @@ class Analysis:
                                     UOC_positions = uppout_prop['position'], UOC_forces = uppout_prop['force'], Mag_forces = mag_for['Magnet_forces'],
                                     UOC_flux=uppout_prop['flux'], UOC_voltages = uppout_prop['voltage'], UOC_currents=uppout_prop['current'])
 
-
+        return {'coil_positions': np.real(uppout_prop['position']), 'magnet_forces': np.real(mag_for['Magnet_forces'])}
