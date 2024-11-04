@@ -1,10 +1,10 @@
 import femm
-import design
-import femm_model
-import coil
-import feed
+import femm_sim.models.design as design
+import femm_sim.models.femm_model as femm_model
+import femm_sim.models.coil as coil
+import femm_sim.materials.feed as feed
 import numpy as np
-import matplotlib.pyplot as plt
+
 
 class Analysis:
     def __init__(self, save, sim_range: list, default, filename: str, design_type, input_excitation, materials=None,

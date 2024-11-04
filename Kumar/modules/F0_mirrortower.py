@@ -1,5 +1,5 @@
-import design
-import femm_model
+import femm_sim.models.design as design
+import femm_sim.models.femm_model as femm_model
 import numpy as np
 import cmath
 import scipy.optimize as opt
