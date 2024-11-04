@@ -1,9 +1,7 @@
 import femm
-import design
-import femm_model
-import coil
-import feed
+import femm_sim.models.design as design
 import numpy as np
+import shutil
 import matplotlib.pyplot as plt
 
 femm.openfemm()
