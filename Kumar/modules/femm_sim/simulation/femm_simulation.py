@@ -61,7 +61,7 @@ class Position_sensor:
         self.material_prop = mat_prop if mat_prop is not None else ['32 AWG', '32 AWG', 'N40']
         self.simulation_type = [simulation]*len(sensor_type)
     def execute(self, input_current = None):
-        """"
+        """
         Executes the simulation with above defined parameters
         Parameters:
         ----------
@@ -69,7 +69,6 @@ class Position_sensor:
             Inner coil current(in Amp), frequency(in Hz), outer coil(upper and lower currents in a tuple) for the simulation. Default values for LVDT is [0.02, 10000, [0,0]] and for VC is [0, 0, [1,1]]
         """
         for i in range(len(self.sensor_type)):
-            print('1')
             if self.sensor_type[i] == 'LVDT':
                 excitation = input_current if input_current is not None else [0.02, 10000, [0, 0]]
                 if self.data['is default'][i] == 'yes':
@@ -82,7 +81,6 @@ class Position_sensor:
                                       default=self.data['is default'][i], filename=self.data['filename(s)'][i],input_excitation=excitation, design_type=None, coil_dimensions=self.lvdt_dim,
                                       materials =[self.material_prop[0], self.material_prop[1], self.material_prop[2]], parameter1=self.data['design or parameter'][i], simulation_type=self.simulation_type[i])
                     meta_data = a.simulate()
-            print('2')
             if self.sensor_type[i] == 'VC':
                 excitation = input_current if input_current is not None else [0, 0, [1, 1]]
                 if self.data['is default'][i] == 'yes':
@@ -96,7 +94,6 @@ class Position_sensor:
                                     default=self.data['is default'][i], filename=self.data['filename(s)'][i],input_excitation=excitation, design_type=None, coil_dimensions=self.lvdt_dim,
                                     materials =[self.material_prop[0], self.material_prop[1], self.material_prop[2]], parameter1=self.data['design or parameter'][i], simulation_type=self.simulation_type[i])
                     meta_data = a.simulate()
-            print('3')
             if self.sensor_type[i] == 'VC_only':
                 excitation = input_current if input_current is not None else [0, 0, [1]]
                 if self.data['is default'][i] == 'yes':
@@ -121,7 +118,6 @@ class Position_sensor:
                                       default=self.data['is default'][i], filename=self.data['filename(s)'][i],
                                       design_type=None, parameter1=self.data['design or parameter'][i])
                     meta_data = a.simulate()
-
             if self.sensor_type[i] == 'VC_fields':
                 excitation = input_current if input_current is not None else [0, 0, [1, 1]]
                 print('vc_analytical')
@@ -135,7 +131,6 @@ class Position_sensor:
                                            default=self.data['is default'][i], filename=self.data['filename(s)'][i], input_excitation=excitation, coil_dimensions=self.lvdt_dim,
                                            design_type=None, materials =[self.material_prop[0], self.material_prop[1], self.material_prop[2]], parameter1=self.data['design or parameter'][i])
                     meta_data = a.simulate()
-
             if self.sensor_type[i] == 'LVDT_corrected':
                 excitation = input_current if input_current is not None else [0.02, 10000, 0]
                 if self.data['is default'][i] == 'yes':
@@ -171,7 +166,7 @@ class Position_sensor:
             #         a.simulate()
 
 
-            return meta_data
+        return meta_data
             
 
 
