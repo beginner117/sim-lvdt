@@ -1,13 +1,10 @@
 import femm
 import numpy as np
-from ..materials import feed
-from ..models import design
-from ..models import femm_model
-from ..models import coil
-# import design
-# import femm_model
-# import coil
-# from Kumar.modules.materials import feed
+from materials import feed
+from models import design
+from models import femm_model
+from models import coil
+
 
 class Analysis1:
     def __init__(self, save, default, offset,  design_type, input_excitation=None, materials1 = None,coil_dimensions1 = None,  filename1=None, parameter1=None):

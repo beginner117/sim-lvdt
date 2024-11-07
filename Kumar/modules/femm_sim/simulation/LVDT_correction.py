@@ -1,5 +1,5 @@
 import numpy as np
-from . import LVDT_mutual_inductance as LVDT_mutual_inductance
+from simulation import LVDT_mutual_inductance as LVDT_mutual_inductance
 
 rat_amp = []
 class Analysis:

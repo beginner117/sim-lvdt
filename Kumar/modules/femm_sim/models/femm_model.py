@@ -1,6 +1,5 @@
 import femm
-# from Kumar.modules.materials import feed
-from ..materials import feed as feed
+from materials import feed as feed
 
 wires = feed.wire_types
 magnets = feed.magnet_types

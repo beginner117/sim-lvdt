@@ -2,11 +2,11 @@ import femm
 import numpy as np
 import sys
 import matplotlib.pyplot as plt
-from ..materials import feed as feed
-from ..models import design as design
-from ..models import coil as coil
-from ..models import femm_model as femm_model
-from ..models import fields as fields
+from materials import feed as feed
+from models import design as design
+from models import coil as coil
+from models import femm_model as femm_model
+from models import fields as fields
 # import design as design
 # import femm_model as femm_model
 # import coil as coil
@@ -156,7 +156,9 @@ class Analysis:
 
         pos_upd = Norm_OutCoil_Signals/abs(c1)
         pos_dri = abs(inn_prop['position']) - abs(pos_upd)
-        plt.plot(np.real(inn_prop['position']), pos_dri, 'o--')
+        plt.plot(np.real(inn_prop['position']), pos_dri*1000, 'o--')
+        plt.xlabel('Inner Coil Position [mm]')
+        plt.ylabel('Position drift [μm]')
         plt.show()
 
         plt.plot(np.real(inn_prop['position']), Norm_OutCoil_Signals, 'o--')

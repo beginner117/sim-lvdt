@@ -2,17 +2,11 @@ import femm
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-from ..materials import feed as feed
-from ..models import design as design
-from ..models import coil as coil
-from ..models import femm_model as femm_model
-from ..models import fields as fields
-# import design
-# import femm_model
-# import coil
-# from Kumar.modules.materials import feed
-# import fields
-
+from materials import feed as feed
+from models import design as design
+from models import coil as coil
+from models import femm_model as femm_model
+from models import fields as fields
 
 class Analysis:
     def __init__(self,save, sim_range: list, default, filename, design_type,input_excitation, materials, coil_dimensions=None, parameter1=None, simulation_type=None):

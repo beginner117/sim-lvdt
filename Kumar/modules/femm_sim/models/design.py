@@ -1,7 +1,4 @@
-# import sys
-# sys.path.append('./../../modules/')
-# from Kumar.modules.materials import feed as feed
-from ..materials import feed as feed
+from materials import feed as feed
 
 class Sensortype:
     def __init__(self, InnCoilCurrent, Simfreq, OutCoilCurrent):

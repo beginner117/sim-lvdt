@@ -1,20 +1,10 @@
-import sys
-sys.path.append('./modules/')
-
-from ..sensors import LVDT as LVDT
-from ..sensors import VC as VC
-from ..sensors import VC_only as VC_only
-from ..sensors import YOKE as YOKE
-from ..sensors import VC_fields as VC_fields
-# import LVDT as LVDT
-# import VC as VC
-# import VC_only as VC_only
-# import YOKE as YOKE
-# import VC_fields as VC_fields
-# import single_coil_fields as single_coil_fields
-from . import LVDT_correction as LVDT_correction
-from . import LVDT_mutual_inductance as LVDT_mutual_inductance
-
+from sensors import LVDT as LVDT
+from sensors import VC as VC
+from sensors import VC_only as VC_only
+from sensors import YOKE as YOKE
+from sensors import VC_fields as VC_fields
+from simulation import LVDT_correction as LVDT_correction
+from simulation import LVDT_mutual_inductance as LVDT_mutual_inductance
 
 class Position_sensor:
     """

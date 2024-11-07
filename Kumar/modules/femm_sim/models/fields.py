@@ -5,7 +5,6 @@ from multiprocessing import Process
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
-
 class Coil_magfield:
 
     def __init__(self, r_offset, angle, freq, current, radius, coil_height, turns_pr_layer, layers, insulated_wire_thickness, position, upper_uppend=None,lower_uppend = None):

@@ -2,14 +2,9 @@ import femm
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import dblquad
-from ..models import design
-from ..models import femm_model
-from ..models import coil
-# import femm_model
-# import coil
-# from Kumar.modules.femm_sim.materials import feed
-#from Kumar.modules.materials import feed
-
+from models import design
+from models import femm_model
+from models import coil
 
 class Analysis:
     def __init__(self,save, sim_range: list, default, filename: str, design_type, input_excitation, materials, coil_dimensions=None, parameter1=None):

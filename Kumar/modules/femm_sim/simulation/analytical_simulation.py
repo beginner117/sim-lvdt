@@ -1,4 +1,4 @@
-from ..models import fields
+from models import fields
 import matplotlib.pyplot as plt
 import numpy as np
 

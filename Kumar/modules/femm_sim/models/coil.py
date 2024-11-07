@@ -1,5 +1,5 @@
 import numpy as np
-from ..materials import feed as feed
+from materials import feed as feed
 
 class Position():
     """
