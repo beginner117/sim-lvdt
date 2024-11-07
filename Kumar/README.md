@@ -12,6 +12,11 @@ Installing dependencies:
     pip install -r requirements.txt
     pip install pyfemm
 
+file paths
+
+    >> import sys
+    >> sys.append(<include the path of the femm_sim>)
+
 Interactive GUI
     
     run the file finite_element_simulation.py
