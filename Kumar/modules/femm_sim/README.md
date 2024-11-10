@@ -5,7 +5,10 @@ Here we are using the pyFEMM package to interface the FEMM functions with python
 Below, you will find some short instructions on how to install the software. 
 
     Install the FEMM software on your Windows machine: https://www.femm.info/wiki/HomePage Go to download page and follow instructions.
-    Assuming you have a working python 3 environment, install pyFEMM: https://www.femm.info/wiki/pyFEMM. You can do this with pip via: pip install pyfemm. On the linked page you can also find the pyFEMM manual.
+    Assuming you have a working python 3.10.1 version, install pyFEMM: https://www.femm.info/wiki/pyFEMM. You can do this with pip via: pip install pyfemm. On the linked page you can also find the pyFEMM manual.
+    
+    For Mac users, install Whisky or Wine (Whisky for new ARM mac) followed by installing femm 42. Find the path of femm.exe and update the text file named 'femmpath.txt' with the path. The default text file contains an example path. 
+    (put it in git ignore after modification). 
 
 Installing dependencies:
 
