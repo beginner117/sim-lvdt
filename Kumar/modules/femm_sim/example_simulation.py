@@ -5,11 +5,12 @@ sim_code = femm_simulation.Position_sensor(sensor_type = ['LVDT'], save=False, s
                                  , material_prop=['32 AWG','31 AWG', 'N40'], dimensions={'inner':[20, 7, 6], 'outer':[25, 17, 7, 35], 'magnet':[30, 8]})
 a = sim_code.execute()
 
+
 # sensor_type = list with names of sensors that should be simulated
-# available types (i)LVDT (with maxwell pair config), (ii)VC (with maxwell pair config), (iii)VC_only (traditional actuators with a coil and a magnet)
+    # available types (i)LVDT (with maxwell pair config), (ii)VC (with maxwell pair config), (iii)VC_only (traditional actuators with a coil and a magnet)
 
 # save = 'True' to save all the simulated files or 'False' to not save the files
-# True to get all the information of the simulated file. (recommended)
+    # True to get all the information of the simulated file. (recommended)
 
 # sim_range = list containg a list (nested list) of total steps, grid size and offset. Ex - [[10,1,-5]]
 # filename(s) = name(s) of the simulated file(s) in a list

@@ -10,15 +10,18 @@ Below, you will find some short instructions on how to install the software.
     For Mac users, install Whisky or Wine (Whisky for new ARM mac) followed by installing femm 42. Find the path of femm.exe and update the text file named 'femmpath.txt' with the path. The default text file contains an example path. 
     (put it in git ignore after modification). 
 
+Installing virtual environment
+
+    python version 3.10.1
+
 Installing dependencies:
 
     pip install -r requirements.txt
-    pip install pyfemm
 
 example 
 
     The file 'example_simulation.py' contains the basic information and instructions to run the simulation.
-    Run this file by changing the instances/arguments as per the requirements
+    Run this file to simulate LVDTs by changing the instances/arguments as per the requirements
 
 Interactive GUI
     
@@ -48,8 +51,6 @@ Here is the list of modules:
 
 Here is a explanation for simulating a typical LVDT/VC with just two lines. One can simulate one or more sensors simultaneously
 
-(Import the script 'FEMM_simulation' and make sure pyFEMM in installed)
-
     sim_code = femm_simulation.Position_sensor(sensor_type=, save=, sim_range={'steps_size_offset':},
                                     data = {'filename(s)':, 'is default':, 'design or parameter':})
 
@@ -65,9 +66,9 @@ Here is a explanation for simulating a typical LVDT/VC with just two lines. One 
     
 OPTIONAL
 
-    mat_prop = list containing (i) inner coil material (ii) outer coil material (iii) magnet material
+    material_prop = list containing (i) inner coil material (ii) outer coil material (iii) magnet material
     simulation_type = list with strings 'semi_analytical' for analytical calculation.
-    lvdt_dim = dictionary with the coil geometry with 'inner', 'outer', 'magnet' as keys and corresponding dimensions (in mm)in lists as values.
+    dimensions = dictionary with the coil geometry with 'inner', 'outer', 'magnet' as keys and corresponding dimensions (in mm)in lists as values.
                Values of the keys are height, radius, layers, distance (for the 'outer') in mm for the coils and length, diameter (in mm) for the magnet
                Example - {'inner':[24, 11, 6], 'outer':[13.5, 35, 7, 54.5], 'magnet':[40, 10]}
         (In simulations using the above 'lvdt_dim' argument, make sure to input 'no' to the argument 'is default' and any random string for the argument 'design or parameter'
@@ -98,12 +99,10 @@ Here are the default assumptions
     Region 2, mesh - sphere with radius 300mm, auto mesh
     #For analytical calculations:
 
-NOTE1 - To modify any of the above parameters, add the optinal argument 'mat_prop' explained above in the sim_code instance to change the materials modelled in the simulation and 
+NOTE1 - To modify any of the above parameters, add the optinal argument 'material_prop' explained above in the sim_code instance to change the materials modelled in the simulation and 
 for chainging the coil excitations, add the argument 'input_current' to the 'execute' method. 
 (Make sure the modified/newly added material above is available in the FEMM material library. If not, the new material must be defined with all the properties in the 'feed.py' module)
 
-NOTE2 - A lot of other information like resistances, currents e.t.c are obtained from the simulation. To know them, load the saved '.npz' file and look for all the data 
-
-To change the boundary conditions of LVDT/VC/VC_only, modify the instance 'bc', and to change the units and precisions, modify the command 'mi_probdef' in the corresponding LVDT/VC.py script
+NOTE2 - A lot of other information like resistances, currents e.t.c are obtained from the simulation. To know them, load the saved '.npz' file and look for all the data
 
 For a better understanding, a model code to simulate LVDTs is given in 'example.md' file. Please go through that.   

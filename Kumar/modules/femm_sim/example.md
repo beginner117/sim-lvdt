@@ -2,10 +2,6 @@ The data files obtained by running below scripts are stored in '.npz' format.
 
 Example (for three simultaneous simulations of LVDT, VC, VC_only)
 
-    import femm_simulation
-    import sys
-    sys.path.append('path to the directory containing all the modules above')
-
     simulation = femm_simulation.Position_sensor(sensor_type=['LVDT', 'VC', 'VC_only'], save=False, sim_range={'steps_size_offset':[[20, 1, -10], [10, 1, -5], [20, 1, -10]]},
                                     data = {'filename(s)':['trail1', 'trial2', 'trail3'], 'is default':['yes', 'no', 'yes'], 'design or parameter':['A', 3, 'I']})
     simulation.execute() 
