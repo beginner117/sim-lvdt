@@ -15,14 +15,19 @@ Installing dependencies:
     pip install -r requirements.txt
     pip install pyfemm
 
+example 
+
+    The file 'example_simulation.py' contains the basic information and instructions to run the simulation.
+    Run this file by changing the instances/arguments as per the requirements
+
+Interactive GUI
+    
+    run the file 'finite_element_simulation.py' for opening a graphic interface. 
+
 file paths
 
     >> import sys
     >> sys.append(<include the path of the femm_sim>)
-
-Interactive GUI
-    
-    run the file finite_element_simulation.py
 
 Here is the list of modules:
 
@@ -56,11 +61,8 @@ Here is a explanation for simulating a typical LVDT/VC with just two lines. One 
     sim_range = list containg a list (nested list) of total steps, grid size and offset
     filename(s) = name(s) of the simulated file(s) 
     is default = 'yes' if the simulation is for a preliminary NIKHEF designs and 'no' if not
-    (NOTE - if analysis is not for a default design, go to the '.py' file of the specific sensor (for instance, LVDT.py or VC.py), 
-     a line after, "if self.default == 'no':", modify the parameter that you want to change as 'self.parameter1')
     design or parameter = list with design type (if 'is default' is 'yes') or parameter (if 'is default is 'no')
-    _______OUTPUT______
-    saves all the data along with the simulation parameters in a .npz file (if the save argument above is True)
+    
 OPTIONAL
 
     mat_prop = list containing (i) inner coil material (ii) outer coil material (iii) magnet material
@@ -68,7 +70,7 @@ OPTIONAL
     lvdt_dim = dictionary with the coil geometry with 'inner', 'outer', 'magnet' as keys and corresponding dimensions (in mm)in lists as values.
                Values of the keys are height, radius, layers, distance (for the 'outer') in mm for the coils and length, diameter (in mm) for the magnet
                Example - {'inner':[24, 11, 6], 'outer':[13.5, 35, 7, 54.5], 'magnet':[40, 10]}
-        (In simulations using the above 'lvdt_dim' argument, make sure to input 'False' to the argument 'is default' and any random string for the argument 'design or parameter'
+        (In simulations using the above 'lvdt_dim' argument, make sure to input 'no' to the argument 'is default' and any random string for the argument 'design or parameter'
 
                NOTE - Alternatively, this geometry can also be defined in the 'feed.py' module with the apropriate name following the order of the existing designs in that module. 
                MOST IMPORTANT, add the defined design as a value and your choice of name(for that design) as a key in the dictionary 'data' to call it directly with the name.
@@ -76,6 +78,9 @@ OPTIONAL
     ARGUMENTS IN THE 'execute' METHOD 
     input_current : list with Inner coil current(in amps), frequency(in Hz), outer coil(upper and lower in a tuple) currents
     (Default values for LVDT is [0.02, 10000, [0,0]] and for VC is [0, 0, [1,1]])
+    
+    _______OUTPUT______
+    saves all the data along with the simulation parameters in a .npz file (if the save argument above is True)
 
 Here are the default assumptions
 

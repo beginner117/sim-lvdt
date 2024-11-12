@@ -42,13 +42,13 @@ class Position_sensor:
         Default is 'femm'.
 
     """
-    def __init__(self, sensor_type, save, sim_range, data, mat_prop=None, lvdt_dim=None, simulation=None):
+    def __init__(self, sensor_type, save, sim_range, data, material_prop=None, dimensions=None, simulation=None):
         self.sensor_type = sensor_type
         self.save = save
         self.sim_range = sim_range
         self.data = data
-        self.lvdt_dim = lvdt_dim
-        self.material_prop = mat_prop if mat_prop is not None else ['32 AWG', '32 AWG', 'N40']
+        self.lvdt_dim = dimensions
+        self.material_prop = material_prop if material_prop is not None else ['32 AWG', '32 AWG', 'N40']
         self.simulation_type = [simulation]*len(sensor_type)
     def execute(self, input_current = None):
         """

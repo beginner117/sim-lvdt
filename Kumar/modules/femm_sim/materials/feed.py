@@ -31,13 +31,13 @@ A1 = {'inn_ht': 20, 'inn_rad': 9, 'inn_layers': 6, 'inn_dist': 0, 'out_ht': 10, 
          'out_dist': 39.8, 'mag_len': 30, 'mag_dia': 8, 'ver_shi': 0}
 A2 = {'inn_ht': 18, 'inn_rad':4.5 , 'inn_layers':3 , 'inn_dist': 0, 'out_ht':13.5 , 'out_rad':11.8 , 'out_layers':1 ,
          'out_dist': 14, 'mag_len':0 , 'mag_dia':0 , 'ver_shi':0 }
-# A3 = {'inn_ht': 0, 'inn_rad': 0, 'inn_layers': 0, 'inn_dist': 0, 'out_ht': , 'out_rad': , 'out_layers': ,
-#          'out_dist':0 , 'mag_len': , 'mag_dia': , 'ver_shi':0 }
 
 # naming for the designs
 data = {'A':A, 'B':B, 'C':C, 'D':D, 'E':E, 'F':F, 'G':G, 'H':H, 'I':I, 'J':J, 'top_up':A1, 'A_1':A_1,
         'pisa1':A2}
 
+
+#MATERIALS
 #[wire_dia, insulation_thickness, name, resistance(Ω/mm), electrical_conductivity(MS/m)[S is Siemens=1/Ω], resistivity(Ω*m), magnetic_perm(H/m)]
 wire_types = {'30 AWG': [0.254, 0.0216,'30 AWG', 103.7/304800],
               '31 AWG': [0.2261, 0.0190,'31 AWG', 130.9/304800],
