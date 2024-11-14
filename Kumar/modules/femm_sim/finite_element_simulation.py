@@ -272,10 +272,10 @@ class DynamicSimulationGUI:
         sim_code = femm_simulation.Position_sensor(
             sensor_type=sensor_types,  # sensor type
             sim_range={'steps_size_offset':[[int(float(total_steps[0]['motion_range'])/float(total_steps[0]['step_size'])), float(total_steps[0]['step_size']), 0]]},
-            lvdt_dim=geometries[sensor_type],  # coil geometry dimensions
+            dimensions=geometries[sensor_type],  # coil geometry dimensions
             save=self.save_file_var.get(),
             data={'filename(s)': file_names, 'is default': ['no'], 'design or parameter': 'random'},
-            mat_prop= materials
+            material_prop= materials
 
         )
 

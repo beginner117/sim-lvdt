@@ -8,30 +8,17 @@ Example (for three simultaneous simulations of LVDT, VC, VC_only)
 
 Example to compute the mutual inductances of the coils
 
-    import femm_simulation
-    import sys
-    sys.path.append('path to the directory containing all the modules above')
-
     simulation = femm_simulation.Position_sensor(sensor_type=['LVDT_mutual_inductance', 'LVDT_mutual_inductance'], save=False, sim_range={'steps_size_offset':[[20, 1, -10], [20, 1, -10]]},
                                     data = {'filename(s)':['trail1', 'trial2'], 'is default':['yes', 'no'], 'design or parameter':['A', 3]})
     simulation.execute()
 
 Example to compute the correction factor of the coils
 
-    import femm_simulation
-    import sys
-    sys.path.append('path to the directory containing all the modules above')
-
     simulation = femm_simulation.Position_sensor(sensor_type=['LVDT_corrected', 'LVDT_corrected'], save=False, sim_range={'steps_size_offset':[0, 0]]},
                                     data = {'filename(s)':['trail1', 'trial2'], 'is default':['yes', 'no'], 'design or parameter':['A', 3]})
     simulation.execute()
 
 Example to compute the response semi-analytically (i.e, just by using magnetic fields from FEMM)
-
-    import analytical_simulation
-    import femm_simulation
-    import sys
-    sys.path.append('path to the directory containing all the modules above')
 
     analytical = femm_simulation.Position_sensor(sensor_type=['VC_fields'], save=False, sim_range={'steps_size_offset':[[10,1,-5]},
                                     data = {'filename(s)':['mag_field1'], 'is default':['yes'], 'design or parameter':['A']})
@@ -41,10 +28,6 @@ The above code saves the magnetic field information in an '.npz' file. (It takes
 
 Below is the code to get the outer coil flux from the magnetic field files(obtained from the above script). The outer coil flux should be saved as an '.npz' file to compute the response.
 The mandatory input arguments to save the '.npz' flux files are the offset of the outer coil and the file name
-    
-    import analytical_simulation
-    import sys
-    sys.path.append('path to the directory containing all the modules above')
 
     compute = analytical_simulation.LVDT('mag_field1.npz')
     flux = compute.outer_flux(0, 'flux_file1')
