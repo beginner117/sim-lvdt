@@ -101,7 +101,7 @@ class DynamicSimulationGUI:
         footer_frame.grid(row=3, column=0, padx=20, pady=5, sticky="e")  # Align it to the right
 
         # Label with creator name
-        creator_label = tk.Label(footer_frame, text="Created by Kumar", font=("Arial", 8, "italic"), fg="grey")
+        creator_label = tk.Label(footer_frame, text="Created by Kumar Akhil", font=("Arial", 12, "italic"), fg="grey")
         creator_label.pack()
 
     def load_image(self):
