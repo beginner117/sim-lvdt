@@ -27,7 +27,7 @@ Interactive GUI
     
     run the file 'finite_element_simulation.py' for opening a graphic interface. 
 
-file paths
+file paths 
 
     >> import sys
     >> sys.append(<include the path of the femm_sim>)
@@ -49,7 +49,7 @@ Here is the list of modules:
     analytical_simulation - contains all the methods that call and execute LVDT and VC simulations analytically
     single_coil.py - models a single coil
 
-Here is a explanation for simulating a typical LVDT/VC with just two lines. One can simulate one or more sensors simultaneously
+Here is a explanation for simulating a typical LVDT/VC with just two lines. One can model one or more sensors simultaneously
 
     sim_code = femm_simulation.Position_sensor(sensor_type=, save=, sim_range={'steps_size_offset':},
                                     data = {'filename(s)':, 'is default':, 'design or parameter':})
@@ -62,7 +62,7 @@ Here is a explanation for simulating a typical LVDT/VC with just two lines. One 
     sim_range = list containg a list (nested list) of total steps, grid size and offset
     filename(s) = name(s) of the simulated file(s) 
     is default = 'yes' if the simulation is for a preliminary NIKHEF designs and 'no' if not
-    design or parameter = list with design type (if 'is default' is 'yes') or parameter (if 'is default is 'no')
+    design or parameter = list with design type (if 'is default' is 'yes') or a random string (if 'is default is 'no')
     
 OPTIONAL
 
