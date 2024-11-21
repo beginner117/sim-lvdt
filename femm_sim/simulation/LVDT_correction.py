@@ -47,16 +47,22 @@ class Analysis:
         # M_IO = (M_IU + M_IL)/2              #without changing the mutual ind sign, i.e, M_IU is -ve and the rest is +ve
         L_out = L_upout + L_lowout - (2 * M_UL)  # with changing the sign, i.e, all mutual ind are -ve
         M_IO = (M_IU - M_IL) / 1  # with changing the sign, i.e, all mutual ind are -ve
+        L_out = b1[1][0] #for thr reversed LVDT
+        L_in = L_upout + L_lowout - (2 * M_UL) #rev LVDT
 
         R_in = b1[3][0]
         R_upout = b1[3][1]
         R_lowout = b1[3][2]
         R_out = R_upout + R_lowout
+        R_out = b1[3][0]  #for rev LVDT
+        R_in = R_upout + R_lowout #for rev
 
         X_in = omega * L_in
         X_upout = omega * L_upout
         X_lowout = omega * L_lowout
         X_out = omega * L_out
+        X_out = omega * L_in  #for revLVDT
+        X_in = omega * L_out  #revLVDT
 
         Z_in = np.sqrt(R_in ** 2 + X_in ** 2)
         Z_upout = np.sqrt(R_upout ** 2 + X_upout ** 2)
