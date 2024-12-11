@@ -46,9 +46,8 @@ class Analysis:
                               'OC_layers': self.des_dim['outer'][2], 'OC_distance': self.des_dim['outer'][3],
                               'mag_len': self.des_dim['magnet'][0], 'mag_dia': self.des_dim['magnet'][1], 'ver_shi': 0}
             except:
-                input_par2 = {'IC_height': self.parameter1[0], 'IC_radius': 7, 'IC_layers': 6, 'IC_distance': 0,
-                              'OC_height': self.parameter1[1], 'OC_radius': 17, 'OC_layers': 7,
-                              'OC_distance': self.parameter1[2], 'mag_len': 30, 'mag_dia': 8, 'ver_shi': 0}
+                input_par2 = {'IC_height': self.parameter1[0], 'IC_radius': self.parameter1[1], 'IC_layers': 6, 'IC_distance': 0, 'OC_height': 13.5, 'OC_radius': 20, 'OC_layers': 5,
+                             'OC_distance': 28.5, 'mag_len': 40, 'mag_dia': 10, 'ver_shi': 0}
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
             input_par3 = 'not a NIKHEF design'

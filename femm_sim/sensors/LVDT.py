@@ -41,8 +41,8 @@ class Analysis:
                             'OC_height': self.des_dim['outer'][0], 'OC_radius': self.des_dim['outer'][1], 'OC_layers': self.des_dim['outer'][2], 'OC_distance': self.des_dim['outer'][3],
                                             'mag_len': self.des_dim['magnet'][0], 'mag_dia': self.des_dim['magnet'][1], 'ver_shi': 0}
             except:
-                input_par2 = {'IC_height': self.parameter1[0], 'IC_radius': self.parameter1[1], 'IC_layers': 6, 'IC_distance': 0, 'OC_height': self.parameter1[2], 'OC_radius': self.parameter1[3], 'OC_layers': 5,
-                             'OC_distance': self.parameter1[4], 'mag_len': 30, 'mag_dia': 8, 'ver_shi': 0}
+                input_par2 = {'IC_height': self.parameter1[0], 'IC_radius': self.parameter1[1], 'IC_layers': 6, 'IC_distance': 0, 'OC_height': 13.5, 'OC_radius': 20, 'OC_layers': 5,
+                             'OC_distance': 28.5, 'mag_len': 40, 'mag_dia': 10, 'ver_shi': 0}
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
         position = coil.Position(inn_ht=geo.inncoil()[0], inn_rad=geo.inncoil()[1], inn_layers=geo.inncoil()[2], inn_dist=geo.inncoil()[3], out_ht=geo.outcoil()[0], out_rad=geo.outcoil()[1], out_layers=geo.outcoil()[2], out_dist=geo.outcoil()[3],
@@ -80,7 +80,6 @@ class Analysis:
         inn_prop = res.gen_coil()
         uppout_prop = res.gen_coil()
         lowout_prop = res.gen_coil()
-        inn2_prop = res.gen_coil()
 
         move_group = femm_model.Femm_move(groups = [1, 2], x_dist=0, y_dist=pre_simulation.parameters()[2])
 
@@ -135,7 +134,7 @@ class Analysis:
 
         OutCoil_Signals = (abs(uppout_prop['voltage']) - abs(lowout_prop['voltage']))
         Norm_OutCoil_Signals = OutCoil_Signals / abs(inn_prop['current'])
-        gainfactor = 70   #70.02
+        gainfactor = 70
         Norm_OutCoil_Signals_v = OutCoil_Signals / abs(inn_prop['voltage'])
         print('normalised outcoil voltages :', Norm_OutCoil_Signals_v)
 
@@ -145,21 +144,21 @@ class Analysis:
             c1, c2 = np.polyfit(inn_prop['position'], Norm_OutCoil_Signals, 1)
             print("Fitted slope(V/mmA) & const of current normalised signals (without gain factor) :", abs(c1), abs(c2))
 
-        fit_sig = c1*np.real(inn_prop['position']) + c2
-        fit_error = Norm_OutCoil_Signals - fit_sig
-
-        pos_upd = Norm_OutCoil_Signals/abs(c1)
-        pos_dri = abs(inn_prop['position']) - abs(pos_upd)
-        plt.plot(np.real(inn_prop['position']), pos_dri*1000, 'o--')
-        plt.xlabel('Inner Coil Position [mm]')
-        plt.ylabel('Position drift [μm]')
-        plt.show()
+            fit_sig = c1*np.real(inn_prop['position']) + c2
+            fit_error = Norm_OutCoil_Signals - fit_sig
 
         plt.plot(np.real(inn_prop['position']), Norm_OutCoil_Signals, 'o--')
         plt.xlabel('Inner Coil Position [mm]')
         plt.ylabel('Normalised outer coil signals [V/A]')
         plt.title('LVDT sensitivity')
         plt.grid()
+        plt.show()
+
+        pos_upd = Norm_OutCoil_Signals / abs(c1)
+        pos_dri = abs(inn_prop['position']) - abs(pos_upd)
+        plt.plot(np.real(inn_prop['position']), pos_dri * 1000, 'o--')
+        plt.xlabel('Inner Coil Position [mm]')
+        plt.ylabel('Position drift [μm]')
         plt.show()
 
         # plt.plot(np.real(inn_prop['position']), abs(fit_error)*100/abs(fit_sig), 'o--')

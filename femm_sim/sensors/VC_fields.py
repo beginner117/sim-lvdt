@@ -5,6 +5,7 @@ from scipy.integrate import dblquad
 from models import design
 from models import femm_model
 from models import coil
+from materials import feed as feed
 
 class Analysis:
     def __init__(self,save, sim_range: list, default, filename: str, design_type, input_excitation, materials, coil_dimensions=None, parameter1=None):
@@ -92,9 +93,9 @@ class Analysis:
                                 material='Air')
 
         res = coil.Coil_prop(pre_simulation.parameters()[0])
-        inn_prop = res.inncoil()
-        uppout_prop = res.uppout()
-        lowout_prop = res.lowout()
+        inn_prop = res.gen_coil()
+        uppout_prop = res.gen_coil()
+        lowout_prop = res.gen_coil()
         mag_prop = res.magnet()
         
         move_group = femm_model.Femm_move(groups = [1,2], x_dist=0, y_dist=pre_simulation.parameters()[2])
@@ -102,7 +103,7 @@ class Analysis:
         mag_field_uppercoil = []; mag_field_lowercoil = []
         for i in range(0, pre_simulation.parameters()[0] + 1):
             print('coil position (from centre) : ', pre_simulation.parameters()[2] + pre_simulation.parameters()[1] * i)
-            inn_prop['Inncoil_position'][i] = pre_simulation.parameters()[2] + pre_simulation.parameters()[1] * i
+            inn_prop['position'][i] = pre_simulation.parameters()[2] + pre_simulation.parameters()[1] * i
             femm.mi_zoom(-2, -50, 50, 50)
             femm.mi_refreshview()
             femm.mi_saveas('VC_ETpf_LIP.fem')
@@ -123,23 +124,23 @@ class Analysis:
             femm.mo_clearblock()
 
             UppOutCoil_I, UppOutCoil_V, UppOutCoil_FluxLink = femm.mo_getcircuitproperties(position.upp_outcoil()[5])
-            uppout_prop['UppOut_voltage'][i] = UppOutCoil_V
-            uppout_prop['UppOut_current'][i] = UppOutCoil_I
-            uppout_prop['UppOut_flux'][i] = UppOutCoil_FluxLink
+            uppout_prop['voltage'][i] = UppOutCoil_V
+            uppout_prop['current'][i] = UppOutCoil_I
+            uppout_prop['flux'][i] = UppOutCoil_FluxLink
 
             LowOutCoil_I, LowOutCoil_V, LowOutCoil_FluxLink = femm.mo_getcircuitproperties(position.low_outcoil()[5])
-            lowout_prop['LowOut_voltage'][i] = LowOutCoil_V
-            lowout_prop['LowOut_current'][i] = LowOutCoil_I
-            lowout_prop['LowOut_flux'][i] = LowOutCoil_FluxLink
+            lowout_prop['voltage'][i] = LowOutCoil_V
+            lowout_prop['current'][i] = LowOutCoil_I
+            lowout_prop['flux'][i] = LowOutCoil_FluxLink
 
             InnCoil_I, InnCoil_V, InnCoil_FluxLink = femm.mo_getcircuitproperties(position.inncoil()[5])
-            inn_prop['Inncoil_voltage'][i] = InnCoil_V
-            inn_prop['Inncoil_current'][i] = InnCoil_I
-            inn_prop['Inncoil_flux'][i] = InnCoil_FluxLink
+            inn_prop['voltage'][i] = InnCoil_V
+            inn_prop['current'][i] = InnCoil_I
+            inn_prop['flux'][i] = InnCoil_FluxLink
 
-            uppout_prop['UppOut_force'][i] = UppOut_Force19
-            lowout_prop['LowOut_force'][i] = LowOut_Force19
-            inn_prop['Inncoil_force'][i] = Innercoil_Force19
+            uppout_prop['force'][i] = UppOut_Force19
+            lowout_prop['force'][i] = LowOut_Force19
+            inn_prop['force'][i] = Innercoil_Force19
             mag_prop['Magnet_forces'][i] = Magn_Force19
 
             mag_fie_x_lower = [] ; mag_fie_y_lower = [] ; gri_x_lower = [] ; gri_y_lower = []
@@ -173,29 +174,29 @@ class Analysis:
                     dis1 = ((geo.mag()[0] / 2 - grid_pt[1]) ** 2)/1000000; dis2 = ((geo.mag()[0] / 2 + grid_pt[1]) ** 2)/1000000  #conversion from mm to mts by dividing with 1000000
                     mu = 4*np.pi/1000000; M = 1.2
                     con = -mu * M / (4 * np.pi)
-                    f1 = lambda r, theta: (r*(2 * (grid_pt[0]/1000) - (2*r * np.cos(theta))))/2*((r ** 2) + dis1 + ((grid_pt[0]/1000) ** 2) - (2*r * (grid_pt[0]/1000) * np.cos(theta)))**1.5
-                    f2 = lambda r, theta: (r * (2 * (grid_pt[0]/1000) - (2 * r * np.cos(theta)))) / 2 * ((r ** 2) + dis2 + ((grid_pt[0]/1000) ** 2) - (2 * r * (grid_pt[0]/1000) * np.cos(theta))) ** 1.5
-                    c1 = dblquad(f1, 0, 2*np.pi, 0, geo.mag()[1]/2)
-                    c1_2 = dblquad(f2, 0, 2 * np.pi, 0, geo.mag()[1] / 2)
-                    mat_for_upp = ((c1[0]+c1_2[0])*2*np.pi*grid_pt[0]*con)/1000
-                    dis1_low = ((geo.mag()[0] / 2 - grid_pt_lower[1]) ** 2)/1000000
-                    dis2_low = ((geo.mag()[0] / 2 + grid_pt_lower[1]) ** 2)/1000000
-                    con = -mu * M / (4 * np.pi)
-                    f1_low = lambda r, theta: (r * (2 * (grid_pt_lower[0]/1000) - (2 * r * np.cos(theta)))) / 2 * (
-                                (r ** 2) + dis1 + ((grid_pt_lower[0]/1000) ** 2) - (2 * r * (grid_pt_lower[0]/1000) * np.cos(theta))) ** 1.5
-                    f2_low = lambda r, theta: (r * (2 * (grid_pt_lower[0]/1000) - (2 * r * np.cos(theta)))) / 2 * (
-                                (r ** 2) + dis2 + ((grid_pt_lower[0]/1000) ** 2) - (2 * r * (grid_pt_lower[0]/1000) * np.cos(theta))) ** 1.5
-                    c1_low = dblquad(f1_low, 0, 2 * np.pi, 0, geo.mag()[1] / 2000)
-                    c1_low_2 = dblquad(f2_low, 0, 2 * np.pi, 0, geo.mag()[1] / 2000)
-                    mat_for_low = ((c1_low[0]+c1_low_2[0])*2 * np.pi * grid_pt_lower[0] * con)/1000
+                    # f1 = lambda r, theta: (r*(2 * (grid_pt[0]/1000) - (2*r * np.cos(theta))))/2*((r ** 2) + dis1 + ((grid_pt[0]/1000) ** 2) - (2*r * (grid_pt[0]/1000) * np.cos(theta)))**1.5
+                    # f2 = lambda r, theta: (r * (2 * (grid_pt[0]/1000) - (2 * r * np.cos(theta)))) / 2 * ((r ** 2) + dis2 + ((grid_pt[0]/1000) ** 2) - (2 * r * (grid_pt[0]/1000) * np.cos(theta))) ** 1.5
+                    # c1 = dblquad(f1, 0, 2*np.pi, 0, geo.mag()[1]/2)
+                    # c1_2 = dblquad(f2, 0, 2 * np.pi, 0, geo.mag()[1] / 2)
+                    #mat_for_upp = ((c1[0]+c1_2[0])*2*np.pi*grid_pt[0]*con)/1000
+                    # dis1_low = ((geo.mag()[0] / 2 - grid_pt_lower[1]) ** 2)/1000000
+                    # dis2_low = ((geo.mag()[0] / 2 + grid_pt_lower[1]) ** 2)/1000000
+                    # con = -mu * M / (4 * np.pi)
+                    # f1_low = lambda r, theta: (r * (2 * (grid_pt_lower[0]/1000) - (2 * r * np.cos(theta)))) / 2 * (
+                    #             (r ** 2) + dis1 + ((grid_pt_lower[0]/1000) ** 2) - (2 * r * (grid_pt_lower[0]/1000) * np.cos(theta))) ** 1.5
+                    # f2_low = lambda r, theta: (r * (2 * (grid_pt_lower[0]/1000) - (2 * r * np.cos(theta)))) / 2 * (
+                    #             (r ** 2) + dis2 + ((grid_pt_lower[0]/1000) ** 2) - (2 * r * (grid_pt_lower[0]/1000) * np.cos(theta))) ** 1.5
+                    # c1_low = dblquad(f1_low, 0, 2 * np.pi, 0, geo.mag()[1] / 2000)
+                    # c1_low_2 = dblquad(f2_low, 0, 2 * np.pi, 0, geo.mag()[1] / 2000)
+                    #mat_for_low = ((c1_low[0]+c1_low_2[0])*2 * np.pi * grid_pt_lower[0] * con)/1000
 
-                    theo_force.append(mat_for_upp+mat_for_low)
+                    #theo_force.append(mat_for_upp+mat_for_low)
 
 
             #print('default force:', sum(np.array(def_force)), 'updated force:', sum(np.array(imp_force)), 'int_for:')
             mag_field_uppercoil.append(mag_field_upper); mag_field_lowercoil.append(mag_field_lower)
             for_def.append(sum(def_force))
-            for_theo.append(sum(theo_force))
+            #for_theo.append(sum(theo_force))
             move_group = femm_model.Femm_move(groups=[1, 2], x_dist=0, y_dist=pre_simulation.parameters()[1])
         print('semi-analytical', '\nsemi analytical force :', for_def, '\nfemm force:', mag_prop['Magnet_forces'], '\nanalytical force :', for_theo)
 
@@ -208,9 +209,9 @@ class Analysis:
         plt.grid()
         plt.show()
 
-        plt.plot(np.real(inn_prop['Inncoil_position']), abs(mag_prop['Magnet_forces']), 'o-', label = 'femm')
-        plt.plot(np.real(inn_prop['Inncoil_position']), for_def,'o-', label = 'semi-analytical')
-        plt.plot(np.real(inn_prop['Inncoil_position']), for_theo, 'o-', label='analytical')
+        plt.plot(np.real(inn_prop['position']), abs(mag_prop['Magnet_forces']), 'o-', label = 'femm')
+        plt.plot(np.real(inn_prop['position']), for_def,'o-', label = 'semi-analytical')
+        #plt.plot(np.real(inn_prop['position']), for_theo, 'o-', label='analytical')
         plt.ylabel('Force [N]')
         plt.xlabel('Inner Coil Position [mm]')
         plt.legend()
@@ -220,12 +221,12 @@ class Analysis:
         if self.save:
             np.savez_compressed(self.filename, Design = input_par2, Input_parameters = input_par1, coil_config_parameters = coil_con,
                                 Innercoil_config=position.inncoil(), UpperOutcoil_config=position.upp_outcoil(), LowerOutercoil_config=position.low_outcoil(),
-                                UOC_forces = uppout_prop['UppOut_force'], LOC_forces = lowout_prop['LowOut_force'], IC_forces = inn_prop['Inncoil_force'],
+                                UOC_forces = uppout_prop['force'], LOC_forces = lowout_prop['force'], IC_forces = inn_prop['force'],
                                 Mag_forces=mag_prop['Magnet_forces'], semi_analytical_def = for_def,
                                 Magnetic_field_upper = mag_field_uppercoil, Magnetic_field_lower = mag_field_lowercoil,
-                                IC_currents = inn_prop['Inncoil_current'], UOC_currents=uppout_prop['UppOut_current'], LOC_currents = lowout_prop['LowOut_current'],
-                                UOC_voltages = uppout_prop['UppOut_voltage'], LOC_voltages = lowout_prop['LowOut_voltage'], IC_voltages = inn_prop['Inncoil_voltage'],
-                                IC_positions = abs(inn_prop['Inncoil_position']), IC_flux=inn_prop['Inncoil_flux'], UOC_flux=uppout_prop['UppOut_flux'], LOC_flux=lowout_prop['LowOut_flux'],
+                                IC_currents = inn_prop['current'], UOC_currents=uppout_prop['current'], LOC_currents = lowout_prop['current'],
+                                UOC_voltages = uppout_prop['voltage'], LOC_voltages = lowout_prop['voltage'], IC_voltages = inn_prop['voltage'],
+                                IC_positions = abs(inn_prop['position']), IC_flux=inn_prop['flux'], UOC_flux=uppout_prop['flux'], LOC_flux=lowout_prop['flux'],
                                 Inn_Uppout_Lowout_DCR_as_per_catalog = [inn_dc, out_dc, lowout_dc])
 
         return {'coil_positions': np.real(inn_prop['position']), 'magnet_forces': abs(mag_prop['Magnet_forces'])}

@@ -29,12 +29,12 @@ J = {'inn_ht': 18, 'lowinn_ht': 23,'lowinn_rad': 21, 'lowinn_layers': 6, 'inn_ra
      'mag_inn':31.65, 'mag_out':44.45, 'mag_ht':6.35,'mag_ver_shi':0, 'inner_distance':60.5, 'yoke_inn_dia':8}
 A1 = {'inn_ht': 20, 'inn_rad': 9, 'inn_layers': 6, 'inn_dist': 0, 'out_ht': 10, 'out_rad': 20, 'out_layers': 5,
          'out_dist': 39.8, 'mag_len': 30, 'mag_dia': 8, 'ver_shi': 0}
-A2 = {'inn_ht': 18, 'inn_rad':4.5 , 'inn_layers':3 , 'inn_dist': 0, 'out_ht':13.5 , 'out_rad':11.8 , 'out_layers':1 ,
-         'out_dist': 14, 'mag_len':0 , 'mag_dia':0 , 'ver_shi':0 }
+A2 = {'inn_ht': 20, 'inn_rad':7 , 'inn_layers':6 , 'inn_dist': 0, 'out_ht':25 , 'out_rad':17 , 'out_layers':5 ,
+         'out_dist': 35, 'mag_len':30 , 'mag_dia':8 , 'ver_shi':0 }
 
 # naming for the designs
 data = {'A':A, 'B':B, 'C':C, 'D':D, 'E':E, 'F':F, 'G':G, 'H':H, 'I':I, 'J':J, 'top_up':A1, 'A_1':A_1,
-        'pisa1':A2}
+        'top_up_m':A2}
 
 
 #MATERIALS
@@ -46,6 +46,8 @@ wire_types = {'30 AWG': [0.254, 0.0216,'30 AWG', 103.7/304800],
               '32 AWG_JO_FI': [0.2032, 0.0178+(0.0062/2),'32 AWG_JO_FI', 162 / 304800, 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))],
               '32 AWG_JI_FO': [0.2032, 0.0178+(0.0202/2),'32 AWG_JI_FO', 162 / 304800, 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))],
               '32 AWG_AI': [0.2032, 0.0178+(0.0102/2),'32 AWG_AI', 162 / 304800, 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))], #winded typeA inner
+              '31 AWG_AI_s': [0.2261, 0.0190+(0.004/2),'31 AWG_AI_s', 130.9/304800, 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))],   #smallip_inner
+              '31 AWG_AO_s': [0.2261, 0.0190+(0.0029/2),'31 AWG_AO_s', 130.9/304800, 58, 1.68 * (10 ** (-8)), 1.256 * (10 ** (-6))],
               '31 AWG_AO': [0.2261, 0.0190+(0.0159/2),'31 AWG_AO', 130.9/304800], #winded typeA outer
               '31 AWG_AO1': [0.2261-0.017, 0.0190+((0.0159+0.017)/2),'31 AWG_AO1', 130.9/304800],
               '31 AWG_AO2': [0.2261, 0.0250,'31 AWG_AO2', 130.9/304800],
