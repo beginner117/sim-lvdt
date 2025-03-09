@@ -23,7 +23,12 @@ class Analysis:
     def simulate(self):
         """"
         simulates the Voice coil performance"""
-        femm.openfemm()  # The package must be initialized with the openfemm command.
+        with open('paths.txt', 'r') as file:
+            path1 = file.read()
+        try:
+            femm.openfemm()  # The package must be initialized with the openfemm command.
+        except:
+            femm.openfemm(femmpath=path1)
         femm.newdocument(0)  # We need to create a new Magnetostatics document to work on.
         value = feed.data
         in_pa = feed.Input()
@@ -46,8 +51,10 @@ class Analysis:
                               'OC_layers': self.des_dim['outer'][2], 'OC_distance': self.des_dim['outer'][3],
                               'mag_len': self.des_dim['magnet'][0], 'mag_dia': self.des_dim['magnet'][1], 'ver_shi': 0}
             except:
-                input_par2 = {'IC_height': self.parameter1[0], 'IC_radius': self.parameter1[1], 'IC_layers': 6, 'IC_distance': 0, 'OC_height': 13.5, 'OC_radius': 20, 'OC_layers': 5,
-                             'OC_distance': 28.5, 'mag_len': 40, 'mag_dia': 10, 'ver_shi': 0}
+                input_par2 = {'IC_height': self.parameter1[0], 'IC_radius': self.parameter1[1], 'IC_layers': 6,
+                              'IC_distance': 0, 'OC_height': self.parameter1[2], 'OC_radius': self.parameter1[3],
+                              'OC_layers': 7,
+                              'OC_distance': self.parameter1[4], 'mag_len': 40, 'mag_dia': 10, 'ver_shi': 0}
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
             input_par3 = 'not a NIKHEF design'
@@ -150,6 +157,15 @@ class Analysis:
         k1, k2, k3 = np.polyfit(np.real(inn_prop['position']), mag_prop['Magnet_forces'], 2)
         fit_forces = k1*((np.real(inn_prop['position']))**2) + k2*(np.real(inn_prop['position'])) + k3
 
+        plt.plot(np.real(inn_prop['position']), abs(uppout_prop['force']), 'o--', label = 'upper')
+        plt.plot(np.real(inn_prop['position']), abs(lowout_prop['force']), 'o--', label = 'lower')
+        plt.xlabel('Inner Coil Position [mm]')
+        plt.ylabel('Fitted Magnet Force [N/A]')
+        plt.title('Actuation force')
+        plt.legend()
+        plt.grid()
+        plt.show()
+
         plt.plot(np.real(inn_prop['position']), fit_forces, 'o--', label = 'fit')
         plt.plot(np.real(inn_prop['position']), mag_prop['Magnet_forces'], 'o--', label = 'unfit')
         plt.xlabel('Inner Coil Position [mm]')
@@ -159,7 +175,7 @@ class Analysis:
         plt.grid()
         plt.show()
         if self.save:
-            np.savez_compressed(self.filename,Design_type=input_par3, Design_parameters = input_par2, Input_parameters = input_par1, coil_config_parameters = coil_con,
+            np.savez_compressed(self.filename, Design_parameters = input_par2, Input_parameters = input_par1, coil_config_parameters = coil_con,
                                 Innercoil_config=position.inncoil(), UpperOutcoil_config=position.upp_outcoil(), LowerOutercoil_config=position.low_outcoil(),
                                 UOC_forces = uppout_prop['force'], LOC_forces = lowout_prop['force'], Mag_forces = mag_prop['Magnet_forces'], IC_forces = inn_prop['force'],
                                 IC_currents = inn_prop['current'], UOC_currents=uppout_prop['current'], LOC_currents = lowout_prop['current'],

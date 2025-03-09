@@ -19,7 +19,12 @@ class Analysis:
         self.des_dim = coil_dimensions
         self.input_excitation = input_excitation
     def simulate(self):
-        femm.openfemm()
+        with open('paths.txt', 'r') as file:
+            path1 = file.read()
+        try:
+            femm.openfemm()  # The package must be initialized with the openfemm command.
+        except:
+            femm.openfemm(femmpath=path1)
         femm.newdocument(0)
         value = feed.data
         in_pa = feed.Input()

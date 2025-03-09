@@ -87,7 +87,7 @@ class LVDT:
         m_v, co_v = np.polyfit(res[0], ((res[3] - res[1]) / inn_vol) * 70.02, 1)
         print('voltage normalised slope of the response [V/mmV] with gain 70.02 : ', m_v)
 
-        plt.plot(res[0], inn_exe*(res[3]-res[1]), 'o--')
+        plt.plot(res[0], (res[3]-res[1])/inn_exe, '.--')
         plt.xlabel('Inner coil distance [mm]')
         plt.ylabel('Response [V/A]')
         plt.title('Outer coil response')

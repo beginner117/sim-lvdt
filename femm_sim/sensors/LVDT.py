@@ -21,7 +21,12 @@ class Analysis:
         self.materials = materials
         self.input_excitation = input_excitation
     def simulate(self):
-        femm.openfemm()   # The package must be initialized with the openfemm command.
+        with open('paths.txt', 'r') as file:
+            path1 = file.read()
+        try:
+            femm.openfemm()   # The package must be initialized with the openfemm command.
+        except:
+            femm.openfemm(femmpath = path1)
         femm.newdocument(0)   # We need to create a new Magnetostatics document to work on.
         value = feed.data
         in_pa = feed.Input()
@@ -41,8 +46,8 @@ class Analysis:
                             'OC_height': self.des_dim['outer'][0], 'OC_radius': self.des_dim['outer'][1], 'OC_layers': self.des_dim['outer'][2], 'OC_distance': self.des_dim['outer'][3],
                                             'mag_len': self.des_dim['magnet'][0], 'mag_dia': self.des_dim['magnet'][1], 'ver_shi': 0}
             except:
-                input_par2 = {'IC_height': self.parameter1[0], 'IC_radius': self.parameter1[1], 'IC_layers': 6, 'IC_distance': 0, 'OC_height': 13.5, 'OC_radius': 20, 'OC_layers': 5,
-                             'OC_distance': 28.5, 'mag_len': 40, 'mag_dia': 10, 'ver_shi': 0}
+                input_par2 = {'IC_height': self.parameter1[0], 'IC_radius': self.parameter1[1], 'IC_layers': 6, 'IC_distance': 0, 'OC_height': self.parameter1[2], 'OC_radius': self.parameter1[3], 'OC_layers': 7,
+                             'OC_distance': self.parameter1[4], 'mag_len': self.parameter1[5], 'mag_dia': self.parameter1[6], 'ver_shi': 0}
             geo = design.Geometry(input_par2['IC_height'], input_par2['IC_radius'], input_par2['IC_layers'], input_par2['IC_distance'], input_par2['OC_height'], input_par2['OC_radius'],
                                   input_par2['OC_layers'], input_par2['OC_distance'], input_par2['mag_len'], input_par2['mag_dia'], input_par2['ver_shi'])
         position = coil.Position(inn_ht=geo.inncoil()[0], inn_rad=geo.inncoil()[1], inn_layers=geo.inncoil()[2], inn_dist=geo.inncoil()[3], out_ht=geo.outcoil()[0], out_rad=geo.outcoil()[1], out_layers=geo.outcoil()[2], out_dist=geo.outcoil()[3],
@@ -74,7 +79,7 @@ class Analysis:
 
         if geo.mag()[0]>1:
             magnetstr = femm_model.Femm_magnet(x1=0, y1=position.magnet()[0], x2=position.magnet()[2], y2=position.magnet()[1], material=wire.mag_mat(), edit_mode=4, group=2, label1=0.5, label2=geo.mag()[0])
-        bc = femm_model.Femm_bc(AirSpaceRadius_1=100, AirSpaceRadius_2=300, BC_Name='Outside', BC_Group=10, material='Air')
+        bc = femm_model.Femm_bc(AirSpaceRadius_1=150, AirSpaceRadius_2=300, BC_Name='Outside', BC_Group=10, material='Air')
 
         res = coil.Coil_prop(pre_simulation.parameters()[0])
         inn_prop = res.gen_coil()

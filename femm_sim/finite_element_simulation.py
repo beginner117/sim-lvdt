@@ -2,10 +2,18 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 from PIL import Image, ImageTk
 from simulation import femm_simulation
+
+# Set DPI awareness for high-DPI screens
+try:
+    from ctypes import windll
+    windll.shcore.SetProcessDpiAwareness(1)  # Windows DPI awareness
+except Exception as e:
+    print(f"DPI awareness setting failed: {e}")
+
 class DynamicSimulationGUI:
     def __init__(self, master):
         self.master = master
-        self.master.title("Finite Element Simulation of LVDTs, VC actuators")
+        self.master.title("Finite Element Simulation of LVDTs and VC actuators")
 
         # Create the main layout frame for data entry and image in a horizontal bar
         self.main_frame = tk.Frame(self.master)
@@ -14,6 +22,11 @@ class DynamicSimulationGUI:
         # Placeholder for image on the top right
         self.image_frame = tk.Frame(self.main_frame)
         self.image_frame.grid(row=0, column=1, padx=20, pady=10)
+
+        # Ensure the image frame resizes appropriately
+        self.image_frame.grid_propagate(True)
+        self.image_frame.columnconfigure(0, weight=1)
+        self.image_frame.rowconfigure(0, weight=1)
 
         # Load and display the default image
         self.image_path = "lvdt2.png"
@@ -108,7 +121,12 @@ class DynamicSimulationGUI:
         """Loads the image based on the image path"""
         try:
             image = Image.open(self.image_path)
-            image = image.resize((200, 200), Image.ANTIALIAS)  # Resize the image to fit
+            # Dynamically resize based on the image frame's dimensions
+            frame_width = self.image_frame.winfo_width() or 200; frame_height = self.image_frame.winfo_height() or 200
+            try:
+                image = image.resize((frame_width, frame_height), Image.ANTIALIAS)  # Resize the image to fit
+            except:
+                image = image.resize((frame_width, frame_height), Image.Resampling.LANCZOS)  # Resize the image to fit
             self.img = ImageTk.PhotoImage(image)
             self.image_label = tk.Label(self.image_frame, image=self.img)
             self.image_label.grid(row=0, column=0, padx=10, pady=10)

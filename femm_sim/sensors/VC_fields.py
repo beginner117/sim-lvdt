@@ -19,8 +19,12 @@ class Analysis:
         self.des_dim = coil_dimensions
         self.input_excitation = input_excitation
     def simulate(self):
-        print(self.parameter1)
-        femm.openfemm()  # The package must be initialized with the openfemm command.
+        with open('paths.txt', 'r') as file:
+            path1 = file.read()
+        try:
+            femm.openfemm()  # The package must be initialized with the openfemm command.
+        except:
+            femm.openfemm(femmpath=path1)
         femm.newdocument(0)  # We need to create a new Magnetostatics document to work on.
         value = feed.data
         pre_simulation = design.Simulation(Nsteps=self.sim_range[0], stepsize=self.sim_range[1], inncoil_offset=self.sim_range[2], data_file=self.filename)
@@ -209,12 +213,13 @@ class Analysis:
         plt.grid()
         plt.show()
 
-        plt.plot(np.real(inn_prop['position']), abs(mag_prop['Magnet_forces']), 'o-', label = 'femm')
-        plt.plot(np.real(inn_prop['position']), for_def,'o-', label = 'semi-analytical')
+        plt.plot(np.real(inn_prop['position']), abs(mag_prop['Magnet_forces']), 'o-', label = 'FEMM')
+        plt.plot(np.real(inn_prop['position']), for_def,'*-', label = 'analytical')
         #plt.plot(np.real(inn_prop['position']), for_theo, 'o-', label='analytical')
         plt.ylabel('Force [N]')
-        plt.xlabel('Inner Coil Position [mm]')
-        plt.legend()
+        plt.xlabel('Position of the inner coil relative to the puter coil [mm]')
+        plt.legend(title = 'simulation \n type')
+        plt.title('Actuation force with 1A DC excitation')
         plt.grid()
         plt.show()
 

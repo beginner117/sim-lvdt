@@ -70,6 +70,7 @@ class Analysis:
         Z_out = np.sqrt(R_out ** 2 + X_out ** 2)
 
         Z_b_Tina = 2743.9 - 2501.6j  # with 10kohm: 2743.9 - 2501.6j, without 10Kohm: 2299.50 - 4221.47j
+        #Z_b_Tina = 0+50j
         npoints = 100000
         rng = np.random.default_rng(12345)
         Z_b_real = Z_b_Tina.real * np.ones(npoints)  # Re[Z] from board
